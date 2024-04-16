@@ -1,0 +1,83 @@
+
+:host {
+	display: block;
+	contain: content;
+}
+::slotted(*) {
+	display: block;
+	z-index: 9;
+}
+
+.ad-container {
+	position: relative;
+}
+.ad-label {
+	display: block;
+	font-size: 9px;
+	font-weight: 400;
+	letter-spacing: 0.2em;
+	margin-bottom: 4px;
+	line-height: 1;
+	position: relative;
+	text-align: center;
+	text-transform: uppercase;
+	color: #999999;
+}
+.ad-label + .ad-loader {
+	top: 13px;
+	height: calc(100% - 13px);
+}
+.ad-loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #eee;
+	background-image: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0),
+		rgba(255, 255, 255, 0.5),
+		rgba(255, 255, 255, 0)
+	);
+	background-size: 40px 100%;
+	background-repeat: no-repeat;
+	background-position: left -40px top 0;
+	animation: dreams-skeleton 2s ease infinite;
+	z-index: 2;
+}
+.ad-serving {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    padding-block: 1rem;
+    margin-block: 1rem;
+}
+.ad-serving::before {
+	content: "[AD]";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #ccc;
+	z-index: 1;
+}
+.ad-serving > div {
+	position: sticky;
+	z-index: 2;
+	top: 0;
+}
+
+
+
+@keyframes ad-skeleton {
+	to {
+		background-position: right -40px top 0;
+	}
+}
