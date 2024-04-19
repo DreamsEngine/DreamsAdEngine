@@ -43,6 +43,15 @@ export class DreamsAdComponent extends LitElement {
 	}
 
 	firstUpdated() {
+		if (typeof this.mapping === "string") {
+			this.mapping = JSON.parse(this.mapping);
+		}
+		if (typeof this.sizing === "string") {
+			this.sizing = JSON.parse(this.sizing);
+		}
+		if (typeof this.minHeight === "string") {
+			this.minHeight = parseInt(this.minHeight);
+		}
 		this.#renderSlot();
 	}
 
