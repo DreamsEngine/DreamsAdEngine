@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsengine-or/dreams-ad-engine",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"type": "module",
 	"main": "./dist/dreams-ad-engine.js",
 	"module": "./dist/dreams-ad-engine.js",
@@ -27,5 +27,6 @@
 		"commitizen": {
 			"path": "./node_modules/cz-conventional-changelog"
 		}
-	}
+	},
+	"readme": "./README.md"
 }
