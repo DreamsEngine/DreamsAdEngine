@@ -5,6 +5,7 @@ export interface Googletag {
     display: (divId: string) => void;
     enableServices: () => void;
     sizeMapping: () => SizeMappingArray;
+    destroySlots: (slots?: Slot[]) => void;
 }
 interface SizeMappingArray {
     addSize(viewportSize: [number, number], slotSize: [number, number][]): SizeMappingArray;

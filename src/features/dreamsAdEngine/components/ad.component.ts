@@ -10,6 +10,7 @@ export class DreamsAdComponent extends LitElement {
 	static styles = style(adCss);
 
 	static initialized = false;
+	static old_url = "";
 	@property({ type: String }) networkId = "";
 	@property({ type: String }) adUnit = "";
 	@property({ type: String }) divId = `div-gpt-ad-${
@@ -28,6 +29,15 @@ export class DreamsAdComponent extends LitElement {
 		if (!DreamsAdComponent.initialized) {
 			this.#initGoogleTag();
 			DreamsAdComponent.initialized = true;
+			DreamsAdComponent.old_url = location.href;
+		} else {
+			const current_url = location.href;
+			if (DreamsAdComponent.old_url !== current_url) {
+				window.googletag.destroySlots(window.dreamsAllSlots);
+				DreamsAdComponent.old_url = current_url;
+				window.dreamsAllSlots = [];
+				window.dreamsSlotsToUpdate = [];
+			}
 		}
 	}
 
@@ -36,7 +46,7 @@ export class DreamsAdComponent extends LitElement {
 		window.googletag.cmd.push(() => {
 			window.dreamsAllSlots = window.dreamsAllSlots || [];
 			window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
-			window.googletag.pubads().disableInitialLoad();
+			// window.googletag.pubads().disableInitialLoad();
 			window.googletag.pubads().enableSingleRequest();
 			window.googletag.enableServices();
 		});
@@ -93,7 +103,7 @@ export class DreamsAdComponent extends LitElement {
 			}
 			window.dreamsAllSlots.push(DEFINED_AD_SLOT);
 			window.googletag.display(CONTAINER_ID);
-			window.googletag.pubads().refresh([defineAdSlot]);
+			// window.googletag.pubads().refresh([defineAdSlot]);
 		});
 	}
 

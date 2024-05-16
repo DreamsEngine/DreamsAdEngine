@@ -1,6 +1,6 @@
 {
-	"name": "@dreamsengine-or/dreams-ad-engine",
-	"version": "0.0.4",
+	"name": "@dreamsengine/dreams-ad-engine",
+	"version": "0.0.5",
 	"type": "module",
 	"main": "./dist/dreams-ad-engine.js",
 	"module": "./dist/dreams-ad-engine.js",

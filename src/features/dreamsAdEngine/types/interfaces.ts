@@ -9,6 +9,7 @@ export interface Googletag {
 	display: (divId: string) => void;
 	enableServices: () => void;
 	sizeMapping: () => SizeMappingArray;
+	destroySlots: (slots?: Slot[]) => void;
 }
 
 interface SizeMappingArray {

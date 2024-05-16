@@ -5,6 +5,7 @@ export declare class DreamsAdComponent extends LitElement {
     #private;
     static styles: import("lit").CSSResult;
     static initialized: boolean;
+    static old_url: string;
     networkId: string;
     adUnit: string;
     divId: string;
