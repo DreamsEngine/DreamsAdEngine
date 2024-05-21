@@ -3,7 +3,7 @@
 ## NPM
 
 ```
-npm install --save @dreamsengine-or/dreams-ad-engine
+npm install --save @dreamsengine/dreams-ad-engine
 ```
 
 ### Script
@@ -62,7 +62,7 @@ Use the library in
 
 ```
 'use client'
-import "@dreamsengine-or/dreams-ad-engine/dist/dreams-ad-engine"
+import "@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine"
 
 const AdTestComponent = () => {
 	return(
@@ -109,7 +109,7 @@ declare namespace JSX {
 ### React
 
 ```
-import "@dreamsengine-or/dreams-ad-engine/dist/dreams-ad-engine";
+import "@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine";
 
 function App() {
 	return (
@@ -168,7 +168,7 @@ export default component$(() => {
 		$(() => {
 			(async () => {
 				await import(
-					"@dreamsengine-or/dreams-ad-engine/dist/dreams-ad-engine"
+					"@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine"
 				);
 			})();
 		})
@@ -180,7 +180,7 @@ export default component$(() => {
 If you use Typescript in the folder src create the file "dreams-ad-engine.d.ts" and add the this code.
 
 ```
-declare module "@dreamsengine-or/dreams-ad-engine/dist/dreams-ad-engine" {
+declare module "@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine" {
 	const AdComponent: any; // Adjust the type if you know the actual type
 	export default AdComponent;
 }
