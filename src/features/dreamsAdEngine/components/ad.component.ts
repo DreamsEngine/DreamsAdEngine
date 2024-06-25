@@ -13,9 +13,7 @@ export class DreamsAdComponent extends LitElement {
 	static old_url = "";
 	@property({ type: String }) networkId = "";
 	@property({ type: String }) adUnit = "";
-	@property({ type: String }) divId = `div-gpt-ad-${
-		this.adUnit
-	}-${crypto.randomUUID()}`;
+	@property({ type: String }) divId = "";
 	@property({ type: Array }) mapping = [];
 	@property({ type: Array }) sizing = [];
 	@property({ type: Boolean, reflect: true }) refresh = false;
@@ -53,6 +51,7 @@ export class DreamsAdComponent extends LitElement {
 	}
 
 	firstUpdated() {
+		this.divId = `div-gpt-ad-${this.adUnit}-${crypto.randomUUID()}`;
 		if (typeof this.mapping === "string") {
 			this.mapping = JSON.parse(this.mapping);
 		}

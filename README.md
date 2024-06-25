@@ -74,6 +74,8 @@ const AdTestComponent = () => {
 		></dreams-ad-engine>
 	);
 };
+
+export default AdTestComponent;
 ```
 
 Use the component disabling SSR
