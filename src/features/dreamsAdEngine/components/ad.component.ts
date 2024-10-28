@@ -19,7 +19,6 @@ export class DreamsAdComponent extends LitElement {
 	@property({ type: Boolean, reflect: true }) refresh = false;
 	@property({ type: Boolean, reflect: true }) enableTitle = false;
 	@property({ type: String }) title = "Publicidad";
-	@property({ type: Number }) minHeight = 100;
 	@property({ type: Boolean }) adLoaded = false;
 
 	connectedCallback() {
@@ -57,9 +56,6 @@ export class DreamsAdComponent extends LitElement {
 		}
 		if (typeof this.sizing === "string") {
 			this.sizing = JSON.parse(this.sizing);
-		}
-		if (typeof this.minHeight === "string") {
-			this.minHeight = parseInt(this.minHeight);
 		}
 		this.#renderSlot();
 	}
@@ -128,7 +124,6 @@ export class DreamsAdComponent extends LitElement {
 					data-post-id="${this.divId}"
 					data-tag="${this.adUnit}"
 					data-refresh="${this.refresh ? "true" : "false"}"
-					style="min-height: ${this.minHeight}px"
 				>
 					<slot name="ad-slot"></slot>
 				</div>

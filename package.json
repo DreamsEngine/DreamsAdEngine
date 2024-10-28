@@ -1,13 +1,14 @@
 {
 	"name": "@dreamsengine/dreams-ad-engine",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"type": "module",
 	"license": "GPL-3.0",
 	"main": "./dist/dreams-ad-engine.js",
 	"module": "./dist/dreams-ad-engine.js",
 	"description": "A component to render Google Ads",
 	"files": [
-		"dist"
+		"dist",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"dev": "vite",

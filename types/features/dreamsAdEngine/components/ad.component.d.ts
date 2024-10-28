@@ -14,7 +14,6 @@ export declare class DreamsAdComponent extends LitElement {
     refresh: boolean;
     enableTitle: boolean;
     title: string;
-    minHeight: number;
     adLoaded: boolean;
     connectedCallback(): void;
     firstUpdated(): void;

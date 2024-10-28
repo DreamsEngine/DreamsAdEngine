@@ -32,7 +32,6 @@ Add the script of gpt in the template head of html
 	refresh
 	enableTitle
 	title="Anuncio"
-	minHeight="250"
 ></dreams-ad-engine>
 ```
 
@@ -47,12 +46,10 @@ Add the script of gpt in the template head of html
 | refresh     | Boolean | No       | false      |
 | enableTitle | Boolean | No       | false      |
 | title       | String  | No       | Publicidad |
-| minHeight   | Number  | No       | 100        |
 
 -   refresh: If you use this param the ad will be available to refresh it
 -   enableTitle: If you use this param one title appears above of the ad
 -   title: If you use this param overwrite "Publicidad"
--   minHeight: If you use this param the height will be established on the container of ad
 
 ## Examples
 
@@ -186,4 +183,34 @@ declare module "@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine" {
 	const AdComponent: any; // Adjust the type if you know the actual type
 	export default AdComponent;
 }
+```
+
+### Nuxt
+
+Create a file Ad.vue
+
+```
+<script setup>
+import "@dreamsengine/dreams-ad-engine/dist/dreams-ad-engine";
+</script>
+
+<template>
+	<dreams-ad-engine
+		networkId="xxxxx"
+		adUnit="xxx-xx-x-xx"
+		mapping='[{"viewport":[320,0],"sizing":[[320,50],[320,100]]},{"viewport":[720,0],"sizing":[[728,90]]},{"viewport":[970,0],"sizing":[[920,250],[970,90],[728,90]]},{"viewport":[1280,0],"sizing":[[920,250],[970,250],[970,90],[728,90]]}]'
+		sizing="[[320,50],[320,100],[728,90],[970,90],[920,250],[970,250]]"
+	/>
+</template>
+
+```
+
+Use this file in between the "ClientOnly"
+
+```
+...
+<ClientOnly>
+	<Ad/>
+</ClientOnly>
+...
 ```
