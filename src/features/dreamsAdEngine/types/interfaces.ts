@@ -43,5 +43,6 @@ declare global {
 		googletag: Googletag;
 		dreamsSlotsToUpdate: Slot[];
 		dreamsAllSlots: Slot[];
+		apstag: any;
 	}
 }

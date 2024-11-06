@@ -21,6 +21,19 @@ Add the script of gpt in the template head of html
 </html>
 ```
 
+Add the script of apstag in the template head of html if you use it.
+
+```
+<html>
+	<head>
+	...
+	<script async id="apstag-js" src="https://c.amazon-adsystem.com/aax2/apstag.js" defer></script>
+	...
+	</head>
+	...
+</html>
+```
+
 ## Component
 
 ```
@@ -32,6 +45,8 @@ Add the script of gpt in the template head of html
 	refresh
 	enableTitle
 	title="Anuncio"
+	apstag
+	pubId="xxx-xxxxx-xxxx-xxxx-xxx"
 ></dreams-ad-engine>
 ```
 
@@ -46,10 +61,14 @@ Add the script of gpt in the template head of html
 | refresh     | Boolean | No       | false      |
 | enableTitle | Boolean | No       | false      |
 | title       | String  | No       | Publicidad |
+| apstag      | Boolean | No       | false      |
+| pubId       | String  | No       | -          |
 
 -   refresh: If you use this param the ad will be available to refresh it
 -   enableTitle: If you use this param one title appears above of the ad
 -   title: If you use this param overwrite "Publicidad"
+-   apstag: If you use the apstag of amazon
+-   pubId: pubID of Amazon
 
 ## Examples
 

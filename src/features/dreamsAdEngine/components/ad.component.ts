@@ -18,6 +18,9 @@ export class DreamsAdComponent extends LitElement {
 	@property({ type: Array }) sizing = [];
 	@property({ type: Boolean, reflect: true }) refresh = false;
 	@property({ type: Boolean, reflect: true }) enableTitle = false;
+	@property({ type: Boolean, reflect: true }) apstag = false;
+	@property({ type: String }) pubId = "";
+	@property({ type: Number }) bidTimeout = 2e3;
 	@property({ type: String }) title = "Publicidad";
 	@property({ type: Boolean }) adLoaded = false;
 
@@ -47,6 +50,13 @@ export class DreamsAdComponent extends LitElement {
 			window.googletag.pubads().enableSingleRequest();
 			window.googletag.enableServices();
 		});
+		if (this.apstag && this.pubId) {
+			window.apstag.init({
+				pubID: this.pubId,
+				adServer: "googletag",
+				bidTimeout: this.bidTimeout,
+			});
+		}
 	}
 
 	firstUpdated() {
@@ -99,6 +109,22 @@ export class DreamsAdComponent extends LitElement {
 			window.dreamsAllSlots.push(DEFINED_AD_SLOT);
 			window.googletag.display(CONTAINER_ID);
 			// window.googletag.pubads().refresh([defineAdSlot]);
+			if (this.apstag && this.pubId) {
+				window.apstag.fetchBids({
+					slots: [
+						{
+							slotID: CONTAINER_ID,
+							slotName: SLOT,
+							sizes: this.sizing
+						}
+					]
+				}, () => {
+					window.googletag.cmd.push(() => {
+						window.apstag.setDisplayBids();
+						window.googletag.pubads().refresh();
+					});
+				});
+			}
 		});
 	}
 
@@ -106,19 +132,19 @@ export class DreamsAdComponent extends LitElement {
 		return html`
 			<div class="ad-container">
 				${when(
-					this.enableTitle,
-					() => html`<span class="ad-label">${this.title}</span>`,
-					() => html``
-				)}
+			this.enableTitle,
+			() => html`<span class="ad-label">${this.title}</span>`,
+			() => html``
+		)}
 				${when(
-					!this.adLoaded,
-					() =>
-						html`<div
+			!this.adLoaded,
+			() =>
+				html`<div
 							class="ad-loader"
 							data-ad-loader="${this.divId}"
 						></div>`,
-					() => html``
-				)}
+			() => html``
+		)}
 				<div
 					class="ad-serving"
 					data-post-id="${this.divId}"

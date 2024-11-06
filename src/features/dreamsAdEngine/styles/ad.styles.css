@@ -1,6 +1,7 @@
 :host {
 	display: var(--dae-display, block);
 	contain: var(--dae-contain, content);
+	min-height: var(--dae-min-heigh, 100px);
 }
 ::slotted(*) {
 	display: var(--dae-slotted-display, block);

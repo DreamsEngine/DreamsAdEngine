@@ -13,6 +13,9 @@ export declare class DreamsAdComponent extends LitElement {
     sizing: never[];
     refresh: boolean;
     enableTitle: boolean;
+    apstag: boolean;
+    pubId: string;
+    bidTimeout: number;
     title: string;
     adLoaded: boolean;
     connectedCallback(): void;
