@@ -63,12 +63,14 @@ Add the script of apstag in the template head of html if you use it.
 | title       | String  | No       | Publicidad |
 | apstag      | Boolean | No       | false      |
 | pubId       | String  | No       | -          |
+| bidTimeout  | Number  | No       | 2e3        |
 
 -   refresh: If you use this param the ad will be available to refresh it
 -   enableTitle: If you use this param one title appears above of the ad
 -   title: If you use this param overwrite "Publicidad"
 -   apstag: If you use the apstag of amazon
 -   pubId: pubID of Amazon
+-   bidTimeout: Timeout of to init apstag, this value can be in milliseconds or in expression example "2e3"
 
 ## Examples
 
