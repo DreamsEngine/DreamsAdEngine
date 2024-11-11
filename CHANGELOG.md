@@ -29,3 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Fixed refresh in slot when apstag is used
+
+## [0.1.3] - 2024-11-11
+
+### Fixed
+
+-   Fixed interstitial display
