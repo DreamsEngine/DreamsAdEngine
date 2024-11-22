@@ -108,7 +108,9 @@ export class DreamsAdComponent extends LitElement {
 			}
 			window.dreamsAllSlots.push(DEFINED_AD_SLOT);
 			// window.googletag.pubads().disableInitialLoad();
-			window.googletag.display(CONTAINER_ID);
+			if (!this.apstag && !this.pubId) {
+				window.googletag.display(CONTAINER_ID);
+			}
 			if (this.apstag && this.pubId) {
 				window.apstag.fetchBids({
 					slots: [
