@@ -46,7 +46,6 @@ export class DreamsAdComponent extends LitElement {
 		window.googletag.cmd.push(() => {
 			window.dreamsAllSlots = window.dreamsAllSlots || [];
 			window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
-			// window.googletag.pubads().disableInitialLoad();
 			window.googletag.pubads().enableSingleRequest();
 			window.googletag.enableServices();
 		});
@@ -107,7 +106,6 @@ export class DreamsAdComponent extends LitElement {
 				window.dreamsSlotsToUpdate.push(defineAdSlot);
 			}
 			window.dreamsAllSlots.push(DEFINED_AD_SLOT);
-			// window.googletag.pubads().disableInitialLoad();
 			if (!this.apstag && !this.pubId) {
 				window.googletag.display(CONTAINER_ID);
 			}

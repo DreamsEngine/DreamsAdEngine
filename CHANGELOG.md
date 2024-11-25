@@ -35,3 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Fixed interstitial display
+
+## [0.1.3] - 2024-11-25
+
+### Fixed
+
+-   Fixed initialization of apsgtag
