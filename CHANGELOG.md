@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Fixed interstitial display
 
-## [0.1.3] - 2024-11-25
+## [0.1.5] - 2024-11-25
 
 ### Fixed
 

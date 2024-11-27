@@ -1,92 +1,47 @@
-:host {
-	display: var(--dae-display, block);
-	contain: var(--dae-contain, content);
-	min-height: var(--dae-min-heigh, 100px);
-}
-::slotted(*) {
-	display: var(--dae-slotted-display, block);
-	z-index: var(--dae-slotted-z-index, 9);
-}
-
-.ad-serving-rendered {
-	position: var(--dae-ad-serving-rendered-position, sticky);
-	z-index: var(--dae-ad-serving-rendered-z-index, 2);
-	top: var(--dae-ad-serving-rendered-top, 1rem);
-}
-
 .ad-container {
-	position: var(--dae-ad-container-position, relative);
-}
-.pinno-ad-container {
-	position: var(--dae-pinno-ad-container-position, relative);
-}
-.ad-label {
-	display: var(--dae-ad-label-display, block);
-	font-size: var(--dae-ad-label-font-size, 9px);
-	font-weight: var(--dae-ad-label-font-weight, 400);
-	letter-spacing: var(--dae-ad-label-letter-spacing, 0.2em);
-	margin-bottom: var(--dae-ad-label-margin-bottom, 4px);
-	line-height: var(--dae-ad-label-line-height, 1);
-	position: var(--dae-ad-label-position, relative);
-	text-align: var(--dae-ad-label-text-align, center);
-	text-transform: var(--dae-ad-label-text-transform, uppercase);
-	color: var(--dae-ad-label-color, #999999);
-}
-.ad-label + .ad-loader {
-	top: var(--dae-ad-loader-top, 13px);
-	height: var(--dae-ad-loader-height, calc(100% - 13px));
-}
-.ad-loader {
-	position: var(--dae-ad-loader-position, absolute);
-	top: var(--dae-ad-loader-top, 0);
-	left: var(--dae-ad-loader-left, 0);
-	width: var(--dae-ad-loader-width, 100%);
-	height: var(--dae-ad-loader-height, 100%);
-	background-color: var(--dae-ad-loader-background-color, #eee);
-	background-image: var(
-		--dae-ad-loader-background-image,
-		linear-gradient(
-			90deg,
-			rgba(255, 255, 255, 0),
-			rgba(255, 255, 255, 0.5),
-			rgba(255, 255, 255, 0)
-		)
-	);
-	background-size: var(--dae-ad-loader-background-size, 40px 100%);
-	background-repeat: var(--dae-ad-loader-background-repeat, no-repeat);
-	background-position: var(
-		--dae-ad-loader-background-position,
-		left -40px top 0
-	);
-	animation: var(--dae-ad-loader-animation, ad-skeleton 2s ease infinite);
-	z-index: var(--dae-ad-loader-z-index, 2);
-}
-.ad-serving {
-	position: var(--dae-ad-serving-position, relative);
-	display: var(--dae-ad-serving-display, flex);
-	flex-wrap: var(--dae-ad-serving-flex-wrap, wrap);
-	align-items: var(--dae-ad-serving-align-items, flex-start);
-	justify-content: var(--dae-ad-serving-justify-content, center);
-	padding-block: var(--dae-ad-serving-padding-block, 1rem);
-	margin-block: var(--dae-ad-serving-margin-block, 1rem);
-	min-height: var(--dae-ad-serving-min-height, 100px);
-}
-.ad-serving::before {
-	content: var(--dae-ad-serving-before-content, "[AD]");
-	position: var(--dae-ad-serving-before-position, absolute);
-	top: var(--dae-ad-serving-before-top, 0);
-	left: var(--dae-ad-serving-before-left, 0);
-	width: var(--dae-ad-serving-before-width, 100%);
-	height: var(--dae-ad-serving-before-height, 100%);
-	display: var(--dae-ad-serving-before-display, flex);
-	align-items: var(--dae-ad-serving-before-align-items, center);
-	justify-content: var(--dae-ad-serving-before-justify-content, center);
-	color: var(--dae-ad-serving-before-color, #ccc);
-	z-index: var(--dae-ad-serving-before-z-index, 1);
+	position: relative;
+	width: 100%;
+	min-height: 90px;
+	margin: 1rem 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
-@keyframes ad-skeleton {
-	to {
-		background-position: right -40px top 0;
+.ad-label {
+	position: absolute;
+	top: -20px;
+	left: 0;
+	font-size: 0.75rem;
+	color: #666;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ad-loader {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 24px;
+	border: 2px solid #f3f3f3;
+	border-top: 2px solid #3498db;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.ad-serving {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
 	}
 }
