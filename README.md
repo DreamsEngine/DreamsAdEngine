@@ -42,11 +42,16 @@ Add the script of apstag in the template head of html if you use it.
 	adUnit="xxx-xx-x-xx"
 	mapping='[{"viewport":[320,0],"sizing":[[320,50],[320,100]]},{"viewport":[720,0],"sizing":[[728,90]]},{"viewport":[970,0],"sizing":[[920,250],[970,90],[728,90]]},{"viewport":[1280,0],"sizing":[[920,250],[970,250],[970,90],[728,90]]}]'
 	sizing="[[320,50],[320,100],[728,90],[970,90],[920,250],[970,250]]"
+	targeting='[{"key":"kev1","value": "value1"},{"key":"key2","value":"value2"}...]'
+	setCentering
+	enableLazyLoad
+	configLazyLoad='{"fetchMarginPercent":500,"renderMarginPercent":200,"mobileScaling":2.0}'
 	refresh
 	enableTitle
 	title="Anuncio"
 	apstag
 	pubId="xxx-xxxxx-xxxx-xxxx-xxx"
+	bidTimeout="2e3"
 ></dreams-ad-engine>
 ```
 
@@ -69,15 +74,16 @@ Add the script of apstag in the template head of html if you use it.
 | pubId          | String  | No       | -                                                                                  |
 | bidTimeout     | Number  | No       | 2e3                                                                                |
 
+-   targeting: Array of objects with key and value for targeting
+-   setCentering: Enables and disables horizontal centering of ads, only ads that are requested after calling this method will be centered
+-   enableLazyLoad: Enables lazy loading in GPT as defined by the config object.
+-   configLazyLoad: Config object of LazyLoad
 -   refresh: If you use this param the ad will be available to refresh it
 -   enableTitle: If you use this param one title appears above of the ad
 -   title: If you use this param overwrite "Publicidad"
 -   apstag: If you use the apstag of amazon
 -   pubId: pubID of Amazon
 -   bidTimeout: Timeout of to init apstag, this value can be in milliseconds or in expression example "2e3"
--   setCentering: Enables and disables horizontal centering of ads, only ads that are requested after calling this method will be centered
--   enableLazyLoad: Enables lazy loading in GPT as defined by the config object.
--   configLazyLoad: Config object of LazyLoad
 
 ## Examples
 
