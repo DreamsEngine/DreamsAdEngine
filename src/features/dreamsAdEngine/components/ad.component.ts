@@ -4,6 +4,7 @@ import { when } from "lit/directives/when.js";
 import type { TemplateResult } from "lit/html.js";
 import "../types/interfaces";
 import adCss from "../styles/ad.styles.css?raw";
+import { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
 
 @customElement("dreams-ad-engine")
 export class DreamsAdComponent extends LitElement {
@@ -11,11 +12,20 @@ export class DreamsAdComponent extends LitElement {
 
 	static initialized = false;
 	static old_url = "";
+	static initialized_aps = false;
 	@property({ type: String }) networkId = "";
 	@property({ type: String }) adUnit = "";
 	@property({ type: String }) divId = "";
 	@property({ type: Array }) mapping = [];
 	@property({ type: Array }) sizing = [];
+	@property({ type: Array }) targeting = [];
+	@property({ type: Boolean, reflect: true }) setCentering = false;
+	@property({ type: Boolean, reflect: true }) enableLazyLoad = false;
+	@property({ type: Object }) configLazyLoad = {
+		fetchMarginPercent: 500,
+		renderMarginPercent: 200,
+		mobileScaling: 2.0,
+	};
 	@property({ type: Boolean, reflect: true }) refresh = false;
 	@property({ type: Boolean, reflect: true }) enableTitle = false;
 	@property({ type: Boolean, reflect: true }) apstag = false;
@@ -49,13 +59,6 @@ export class DreamsAdComponent extends LitElement {
 			window.googletag.pubads().enableSingleRequest();
 			window.googletag.enableServices();
 		});
-		if (this.apstag && this.pubId) {
-			window.apstag.init({
-				pubID: this.pubId,
-				adServer: "googletag",
-				bidTimeout: this.bidTimeout,
-			});
-		}
 	}
 
 	firstUpdated() {
@@ -65,6 +68,20 @@ export class DreamsAdComponent extends LitElement {
 		}
 		if (typeof this.sizing === "string") {
 			this.sizing = JSON.parse(this.sizing);
+		}
+		if (this.targeting && typeof this.targeting === "string") {
+			this.targeting = JSON.parse(this.targeting);
+		}
+		if (this.configLazyLoad && typeof this.configLazyLoad === "string") {
+			this.configLazyLoad = JSON.parse(this.configLazyLoad);
+		}
+		if (this.apstag && this.pubId && !DreamsAdComponent.initialized_aps) {
+			window.apstag.init({
+				pubID: this.pubId,
+				adServer: "googletag",
+				bidTimeout: this.bidTimeout,
+			});
+			DreamsAdComponent.initialized_aps = true;
 		}
 		this.#renderSlot();
 	}
@@ -83,9 +100,16 @@ export class DreamsAdComponent extends LitElement {
 		}
 
 		window.googletag.cmd.push(() => {
+			window.googletag.pubads().setCentering(this.setCentering);
+			if (this.enableLazyLoad) {
+				window.googletag.pubads().enableLazyLoad(this.configLazyLoad);
+			}
 			const defineAdSlot = window.googletag
 				.defineSlot(SLOT, this.sizing, CONTAINER_ID)
 				.addService(window.googletag.pubads());
+			this.targeting.map((target: DreamsAdTargeting) => {
+				defineAdSlot.setTargeting(target.key, target.value)
+			});
 			window.googletag
 				.pubads()
 				.addEventListener("slotRenderEnded", (event: any) => {
@@ -95,7 +119,7 @@ export class DreamsAdComponent extends LitElement {
 				});
 			// * Define mapping
 			const AD_MAPPING = window.googletag.sizeMapping();
-			this.mapping.forEach((map: any) => {
+			this.mapping.forEach((map: DreamsAdMapping) => {
 				AD_MAPPING.addSize(map.viewport, map.sizing);
 			});
 			const AD_MAPPING_BUILD = AD_MAPPING.build();

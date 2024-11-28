@@ -6,11 +6,20 @@ export declare class DreamsAdComponent extends LitElement {
     static styles: import("lit").CSSResult;
     static initialized: boolean;
     static old_url: string;
+    static initialized_aps: boolean;
     networkId: string;
     adUnit: string;
     divId: string;
     mapping: never[];
     sizing: never[];
+    targeting: never[];
+    setCentering: boolean;
+    enableLazyLoad: boolean;
+    configLazyLoad: {
+        fetchMarginPercent: number;
+        renderMarginPercent: number;
+        mobileScaling: number;
+    };
     refresh: boolean;
     enableTitle: boolean;
     apstag: boolean;

@@ -36,8 +36,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Fixed interstitial display
 
-## [0.1.3] - 2024-11-25
+## [0.1.5] - 2024-11-25
 
 ### Fixed
 
 -   Fixed initialization of apsgtag
+
+## [0.1.6] - 2024-11-27
+
+### Fixed
+
+-   Multiple initialization of apstag
+
+### Added
+
+-   Property targeting for ads
+-   Property setCentering for ads
+-   Property enableLazyLoad for ads
+-   Property configLazyLoad for ads

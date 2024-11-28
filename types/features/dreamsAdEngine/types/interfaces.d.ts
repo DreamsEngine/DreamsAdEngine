@@ -7,9 +7,22 @@ export interface Googletag {
     sizeMapping: () => SizeMappingArray;
     destroySlots: (slots?: Slot[]) => void;
 }
+export interface DreamsAdMapping {
+    viewport: [number, number];
+    sizing: [number, number][];
+}
+export interface DreamsAdTargeting {
+    key: string;
+    value: string;
+}
 interface SizeMappingArray {
     addSize(viewportSize: [number, number], slotSize: [number, number][]): SizeMappingArray;
     build(): SizeMappingArray[];
+}
+interface LazyLoadObject {
+    fetchMarginPercent: number;
+    renderMarginPercent: number;
+    mobileScaling: number;
 }
 interface PubAdsService {
     disableInitialLoad: () => void;
@@ -17,6 +30,8 @@ interface PubAdsService {
     refresh: (slots?: Slot[]) => void;
     addService: (service: ServiceType) => Slot;
     addEventListener: (eventType: string, handler: (event: any) => void) => void;
+    setCentering: (centerAds: boolean) => void;
+    enableLazyLoad: (config: LazyLoadObject) => void;
 }
 interface Slot {
     setTargeting: (key: string, value: string) => Slot;

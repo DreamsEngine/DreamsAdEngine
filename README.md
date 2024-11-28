@@ -52,18 +52,22 @@ Add the script of apstag in the template head of html if you use it.
 
 ### Options
 
-| Option      | Type    | Required | Default    |
-| ----------- | ------- | -------- | ---------- |
-| networkId   | String  | Yes      | -          |
-| adUnit      | String  | Yes      | -          |
-| mapping     | Array   | Yes      | -          |
-| sizing      | Array   | Yes      | -          |
-| refresh     | Boolean | No       | false      |
-| enableTitle | Boolean | No       | false      |
-| title       | String  | No       | Publicidad |
-| apstag      | Boolean | No       | false      |
-| pubId       | String  | No       | -          |
-| bidTimeout  | Number  | No       | 2e3        |
+| Option         | Type    | Required | Default                                                                            |
+| -------------- | ------- | -------- | ---------------------------------------------------------------------------------- |
+| networkId      | String  | Yes      | -                                                                                  |
+| adUnit         | String  | Yes      | -                                                                                  |
+| mapping        | String  | Yes      | -                                                                                  |
+| sizing         | String  | Yes      | -                                                                                  |
+| targeting      | String  | No       | \'[]\'                                                                             |
+| setCentering   | Boolean | No       | false                                                                              |
+| enableLazyLoad | Boolean | No       | false                                                                              |
+| configLazyLoad | String  | No       | \'{\"fetchMarginPercent\":500,\"renderMarginPercent\":200,\"mobileScaling\":2.0}\' |
+| refresh        | Boolean | No       | false                                                                              |
+| enableTitle    | Boolean | No       | false                                                                              |
+| title          | String  | No       | Publicidad                                                                         |
+| apstag         | Boolean | No       | false                                                                              |
+| pubId          | String  | No       | -                                                                                  |
+| bidTimeout     | Number  | No       | 2e3                                                                                |
 
 -   refresh: If you use this param the ad will be available to refresh it
 -   enableTitle: If you use this param one title appears above of the ad
@@ -71,6 +75,9 @@ Add the script of apstag in the template head of html if you use it.
 -   apstag: If you use the apstag of amazon
 -   pubId: pubID of Amazon
 -   bidTimeout: Timeout of to init apstag, this value can be in milliseconds or in expression example "2e3"
+-   setCentering: Enables and disables horizontal centering of ads, only ads that are requested after calling this method will be centered
+-   enableLazyLoad: Enables lazy loading in GPT as defined by the config object.
+-   configLazyLoad: Config object of LazyLoad
 
 ## Examples
 
