@@ -1,6 +1,7 @@
 import { LitElement } from "lit";
 import type { TemplateResult } from "lit/html.js";
 import "../types/interfaces";
+import { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
 export declare class DreamsAdComponent extends LitElement {
     #private;
     static styles: import("lit").CSSResult;
@@ -10,9 +11,12 @@ export declare class DreamsAdComponent extends LitElement {
     networkId: string;
     adUnit: string;
     divId: string;
-    mapping: never[];
-    sizing: never[];
-    targeting: never[];
+    slot: string;
+    mapping: DreamsAdMapping[];
+    sizing: number[][];
+    targeting: DreamsAdTargeting[];
+    autoTargeting: boolean;
+    private resolvedTargeting;
     setCentering: boolean;
     enableLazyLoad: boolean;
     configLazyLoad: {
@@ -28,6 +32,6 @@ export declare class DreamsAdComponent extends LitElement {
     title: string;
     adLoaded: boolean;
     connectedCallback(): void;
-    firstUpdated(): void;
+    firstUpdated(): Promise<void>;
     protected render(): TemplateResult;
 }
