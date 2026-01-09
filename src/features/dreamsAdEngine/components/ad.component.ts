@@ -61,7 +61,8 @@ export class DreamsAdComponent extends LitElement {
 		window.googletag.cmd.push(() => {
 			window.dreamsAllSlots = window.dreamsAllSlots || [];
 			window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
-			window.googletag.pubads().enableSingleRequest();
+			// SRA disabled - causes timing issues with async web components
+			// Each slot will make individual requests instead
 			window.googletag.enableServices();
 		});
 	}

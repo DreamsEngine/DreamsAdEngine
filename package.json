@@ -1,13 +1,23 @@
 {
 	"name": "@dreamsengine/dreams-ad-engine",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"type": "module",
 	"license": "GPL-3.0",
 	"main": "./dist/dreams-ad-engine.js",
 	"module": "./dist/dreams-ad-engine.js",
+	"types": "./types/main.d.ts",
+	"exports": {
+		".": {
+			"types": "./types/main.d.ts",
+			"import": "./dist/dreams-ad-engine.js",
+			"default": "./dist/dreams-ad-engine.js"
+		},
+		"./dist/*": "./dist/*"
+	},
 	"description": "A component to render Google Ads",
 	"files": [
 		"dist",
+		"types",
 		"CHANGELOG.md"
 	],
 	"scripts": {
