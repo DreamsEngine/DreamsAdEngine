@@ -24,3 +24,9 @@ dist-ssr
 desktop.ini
 
 /index.html
+
+# Claude Code
+CLAUDE.md
+*.claude.md
+.claude/
+.ai/

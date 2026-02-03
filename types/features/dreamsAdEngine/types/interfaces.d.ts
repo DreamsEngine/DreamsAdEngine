@@ -1,6 +1,7 @@
 export interface Googletag {
     cmd: Array<() => void>;
     pubads: () => PubAdsService;
+    pubadsReady?: boolean;
     defineSlot: (adUnitPath: string, size: Array<number> | Array<Array<number>>, divId: string) => Slot;
     display: (divId: string) => void;
     enableServices: () => void;
@@ -27,9 +28,12 @@ interface LazyLoadObject {
 interface PubAdsService {
     disableInitialLoad: () => void;
     enableSingleRequest: () => void;
-    refresh: (slots?: Slot[]) => void;
+    refresh: (slots?: Slot[], options?: {
+        changeCorrelator?: boolean;
+    }) => void;
     addService: (service: ServiceType) => Slot;
     addEventListener: (eventType: string, handler: (event: any) => void) => void;
+    removeEventListener: (eventType: string, handler: (event: any) => void) => void;
     setCentering: (centerAds: boolean) => void;
     enableLazyLoad: (config: LazyLoadObject) => void;
 }

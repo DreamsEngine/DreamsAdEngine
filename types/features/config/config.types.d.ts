@@ -16,7 +16,9 @@ export interface AdConfigInit {
     bidTimeout?: number;
     defaultLazyLoad?: LazyLoadConfig;
     slots?: Record<string, SlotConfig>;
+    /** Set to true to allow re-initialization (overwrites existing config) */
+    force?: boolean;
 }
-export interface AdConfigData extends Required<Omit<AdConfigInit, "slots">> {
+export interface AdConfigData extends Required<Omit<AdConfigInit, "slots" | "force">> {
     slots: Record<string, SlotConfig>;
 }
