@@ -4,16 +4,28 @@ import { resolve } from "node:path";
 export default ({ mode }) => {
 	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
+	if (process.env.LIB_ENTRY && process.env.LIB_ENTRY !== "server") {
+		throw new Error(
+			`Invalid LIB_ENTRY: "${process.env.LIB_ENTRY}". Expected "server" or undefined.`,
+		);
+	}
+
+	const isServerBuild = process.env.LIB_ENTRY === "server";
+
 	return defineConfig({
 		build: {
+			emptyOutDir: !isServerBuild,
 			lib: {
-				entry: resolve(__dirname, "src/main.ts"),
-				name: "DreamsAdEngine",
-				fileName: "dreams-ad-engine",
+				entry: resolve(
+					import.meta.dirname,
+					isServerBuild ? "src/server.ts" : "src/main.ts",
+				),
+				fileName: isServerBuild
+					? "dreams-ad-engine-server"
+					: "dreams-ad-engine",
 				formats: ["es"],
 			},
 			rollupOptions: {
-				external: [],
 				output: {
 					assetFileNames: "dreams-ad-engine.[ext]",
 				},

@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsengine/dreams-ad-engine",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"type": "module",
 	"license": "GPL-3.0",
 	"main": "./dist/dreams-ad-engine.js",
@@ -8,9 +8,19 @@
 	"types": "./types/main.d.ts",
 	"exports": {
 		".": {
+			"node": {
+				"types": "./types/server.d.ts",
+				"import": "./dist/dreams-ad-engine-server.js",
+				"default": "./dist/dreams-ad-engine-server.js"
+			},
 			"types": "./types/main.d.ts",
 			"import": "./dist/dreams-ad-engine.js",
 			"default": "./dist/dreams-ad-engine.js"
+		},
+		"./server": {
+			"types": "./types/server.d.ts",
+			"import": "./dist/dreams-ad-engine-server.js",
+			"default": "./dist/dreams-ad-engine-server.js"
 		},
 		"./dist/*": "./dist/*"
 	},
@@ -22,23 +32,17 @@
 	],
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"build": "tsc && vite build && LIB_ENTRY=server vite build",
 		"format": "biome format --write ./src"
 	},
 	"dependencies": {
-		"lit": "^3.1.0"
+		"lit": "^3.3.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
-		"@rollup/plugin-replace": "^6.0.1",
-		"cz-conventional-changelog": "^3.3.0",
-		"typescript": "^5.6.3",
-		"vite": "^5.4.10"
-	},
-	"config": {
-		"commitizen": {
-			"path": "./node_modules/cz-conventional-changelog"
-		}
+		"@biomejs/biome": "^2.4.6",
+		"@rollup/plugin-replace": "^6.0.3",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1"
 	},
 	"readme": "./README.md"
 }
