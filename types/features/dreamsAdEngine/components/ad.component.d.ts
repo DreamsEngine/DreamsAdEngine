@@ -5,14 +5,18 @@ import { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
 import "../../skeleton/skeleton.component";
 export declare class DreamsAdComponent extends LitElement {
     #private;
-    static styles: import("lit").CSSResult;
+    createRenderRoot(): this;
     static initialized: boolean;
     static old_url: string;
     static initialized_aps: boolean;
     static navigationListenersAttached: boolean;
+    static outOfPageRegistered: boolean;
     private adSlot;
     private slotRenderHandler;
+    private impressionViewableHandler;
+    private slotVisibilityHandler;
     private pendingBidsTimeout;
+    private lastVisibilityPct;
     /**
      * Handle SPA navigation - destroys all slots and clears targeting cache
      */

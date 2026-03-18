@@ -10,6 +10,8 @@ export declare class RefreshManager {
     private static config;
     private static refreshTimer;
     private static running;
+    private static viewableSlots;
+    private static refreshCounts;
     /**
      * Configure the refresh manager
      */
@@ -34,6 +36,10 @@ export declare class RefreshManager {
      * Unblock refresh
      */
     static unblock(): void;
+    /**
+     * Mark a slot as viewable (called from GPT impressionViewable handler)
+     */
+    static markViewable(slotId: string): void;
     /**
      * Check if refresh is currently blocked
      */

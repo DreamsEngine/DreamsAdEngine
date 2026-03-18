@@ -4,11 +4,12 @@ import { LitElement } from "lit";
  * Displays shimmer animation while ad loads
  */
 export declare class DreamsAdSkeleton extends LitElement {
-    static styles: import("lit").CSSResult;
+    createRenderRoot(): this;
     width: number;
     height: number;
     showLabel: boolean;
     label: string;
+    connectedCallback(): void;
     render(): import("lit").TemplateResult<1>;
 }
 /**

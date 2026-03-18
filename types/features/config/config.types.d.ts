@@ -4,6 +4,20 @@ export interface LazyLoadConfig {
     renderMarginPercent: number;
     mobileScaling: number;
 }
+export interface PrivacyConfig {
+    restrictDataProcessing?: boolean;
+    childDirectedTreatment?: boolean;
+    underAgeOfConsent?: boolean;
+    trafficSource?: boolean;
+}
+export interface InterstitialConfig {
+    enabled: boolean;
+    triggers?: string[];
+}
+export interface AnchorConfig {
+    enabled: boolean;
+    position: "top" | "bottom" | "both";
+}
 export interface SlotConfig {
     mapping: DreamsAdMapping[];
     sizing: number[][];
@@ -23,6 +37,14 @@ export interface AdConfigInit {
     slots?: Record<string, SlotConfig>;
     /** Set to true to allow re-initialization (overwrites existing config) */
     force?: boolean;
+    /** GDPR/CCPA privacy settings */
+    privacy?: PrivacyConfig;
+    /** Web interstitial ad configuration */
+    interstitial?: InterstitialConfig;
+    /** Anchor ad configuration */
+    anchor?: AnchorConfig;
+    /** Enable scheduler thread yield for INP improvement */
+    threadYield?: boolean;
 }
 export interface AdConfigData {
     networkId: string;
@@ -32,4 +54,8 @@ export interface AdConfigData {
     lazyLoad: LazyLoadConfig | false;
     centering: boolean;
     slots: Record<string, SlotConfig>;
+    privacy: PrivacyConfig | null;
+    interstitial: InterstitialConfig | null;
+    anchor: AnchorConfig | null;
+    threadYield: boolean;
 }

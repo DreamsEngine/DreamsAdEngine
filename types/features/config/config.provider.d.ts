@@ -1,5 +1,5 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
-import type { AdConfigInit, LazyLoadConfig, SlotConfig } from "./config.types";
+import type { AdConfigInit, AnchorConfig, InterstitialConfig, LazyLoadConfig, PrivacyConfig, SlotConfig } from "./config.types";
 export declare class DreamsAdConfig {
     private static instance;
     private static readyResolve;
@@ -18,6 +18,11 @@ export declare class DreamsAdConfig {
     static getDefaultLazyLoad(): LazyLoadConfig;
     static getLazyLoad(): LazyLoadConfig | false;
     static getCentering(): boolean;
+    static getPrivacy(): PrivacyConfig | null;
+    static getInterstitial(): InterstitialConfig | null;
+    static getAnchor(): AnchorConfig | null;
+    static getThreadYield(): boolean;
+    static setPrivacy(config: PrivacyConfig): void;
     static getSlot(slotName: string): SlotConfig | undefined;
     static getSlotMapping(slotName: string): DreamsAdMapping[];
     static getSlotSizing(slotName: string): number[][];

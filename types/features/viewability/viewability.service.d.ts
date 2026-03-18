@@ -8,6 +8,7 @@ export declare class ViewabilityService {
     static configure(config: ViewabilityConfig): void;
     /**
      * Start tracking an ad element for viewability
+     * @deprecated Use GPT native `impressionViewable` event via `ad:viewable` CustomEvent. Will be removed in v1.0.
      */
     static track(element: HTMLElement, adId: string, position: string): void;
     /**
