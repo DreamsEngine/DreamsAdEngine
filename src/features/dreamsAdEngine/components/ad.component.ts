@@ -175,12 +175,28 @@ export class DreamsAdComponent extends LitElement {
           window.googletag.pubads().disableInitialLoad();
 
           if (DreamsAdConfig.isInitialized()) {
+            const setConfigPayload: Record<string, unknown> = {};
+
             const lazyLoad = DreamsAdConfig.getLazyLoad();
             if (lazyLoad) {
-              window.googletag.pubads().enableLazyLoad(lazyLoad);
+              setConfigPayload.lazyLoad = lazyLoad;
             }
+
+            if (DreamsAdConfig.getThreadYield()) {
+              setConfigPayload.threadYield = "ENABLED_ALL_SLOTS";
+            }
+
+            if (Object.keys(setConfigPayload).length > 0) {
+              window.googletag.setConfig(setConfigPayload);
+            }
+
             if (DreamsAdConfig.getCentering()) {
               window.googletag.pubads().setCentering(true);
+            }
+
+            const privacy = DreamsAdConfig.getPrivacy();
+            if (privacy) {
+              window.googletag.pubads().setPrivacySettings(privacy as Record<string, boolean>);
             }
           }
 
@@ -289,6 +305,32 @@ export class DreamsAdComponent extends LitElement {
     }
   }
 
+  #computeReserveHeight(): number {
+    if (!this.mapping || this.mapping.length === 0) return 2;
+
+    const vw = typeof window !== "undefined" ? window.innerWidth : 0;
+    let matchedEntry: DreamsAdMapping | null = null;
+
+    // Find the mapping entry whose viewport[0] is closest to but not exceeding window width
+    for (const entry of this.mapping) {
+      if (entry.viewport[0] <= vw) {
+        if (!matchedEntry || entry.viewport[0] > matchedEntry.viewport[0]) {
+          matchedEntry = entry;
+        }
+      }
+    }
+
+    if (!matchedEntry) return 2;
+
+    // Compute max height from matched entry's sizes, skip 1x1
+    let maxH = 0;
+    for (const [, h] of matchedEntry.sizing) {
+      if (h > 1) maxH = Math.max(maxH, h);
+    }
+
+    return maxH || 2;
+  }
+
   #renderSlot() {
     const SLOT = `/${this.networkId}/${this.adUnit}`;
     const CONTAINER_ID = this.divId;
@@ -296,7 +338,10 @@ export class DreamsAdComponent extends LitElement {
     adContainer.id = CONTAINER_ID;
     adContainer.setAttribute("data-ad", this.divId);
     adContainer.classList.add("dae-slot");
-    adContainer.style.cssText = "width:100%;min-height:2px";
+
+    // CLS reserve: compute max height from responsive mapping for current viewport
+    const reserveHeight = this.#computeReserveHeight();
+    adContainer.style.cssText = `width:100%;min-height:${reserveHeight}px`;
 
     if (!adContainer.parentElement) {
       this.appendChild(adContainer);
@@ -316,10 +361,13 @@ export class DreamsAdComponent extends LitElement {
         if (event.slot.getSlotElementId() === CONTAINER_ID) {
           this.adLoaded = true;
 
-          // Resize container to match rendered creative
-          if (!event.isEmpty) {
-            const container = this.querySelector(`#${CONTAINER_ID}`);
-            if (container instanceof HTMLElement) {
+          const container = this.querySelector(`#${CONTAINER_ID}`);
+          if (container instanceof HTMLElement) {
+            if (event.isEmpty) {
+              // Collapse reserve space when no ad fills
+              container.style.minHeight = "0";
+            } else {
+              // Resize container to match rendered creative
               const applySize = () => {
                 const iframe =
                   container.querySelector<HTMLIFrameElement>("iframe");
