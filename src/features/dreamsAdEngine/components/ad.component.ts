@@ -474,56 +474,42 @@ export class DreamsAdComponent extends LitElement {
         this.adLoaded = true;
 
         const container = this.querySelector(`#${CONTAINER_ID}`);
-        if (container instanceof HTMLElement) {
-          if (event.isEmpty) {
-            container.style.minHeight = "0";
-            const serving = this.querySelector(".dae-serving");
-            if (serving instanceof HTMLElement) serving.style.minHeight = "0";
-          } else {
-            let resized = false;
-
-            const applySize = (): boolean => {
-              const iframe =
-                container.querySelector<HTMLIFrameElement>("iframe");
-              if (!iframe) return false;
-              // CSS computed size first, then inline style, then HTML attribute
-              const w = iframe.offsetWidth || parseInt(iframe.style.width) || parseInt(iframe.width);
-              const h = iframe.offsetHeight || parseInt(iframe.style.height) || parseInt(iframe.height);
-              if (w > 1 && h > 1) {
-                container.style.minHeight = `${h}px`;
-                return true;
+        if (event.isEmpty) {
+          if (container instanceof HTMLElement) container.style.minHeight = "0";
+          const serving = this.querySelector(".dae-serving");
+          if (serving instanceof HTMLElement) serving.style.minHeight = "0";
+        } else if (container instanceof HTMLElement) {
+          // Use event.size as single source of truth — iframe attrs are unreliable
+          if (event.size?.length === 2) {
+            const [w, h] = event.size;
+            if (w > 1 && h > 1) {
+              container.style.minHeight = `${h}px`;
+              const iframe = container.querySelector<HTMLIFrameElement>("iframe");
+              if (iframe) {
+                iframe.style.width = `${w}px`;
+                iframe.style.height = `${h}px`;
               }
-              return false;
-            };
-
-            // Tier 1: Immediate
-            resized = applySize();
-
-            // Tier 2: Next frame (GPT may set inline styles after callback returns)
-            if (!resized) {
-              requestAnimationFrame(() => {
-                resized = applySize();
-
-                // Tier 3: ResizeObserver for rich media (Flashtalking, Sizmek, etc.)
-                if (!resized && typeof ResizeObserver !== "undefined") {
-                  const iframe = container.querySelector<HTMLIFrameElement>("iframe");
-                  if (iframe) {
-                    const observer = new ResizeObserver((entries) => {
-                      for (const entry of entries) {
-                        const { width, height } = entry.contentRect;
-                        if (width > 1 && height > 1) {
-                          container.style.minHeight = `${height}px`;
-                          observer.disconnect();
-                        }
-                      }
-                    });
-                    observer.observe(iframe);
-                    // Auto-disconnect after 10s to prevent leaks
-                    setTimeout(() => observer.disconnect(), 10000);
-                  }
-                }
-              });
             }
+          }
+
+          // ResizeObserver fallback for expandable creatives that grow beyond event.size
+          if (typeof ResizeObserver !== "undefined") {
+            requestAnimationFrame(() => {
+              const iframe = container.querySelector<HTMLIFrameElement>("iframe");
+              if (iframe) {
+                const observer = new ResizeObserver((entries) => {
+                  for (const entry of entries) {
+                    const { width, height } = entry.contentRect;
+                    if (width > 1 && height > 1) {
+                      container.style.minHeight = `${height}px`;
+                      observer.disconnect();
+                    }
+                  }
+                });
+                observer.observe(iframe);
+                setTimeout(() => observer.disconnect(), 10000);
+              }
+            });
           }
         }
 
