@@ -1,7 +1,7 @@
 dreams-ad-engine {
   display: var(--dae-display, block);
-  contain: var(--dae-contain, content);
-  min-height: var(--dae-min-heigh, 100px);
+  contain: var(--dae-contain, layout style);
+  min-height: var(--dae-min-height, 100px);
 }
 dreams-ad-engine > .dae-slot {
   display: var(--dae-slotted-display, block);
@@ -16,9 +16,6 @@ dreams-ad-engine > .dae-slot {
 
 .dae-container {
   position: var(--dae-ad-container-position, relative);
-}
-.pinno-ad-container {
-  position: var(--dae-pinno-ad-container-position, relative);
 }
 .dae-label {
   display: var(--dae-ad-label-display, block);
@@ -43,7 +40,17 @@ dreams-ad-engine > .dae-slot {
   width: var(--dae-ad-loader-width, 100%);
   height: var(--dae-ad-loader-height, 100%);
   background-color: var(--dae-ad-loader-background-color, #eee);
-  background-image: var(
+  overflow: hidden;
+  z-index: var(--dae-ad-loader-z-index, 2);
+}
+.dae-loader::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(
     --dae-ad-loader-background-image,
     linear-gradient(
       90deg,
@@ -52,14 +59,7 @@ dreams-ad-engine > .dae-slot {
       rgba(255, 255, 255, 0)
     )
   );
-  background-size: var(--dae-ad-loader-background-size, 40px 100%);
-  background-repeat: var(--dae-ad-loader-background-repeat, no-repeat);
-  background-position: var(
-    --dae-ad-loader-background-position,
-    left -40px top 0
-  );
-  animation: var(--dae-ad-loader-animation, dae-skeleton 2s ease infinite);
-  z-index: var(--dae-ad-loader-z-index, 2);
+  animation: var(--dae-ad-loader-animation, dae-loader-shimmer 2s ease infinite);
 }
 .dae-serving {
   position: var(--dae-ad-serving-position, relative);
@@ -85,8 +85,11 @@ dreams-ad-engine > .dae-slot {
   z-index: var(--dae-ad-serving-before-z-index, 1);
 }
 
-@keyframes dae-skeleton {
-  to {
-    background-position: right -40px top 0;
-  }
+@keyframes dae-loader-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dae-loader::after { animation: none; }
 }

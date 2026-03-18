@@ -1,4 +1,4 @@
-import { LitElement, html, unsafeCSS as style } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { when } from "lit/directives/when.js";
 import type { TemplateResult } from "lit/html.js";
@@ -10,12 +10,20 @@ import { DreamsTargetingService } from "../../targeting";
 import { ViewabilityService } from "../../viewability";
 import { RefreshManager } from "../../refresh";
 import { getSkeletonDimensions } from "../../skeleton";
-import "../../skeleton/skeleton.component"; // Register the skeleton component
+import "../../skeleton/skeleton.component";
+
+let adStylesInjected = false;
+
+function injectAdStyles() {
+  if (adStylesInjected || typeof document === "undefined") return;
+  const style = document.createElement("style");
+  style.textContent = adCss;
+  document.head.appendChild(style);
+  adStylesInjected = true;
+}
 
 @customElement("dreams-ad-engine")
 export class DreamsAdComponent extends LitElement {
-  static styles = style(adCss);
-
   createRenderRoot() {
     return this;
   }
@@ -24,6 +32,7 @@ export class DreamsAdComponent extends LitElement {
   static old_url = "";
   static initialized_aps = false;
   static navigationListenersAttached = false;
+  static outOfPageRegistered = false;
 
   // Instance references for cleanup
   private adSlot: any = null;
@@ -31,6 +40,7 @@ export class DreamsAdComponent extends LitElement {
   private impressionViewableHandler: ((event: any) => void) | null = null;
   private slotVisibilityHandler: ((event: any) => void) | null = null;
   private pendingBidsTimeout: ReturnType<typeof setTimeout> | null = null;
+  private lastVisibilityPct = -1;
 
   /**
    * Handle SPA navigation - destroys all slots and clears targeting cache
@@ -104,6 +114,7 @@ export class DreamsAdComponent extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+    injectAdStyles();
     if (!DreamsAdComponent.initialized) {
       this.#initGoogleTag();
       DreamsAdComponent.initialized = true;
@@ -199,7 +210,11 @@ export class DreamsAdComponent extends LitElement {
             }
 
             if (Object.keys(setConfigPayload).length > 0) {
-              window.googletag.setConfig(setConfigPayload);
+              if (typeof window.googletag.setConfig === "function") {
+                window.googletag.setConfig(setConfigPayload);
+              } else if (lazyLoad) {
+                window.googletag.pubads().enableLazyLoad(lazyLoad);
+              }
             }
 
             if (DreamsAdConfig.getCentering()) {
@@ -331,6 +346,9 @@ export class DreamsAdComponent extends LitElement {
   }
 
   #registerOutOfPageSlots() {
+    if (DreamsAdComponent.outOfPageRegistered) return;
+    DreamsAdComponent.outOfPageRegistered = true;
+
     const networkId = DreamsAdConfig.getNetworkId();
     const sitePrefix = DreamsAdConfig.getSitePrefix();
     const adUnitBase = `/${networkId}/${sitePrefix}-is-i`;
@@ -407,6 +425,8 @@ export class DreamsAdComponent extends LitElement {
     const adContainer = document.createElement("div");
     adContainer.id = CONTAINER_ID;
     adContainer.setAttribute("data-ad", this.divId);
+    adContainer.setAttribute("role", "complementary");
+    adContainer.setAttribute("aria-label", "Advertisement");
     adContainer.classList.add("dae-slot");
 
     // CLS reserve: compute max height from responsive mapping for current viewport
@@ -499,16 +519,22 @@ export class DreamsAdComponent extends LitElement {
         .pubads()
         .addEventListener("impressionViewable", this.impressionViewableHandler);
 
-      // slotVisibilityChanged — continuous in-view percentage
+      // slotVisibilityChanged — dispatch only on 25% threshold crossings
       this.slotVisibilityHandler = (event: any) => {
         if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+        const pct = event.inViewPercentage;
+        const bucket = Math.floor(pct / 25) * 25;
+        const lastBucket = Math.floor(this.lastVisibilityPct / 25) * 25;
+        if (bucket === lastBucket && this.lastVisibilityPct >= 0) return;
+        this.lastVisibilityPct = pct;
 
         this.dispatchEvent(new CustomEvent("ad:visibility", {
           bubbles: true,
           detail: {
             slotId: CONTAINER_ID,
             adUnit: SLOT,
-            inViewPercentage: event.inViewPercentage,
+            inViewPercentage: pct,
           },
         }));
       };
