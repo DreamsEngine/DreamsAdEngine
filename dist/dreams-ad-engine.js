@@ -240,7 +240,7 @@ let T = class extends HTMLElement {
   }
 };
 T.elementStyles = [], T.shadowRootOptions = { mode: "open" }, T[L("elementProperties")] = /* @__PURE__ */ new Map(), T[L("finalized")] = /* @__PURE__ */ new Map(), Qt?.({ ReactiveElement: T }), (K.reactiveElementVersions ??= []).push("2.1.2");
-const st = globalThis, ht = (n) => n, G = st.trustedTypes, ut = G ? G.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, It = "$lit$", $ = `lit$${Math.random().toFixed(9).slice(2)}$`, zt = "?" + $, te = `<${zt}>`, E = document, N = () => E.createComment(""), D = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ee = (n) => nt(n) || typeof n?.[Symbol.iterator] == "function", Z = `[ 	
+const st = globalThis, ht = (n) => n, G = st.trustedTypes, ut = G ? G.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, It = "$lit$", $ = `lit$${Math.random().toFixed(9).slice(2)}$`, zt = "?" + $, te = `<${zt}>`, E = document, D = () => E.createComment(""), N = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ee = (n) => nt(n) || typeof n?.[Symbol.iterator] == "function", Z = `[ 	
 \f\r]`, O = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, pt = /-->/g, gt = />/g, S = RegExp(`>|${Z}(?:([^\\s"'>=/]+)(${Z}*=${Z}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), ft = /'/g, mt = /"/g, Ot = /^(?:script|style|textarea|title)$/i, ie = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), v = ie(1), P = /* @__PURE__ */ Symbol.for("lit-noChange"), m = /* @__PURE__ */ Symbol.for("lit-nothing"), wt = /* @__PURE__ */ new WeakMap(), k = E.createTreeWalker(E, 129);
 function Lt(n, t) {
@@ -279,8 +279,8 @@ class V {
           const h = s.textContent.split($), w = h.length - 1;
           if (w > 0) {
             s.textContent = G ? G.emptyScript : "";
-            for (let b = 0; b < w; b++) s.append(h[b], N()), k.nextNode(), l.push({ type: 2, index: ++o });
-            s.append(h[w], N());
+            for (let b = 0; b < w; b++) s.append(h[b], D()), k.nextNode(), l.push({ type: 2, index: ++o });
+            s.append(h[w], D());
           }
         }
       } else if (s.nodeType === 8) if (s.data === zt) l.push({ type: 2, index: o });
@@ -299,7 +299,7 @@ class V {
 function I(n, t, e = n, i) {
   if (t === P) return t;
   let s = i !== void 0 ? e._$Co?.[i] : e._$Cl;
-  const o = D(t) ? void 0 : t._$litDirective$;
+  const o = N(t) ? void 0 : t._$litDirective$;
   return s?.constructor !== o && (s?._$AO?.(!1), o === void 0 ? s = void 0 : (s = new o(n), s._$AT(n, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = s : e._$Cl = s), s !== void 0 && (t = I(n, s._$AS(n, t.values), s, i)), t;
 }
 class ne {
@@ -349,7 +349,7 @@ class M {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = I(this, t, e), D(t) ? t === m || t == null || t === "" ? (this._$AH !== m && this._$AR(), this._$AH = m) : t !== this._$AH && t !== P && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ee(t) ? this.k(t) : this._(t);
+    t = I(this, t, e), N(t) ? t === m || t == null || t === "" ? (this._$AH !== m && this._$AR(), this._$AH = m) : t !== this._$AH && t !== P && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ee(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -358,7 +358,7 @@ class M {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== m && D(this._$AH) ? this._$AA.nextSibling.data = t : this.T(E.createTextNode(t)), this._$AH = t;
+    this._$AH !== m && N(this._$AH) ? this._$AA.nextSibling.data = t : this.T(E.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     const { values: e, _$litType$: i } = t, s = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = V.createElement(Lt(i.h, i.h[0]), this.options)), i);
@@ -376,7 +376,7 @@ class M {
     nt(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let i, s = 0;
-    for (const o of t) s === e.length ? e.push(i = new M(this.O(N()), this.O(N()), this, this.options)) : i = e[s], i._$AI(o), s++;
+    for (const o of t) s === e.length ? e.push(i = new M(this.O(D()), this.O(D()), this, this.options)) : i = e[s], i._$AI(o), s++;
     s < e.length && (this._$AR(i && i._$AB.nextSibling, s), e.length = s);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -402,11 +402,11 @@ class X {
   _$AI(t, e = this, i, s) {
     const o = this.strings;
     let r = !1;
-    if (o === void 0) t = I(this, t, e, 0), r = !D(t) || t !== this._$AH && t !== P, r && (this._$AH = t);
+    if (o === void 0) t = I(this, t, e, 0), r = !N(t) || t !== this._$AH && t !== P, r && (this._$AH = t);
     else {
       const a = t;
       let l, c;
-      for (t = o[0], l = 0; l < o.length - 1; l++) c = I(this, a[i + l], e, l), c === P && (c = this._$AH[l]), r ||= !D(c) || c !== this._$AH[l], c === m ? t = m : t !== m && (t += (c ?? "") + o[l + 1]), this._$AH[l] = c;
+      for (t = o[0], l = 0; l < o.length - 1; l++) c = I(this, a[i + l], e, l), c === P && (c = this._$AH[l]), r ||= !N(c) || c !== this._$AH[l], c === m ? t = m : t !== m && (t += (c ?? "") + o[l + 1]), this._$AH[l] = c;
     }
     r && !s && this.j(t);
   }
@@ -461,7 +461,7 @@ const ce = (n, t, e) => {
   let s = i._$litPart$;
   if (s === void 0) {
     const o = e?.renderBefore ?? null;
-    i._$litPart$ = s = new M(t.insertBefore(N(), o), o, void 0, e ?? {});
+    i._$litPart$ = s = new M(t.insertBefore(D(), o), o, void 0, e ?? {});
   }
   return s._$AI(n), s;
 };
@@ -1405,7 +1405,7 @@ var Se = Object.defineProperty, _e = Object.getOwnPropertyDescriptor, Rt = (n) =
   for (var s = i > 1 ? void 0 : i ? _e(t, e) : t, o = n.length - 1, r; o >= 0; o--)
     (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
   return i && s && Se(t, e, s), s;
-}, ke = (n, t, e) => t.has(n) || Rt("Cannot " + e), Ee = (n, t, e) => t.has(n) ? Rt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(n) : t.set(n, e), x = (n, t, e) => (ke(n, t, "access private method"), e), A, Ht, Nt, Dt, Vt, Mt, Bt;
+}, ke = (n, t, e) => t.has(n) || Rt("Cannot " + e), Ee = (n, t, e) => t.has(n) ? Rt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(n) : t.set(n, e), x = (n, t, e) => (ke(n, t, "access private method"), e), A, Ht, Dt, Nt, Vt, Mt, Bt;
 let St = !1;
 function Te() {
   if (St || typeof document > "u") return;
@@ -1453,7 +1453,7 @@ let d = class extends C {
     }
   }
   async firstUpdated() {
-    if (await x(this, A, Nt).call(this), await x(this, A, Dt).call(this), this.divId = `div-gpt-ad-${this.adUnit}-${crypto.randomUUID()}`, this.apstag && this.pubId && !d.initialized_aps)
+    if (await x(this, A, Dt).call(this), await x(this, A, Nt).call(this), this.divId = `div-gpt-ad-${this.adUnit}-${crypto.randomUUID()}`, this.apstag && this.pubId && !d.initialized_aps)
       if (typeof window.apstag?.init == "function")
         try {
           window.apstag.init({
@@ -1466,7 +1466,7 @@ let d = class extends C {
         }
       else
         this.apstag = !1;
-    x(this, A, Bt).call(this);
+    await this.updateComplete, x(this, A, Bt).call(this);
   }
   render() {
     const n = this.showSkeleton ? Ae(this.slot || "box-1", window.innerWidth) : { width: 0, height: 0 };
@@ -1519,7 +1519,7 @@ Ht = function() {
   };
   g.isInitialized() ? n() : g.whenReady().then(n).catch(() => n()), d._setupNavigationListeners();
 };
-Nt = async function() {
+Dt = async function() {
   if (this.slot === "interstitial") {
     console.warn(
       '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).'
@@ -1550,7 +1550,7 @@ Nt = async function() {
       this.targeting = [];
     }
 };
-Dt = async function() {
+Nt = async function() {
   if (this.autoTargeting) {
     const n = await W.getTargeting();
     this.resolvedTargeting = n.targeting;
@@ -1602,97 +1602,103 @@ Bt = function() {
   const n = `/${this.networkId}/${this.adUnit}`, t = this.divId, e = document.createElement("div");
   e.id = t, e.setAttribute("data-ad", this.divId), e.setAttribute("role", "complementary"), e.setAttribute("aria-label", "Advertisement"), e.classList.add("dae-slot");
   const i = x(this, A, Mt).call(this);
-  e.style.cssText = `width:100%;min-height:${i}px`, e.parentElement || this.appendChild(e), window.googletag.cmd.push(() => {
-    const s = window.googletag.defineSlot(n, this.sizing, t).addService(window.googletag.pubads());
-    this.resolvedTargeting.forEach((a) => {
-      s.setTargeting(a.key, a.value);
-    }), this.slotRenderHandler = (a) => {
-      if (a.slot.getSlotElementId() !== t) return;
-      this.adLoaded = !0;
-      const l = this.querySelector(`#${t}`);
-      if (l instanceof HTMLElement)
-        if (a.isEmpty)
-          l.style.minHeight = "0";
-        else {
-          const c = () => {
-            const u = l.querySelector("iframe");
-            if (u) {
-              const h = parseInt(u.width) || u.offsetWidth, w = parseInt(u.height) || u.offsetHeight;
-              h > 1 && w > 1 && (l.style.minHeight = `${w}px`);
-            }
-          };
-          c(), requestAnimationFrame(c);
-        }
-      if (this.dispatchEvent(new CustomEvent("ad:rendered", {
-        bubbles: !0,
-        detail: {
-          isEmpty: a.isEmpty,
-          size: a.size ?? null,
-          advertiserId: a.advertiserId ?? null,
-          creativeId: a.creativeId ?? null,
-          lineItemId: a.lineItemId ?? null,
-          isBackfill: a.isBackfill ?? !1,
-          slotId: t,
-          adUnit: n
-        }
-      })), this.trackViewability && !a.isEmpty) {
-        const c = this.querySelector(`#${t}`);
-        c instanceof HTMLElement && Y.track(
-          c,
-          t,
-          this.slot || this.adUnit
-        );
-      }
-    }, window.googletag.pubads().addEventListener("slotRenderEnded", this.slotRenderHandler), this.impressionViewableHandler = (a) => {
-      a.slot.getSlotElementId() === t && (tt.markViewable(t), this.dispatchEvent(new CustomEvent("ad:viewable", {
-        bubbles: !0,
-        detail: { slotId: t, adUnit: n }
-      })));
-    }, window.googletag.pubads().addEventListener("impressionViewable", this.impressionViewableHandler), this.slotVisibilityHandler = (a) => {
-      if (a.slot.getSlotElementId() !== t) return;
-      const l = a.inViewPercentage, c = Math.floor(l / 25) * 25, u = Math.floor(this.lastVisibilityPct / 25) * 25;
-      c === u && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = l, this.dispatchEvent(new CustomEvent("ad:visibility", {
-        bubbles: !0,
-        detail: {
-          slotId: t,
-          adUnit: n,
-          inViewPercentage: l
-        }
-      })));
-    }, window.googletag.pubads().addEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
-    const o = window.googletag.sizeMapping();
-    if (this.mapping.forEach((a) => {
-      o.addSize(a.viewport, a.sizing);
-    }), s.defineSizeMapping(o.build()), this.adSlot = s, this.refresh && window.dreamsSlotsToUpdate.push(s), window.dreamsAllSlots.push(s), window.googletag.display(t), !(this.apstag && this.pubId))
-      window.googletag.pubads().refresh([s]);
-    else {
-      if (typeof window.apstag?.fetchBids != "function") {
-        window.googletag.pubads().refresh([s]);
+  e.style.cssText = `width:100%;min-height:${i}px`, e.parentElement || this.appendChild(e), requestAnimationFrame(() => {
+    window.googletag.cmd.push(() => {
+      if (!document.getElementById(t)) {
+        console.warn(`[DreamsAdEngine] Slot div ${t} not in DOM, aborting`);
         return;
       }
-      let a = !1;
-      const l = this.bidTimeout || 2e3;
-      this.pendingBidsTimeout = setTimeout(() => {
-        a || (a = !0, window.googletag.cmd.push(() => {
-          window.googletag.pubads().refresh([s]);
-        }));
-      }, l + 500), window.apstag.fetchBids(
-        {
-          slots: [
-            {
-              slotID: t,
-              slotName: n,
-              sizes: this.sizing
-            }
-          ]
-        },
-        () => {
-          a || (a = !0, clearTimeout(this.pendingBidsTimeout), window.googletag.cmd.push(() => {
-            window.apstag.setDisplayBids(), window.googletag.pubads().refresh([s]);
-          }));
+      const s = window.googletag.defineSlot(n, this.sizing, t).addService(window.googletag.pubads());
+      this.resolvedTargeting.forEach((a) => {
+        s.setTargeting(a.key, a.value);
+      }), this.slotRenderHandler = (a) => {
+        if (a.slot.getSlotElementId() !== t) return;
+        this.adLoaded = !0;
+        const l = this.querySelector(`#${t}`);
+        if (l instanceof HTMLElement)
+          if (a.isEmpty)
+            l.style.minHeight = "0";
+          else {
+            const c = () => {
+              const u = l.querySelector("iframe");
+              if (u) {
+                const h = parseInt(u.width) || u.offsetWidth, w = parseInt(u.height) || u.offsetHeight;
+                h > 1 && w > 1 && (l.style.minHeight = `${w}px`);
+              }
+            };
+            c(), requestAnimationFrame(c);
+          }
+        if (this.dispatchEvent(new CustomEvent("ad:rendered", {
+          bubbles: !0,
+          detail: {
+            isEmpty: a.isEmpty,
+            size: a.size ?? null,
+            advertiserId: a.advertiserId ?? null,
+            creativeId: a.creativeId ?? null,
+            lineItemId: a.lineItemId ?? null,
+            isBackfill: a.isBackfill ?? !1,
+            slotId: t,
+            adUnit: n
+          }
+        })), this.trackViewability && !a.isEmpty) {
+          const c = this.querySelector(`#${t}`);
+          c instanceof HTMLElement && Y.track(
+            c,
+            t,
+            this.slot || this.adUnit
+          );
         }
-      );
-    }
+      }, window.googletag.pubads().addEventListener("slotRenderEnded", this.slotRenderHandler), this.impressionViewableHandler = (a) => {
+        a.slot.getSlotElementId() === t && (tt.markViewable(t), this.dispatchEvent(new CustomEvent("ad:viewable", {
+          bubbles: !0,
+          detail: { slotId: t, adUnit: n }
+        })));
+      }, window.googletag.pubads().addEventListener("impressionViewable", this.impressionViewableHandler), this.slotVisibilityHandler = (a) => {
+        if (a.slot.getSlotElementId() !== t) return;
+        const l = a.inViewPercentage, c = Math.floor(l / 25) * 25, u = Math.floor(this.lastVisibilityPct / 25) * 25;
+        c === u && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = l, this.dispatchEvent(new CustomEvent("ad:visibility", {
+          bubbles: !0,
+          detail: {
+            slotId: t,
+            adUnit: n,
+            inViewPercentage: l
+          }
+        })));
+      }, window.googletag.pubads().addEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
+      const o = window.googletag.sizeMapping();
+      if (this.mapping.forEach((a) => {
+        o.addSize(a.viewport, a.sizing);
+      }), s.defineSizeMapping(o.build()), this.adSlot = s, this.refresh && window.dreamsSlotsToUpdate.push(s), window.dreamsAllSlots.push(s), window.googletag.display(t), !(this.apstag && this.pubId))
+        window.googletag.pubads().refresh([s]);
+      else {
+        if (typeof window.apstag?.fetchBids != "function") {
+          window.googletag.pubads().refresh([s]);
+          return;
+        }
+        let a = !1;
+        const l = this.bidTimeout || 2e3;
+        this.pendingBidsTimeout = setTimeout(() => {
+          a || (a = !0, window.googletag.cmd.push(() => {
+            window.googletag.pubads().refresh([s]);
+          }));
+        }, l + 500), window.apstag.fetchBids(
+          {
+            slots: [
+              {
+                slotID: t,
+                slotName: n,
+                sizes: this.sizing
+              }
+            ]
+          },
+          () => {
+            a || (a = !0, clearTimeout(this.pendingBidsTimeout), window.googletag.cmd.push(() => {
+              window.apstag.setDisplayBids(), window.googletag.pubads().refresh([s]);
+            }));
+          }
+        );
+      }
+    });
   });
 };
 d.initialized = !1;

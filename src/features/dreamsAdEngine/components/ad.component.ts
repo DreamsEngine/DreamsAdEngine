@@ -275,6 +275,9 @@ export class DreamsAdComponent extends LitElement {
         this.apstag = false;
       }
     }
+
+    // Wait for Lit to flush all pending re-renders from property changes above
+    await this.updateComplete;
     this.#renderSlot();
   }
 
@@ -437,7 +440,16 @@ export class DreamsAdComponent extends LitElement {
       this.appendChild(adContainer);
     }
 
+    // Wait one frame to ensure appendChild has committed to the DOM
+    // before GPT tries to find the div via document.getElementById
+    requestAnimationFrame(() => {
     window.googletag.cmd.push(() => {
+      // Final safety check — verify div exists before GPT call
+      if (!document.getElementById(CONTAINER_ID)) {
+        console.warn(`[DreamsAdEngine] Slot div ${CONTAINER_ID} not in DOM, aborting`);
+        return;
+      }
+
       const defineAdSlot = window.googletag
         .defineSlot(SLOT, this.sizing, CONTAINER_ID)
         .addService(window.googletag.pubads());
@@ -610,6 +622,7 @@ export class DreamsAdComponent extends LitElement {
         );
       }
     });
+    }); // end requestAnimationFrame
   }
 
   protected render(): TemplateResult {
