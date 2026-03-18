@@ -7,8 +7,12 @@ import { customElement, property } from "lit/decorators.js";
  */
 @customElement("dreams-ad-skeleton")
 export class DreamsAdSkeleton extends LitElement {
+  createRenderRoot() {
+    return this;
+  }
+
   static styles = css`
-    :host {
+    dreams-ad-skeleton {
       display: block;
     }
 

@@ -1,26 +1,26 @@
-:host {
+dreams-ad-engine {
   display: var(--dae-display, block);
   contain: var(--dae-contain, content);
   min-height: var(--dae-min-heigh, 100px);
 }
-::slotted(*) {
+dreams-ad-engine > .dae-slot {
   display: var(--dae-slotted-display, block);
   z-index: var(--dae-slotted-z-index, 9);
 }
 
-.ad-serving-rendered {
+.dae-slot {
   position: var(--dae-ad-serving-rendered-position, sticky);
   z-index: var(--dae-ad-serving-rendered-z-index, 2);
   top: var(--dae-ad-serving-rendered-top, 1rem);
 }
 
-.ad-container {
+.dae-container {
   position: var(--dae-ad-container-position, relative);
 }
 .pinno-ad-container {
   position: var(--dae-pinno-ad-container-position, relative);
 }
-.ad-label {
+.dae-label {
   display: var(--dae-ad-label-display, block);
   font-size: var(--dae-ad-label-font-size, 9px);
   font-weight: var(--dae-ad-label-font-weight, 400);
@@ -32,11 +32,11 @@
   text-transform: var(--dae-ad-label-text-transform, uppercase);
   color: var(--dae-ad-label-color, #999999);
 }
-.ad-label + .ad-loader {
+.dae-label + .dae-loader {
   top: var(--dae-ad-loader-top, 13px);
   height: var(--dae-ad-loader-height, calc(100% - 13px));
 }
-.ad-loader {
+.dae-loader {
   position: var(--dae-ad-loader-position, absolute);
   top: var(--dae-ad-loader-top, 0);
   left: var(--dae-ad-loader-left, 0);
@@ -58,10 +58,10 @@
     --dae-ad-loader-background-position,
     left -40px top 0
   );
-  animation: var(--dae-ad-loader-animation, ad-skeleton 2s ease infinite);
+  animation: var(--dae-ad-loader-animation, dae-skeleton 2s ease infinite);
   z-index: var(--dae-ad-loader-z-index, 2);
 }
-.ad-serving {
+.dae-serving {
   position: var(--dae-ad-serving-position, relative);
   display: var(--dae-ad-serving-display, flex);
   flex-wrap: var(--dae-ad-serving-flex-wrap, wrap);
@@ -71,7 +71,7 @@
   margin-block: var(--dae-ad-serving-margin-block, 1rem);
   min-height: var(--dae-ad-serving-min-height, 100px);
 }
-.ad-serving::before {
+.dae-serving::before {
   content: var(--dae-ad-serving-before-content, "[AD]");
   position: var(--dae-ad-serving-before-position, absolute);
   top: var(--dae-ad-serving-before-top, 0);
@@ -85,7 +85,7 @@
   z-index: var(--dae-ad-serving-before-z-index, 1);
 }
 
-@keyframes ad-skeleton {
+@keyframes dae-skeleton {
   to {
     background-position: right -40px top 0;
   }

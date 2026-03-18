@@ -15,6 +15,10 @@ import "../../skeleton/skeleton.component"; // Register the skeleton component
 export class DreamsAdComponent extends LitElement {
   static styles = style(adCss);
 
+  createRenderRoot() {
+    return this;
+  }
+
   static initialized = false;
   static old_url = "";
   static initialized_aps = false;
@@ -291,8 +295,7 @@ export class DreamsAdComponent extends LitElement {
     const adContainer = document.createElement("div");
     adContainer.id = CONTAINER_ID;
     adContainer.setAttribute("data-ad", this.divId);
-    adContainer.setAttribute("slot", "ad-slot");
-    adContainer.classList.add("ad-serving-rendered");
+    adContainer.classList.add("dae-slot");
     adContainer.style.cssText = "width:100%;min-height:2px";
 
     if (!adContainer.parentElement) {
@@ -426,10 +429,10 @@ export class DreamsAdComponent extends LitElement {
       : { width: 0, height: 0 };
 
     return html`
-			<div class="ad-container">
+			<div class="dae-container">
 				${when(
           this.enableTitle,
-          () => html`<span class="ad-label">${this.title}</span>`,
+          () => html`<span class="dae-label">${this.title}</span>`,
           () => html``,
         )}
 				${when(
@@ -441,19 +444,18 @@ export class DreamsAdComponent extends LitElement {
                   height="${skeletonDims.height}"
                 ></dreams-ad-skeleton>`
               : html`<div
-                  class="ad-loader"
+                  class="dae-loader"
                   data-ad-loader="${this.divId}"
                 ></div>`,
           () => html``,
         )}
 				<div
-					class="ad-serving"
+					class="dae-serving"
 					data-post-id="${this.divId}"
 					data-tag="${this.adUnit}"
 					data-refresh="${this.refresh ? "true" : "false"}"
 					style="${!this.adLoaded && this.showSkeleton ? "opacity: 0;" : ""}"
 				>
-					<slot name="ad-slot"></slot>
 				</div>
 			</div>
 		`;
