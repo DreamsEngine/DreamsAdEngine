@@ -8,6 +8,7 @@ import { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
 import { DreamsAdConfig } from "../../config";
 import { DreamsTargetingService } from "../../targeting";
 import { ViewabilityService } from "../../viewability";
+import { RefreshManager } from "../../refresh";
 import { getSkeletonDimensions } from "../../skeleton";
 import "../../skeleton/skeleton.component"; // Register the skeleton component
 
@@ -486,6 +487,8 @@ export class DreamsAdComponent extends LitElement {
       // impressionViewable — GPT MRC-accredited viewability
       this.impressionViewableHandler = (event: any) => {
         if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+        RefreshManager.markViewable(CONTAINER_ID);
 
         this.dispatchEvent(new CustomEvent("ad:viewable", {
           bubbles: true,

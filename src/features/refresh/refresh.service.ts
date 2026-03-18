@@ -8,6 +8,7 @@ const DEFAULT_CONFIG: Required<RefreshConfig> = {
   checkVisibility: true,
   disableOnSinglePost: true,
   singlePostSelector: "body.single",
+  viewabilityGated: true,
 };
 
 declare global {
@@ -22,6 +23,8 @@ export class RefreshManager {
   private static config: Required<RefreshConfig> = DEFAULT_CONFIG;
   private static refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private static running = false;
+  private static viewableSlots: Set<string> = new Set();
+  private static refreshCounts: Map<string, number> = new Map();
 
   /**
    * Configure the refresh manager
@@ -89,6 +92,13 @@ export class RefreshManager {
   }
 
   /**
+   * Mark a slot as viewable (called from GPT impressionViewable handler)
+   */
+  static markViewable(slotId: string): void {
+    this.viewableSlots.add(slotId);
+  }
+
+  /**
    * Check if refresh is currently blocked
    */
   static isBlocked(): boolean {
@@ -150,11 +160,35 @@ export class RefreshManager {
 
     window.lastAdRefresh = now;
 
-    const slotsToRefresh = slots || window.dreamsSlotsToUpdate || [];
+    let slotsToRefresh = slots || window.dreamsSlotsToUpdate || [];
+
+    // Filter to only viewable slots if gating is enabled
+    if (this.config.viewabilityGated && !slots) {
+      slotsToRefresh = slotsToRefresh.filter((s: any) => {
+        try {
+          return this.viewableSlots.has(s.getSlotElementId());
+        } catch {
+          return false;
+        }
+      });
+    }
+
     const slotCount = slotsToRefresh.length;
 
     if (slotCount === 0) {
       return false;
+    }
+
+    // Set refresh_count targeting on each slot
+    for (const s of slotsToRefresh) {
+      try {
+        const id = s.getSlotElementId();
+        const count = (this.refreshCounts.get(id) || 0) + 1;
+        this.refreshCounts.set(id, count);
+        s.setTargeting("refresh_count", String(count));
+      } catch {
+        // Slot may not support these methods
+      }
     }
 
     try {

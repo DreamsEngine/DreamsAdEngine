@@ -9,6 +9,8 @@ export interface RefreshConfig {
   disableOnSinglePost?: boolean;
   /** CSS selector for single-post detection. Default: "body.single" */
   singlePostSelector?: string;
+  /** Only refresh slots that have been viewable (GPT impressionViewable). Default: true */
+  viewabilityGated?: boolean;
 }
 
 export interface RefreshEvent {
