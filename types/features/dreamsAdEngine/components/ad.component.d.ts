@@ -40,9 +40,9 @@ export declare class DreamsAdComponent extends LitElement {
     pubId: string;
     bidTimeout: number;
     title: string;
-    adLoaded: boolean;
     trackViewability: boolean;
     showSkeleton: boolean;
+    private ready;
     connectedCallback(): void;
     disconnectedCallback(): void;
     firstUpdated(): Promise<void>;

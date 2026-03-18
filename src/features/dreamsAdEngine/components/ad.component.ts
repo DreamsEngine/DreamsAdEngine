@@ -1,6 +1,5 @@
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { when } from "lit/directives/when.js";
 import type { TemplateResult } from "lit/html.js";
 import "../types/interfaces";
 import adCss from "../styles/ad.styles.css?raw";
@@ -9,16 +8,15 @@ import { DreamsAdConfig } from "../../config";
 import { DreamsTargetingService } from "../../targeting";
 import { ViewabilityService } from "../../viewability";
 import { RefreshManager } from "../../refresh";
-import { getSkeletonDimensions } from "../../skeleton";
 import "../../skeleton/skeleton.component";
 
 let adStylesInjected = false;
 
 function injectAdStyles() {
   if (adStylesInjected || typeof document === "undefined") return;
-  const style = document.createElement("style");
-  style.textContent = adCss;
-  document.head.appendChild(style);
+  const el = document.createElement("style");
+  el.textContent = adCss;
+  document.head.appendChild(el);
   adStylesInjected = true;
 }
 
@@ -108,9 +106,11 @@ export class DreamsAdComponent extends LitElement {
   @property({ type: String }) pubId = "";
   @property({ type: Number }) bidTimeout = 2e3;
   @property({ type: String }) title = "Publicidad";
-  @property({ type: Boolean }) adLoaded = false;
   @property({ type: Boolean, reflect: true }) trackViewability = false;
   @property({ type: Boolean, reflect: true }) showSkeleton = false;
+
+  // Controls when Lit renders content (empty until ready — fixes React hydration #418)
+  @state() private ready = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -120,8 +120,6 @@ export class DreamsAdComponent extends LitElement {
       DreamsAdComponent.initialized = true;
       DreamsAdComponent.old_url = location.href;
     } else {
-      // Fallback check for components connecting after navigation
-      // Main navigation handling is done via _handleNavigation()
       DreamsAdComponent._handleNavigation();
     }
   }
@@ -159,27 +157,17 @@ export class DreamsAdComponent extends LitElement {
 
     // Destroy this component's slot and remove from global arrays
     if (this.adSlot) {
-      // Remove from dreamsAllSlots
       if (window.dreamsAllSlots) {
         const allIndex = window.dreamsAllSlots.indexOf(this.adSlot);
-        if (allIndex > -1) {
-          window.dreamsAllSlots.splice(allIndex, 1);
-        }
+        if (allIndex > -1) window.dreamsAllSlots.splice(allIndex, 1);
       }
-
-      // Remove from dreamsSlotsToUpdate
       if (window.dreamsSlotsToUpdate) {
         const updateIndex = window.dreamsSlotsToUpdate.indexOf(this.adSlot);
-        if (updateIndex > -1) {
-          window.dreamsSlotsToUpdate.splice(updateIndex, 1);
-        }
+        if (updateIndex > -1) window.dreamsSlotsToUpdate.splice(updateIndex, 1);
       }
-
-      // Destroy the slot in GPT
       if (window.googletag?.destroySlots) {
         window.googletag.destroySlots([this.adSlot]);
       }
-
       this.adSlot = null;
     }
   }
@@ -237,7 +225,6 @@ export class DreamsAdComponent extends LitElement {
       });
     };
 
-    // Wait for config if pending, but always enable GPT (manual config fallback)
     if (DreamsAdConfig.isInitialized()) {
       enableGpt();
     } else {
@@ -246,7 +233,6 @@ export class DreamsAdComponent extends LitElement {
         .catch(() => enableGpt());
     }
 
-    // Set up SPA navigation detection
     DreamsAdComponent._setupNavigationListeners();
   }
 
@@ -267,16 +253,16 @@ export class DreamsAdComponent extends LitElement {
           });
           DreamsAdComponent.initialized_aps = true;
         } catch {
-          // APS init failed - disable APS for this component
           this.apstag = false;
         }
       } else {
-        // apstag not loaded - disable APS
         this.apstag = false;
       }
     }
 
-    // Wait for Lit to flush all pending re-renders from property changes above
+    // Signal ready — triggers first real render (empty before this for SSR compat)
+    this.ready = true;
+    // Wait for Lit to flush the ready render so dae-serving is in the DOM
     await this.updateComplete;
     this.#renderSlot();
   }
@@ -294,48 +280,24 @@ export class DreamsAdComponent extends LitElement {
       await DreamsAdConfig.whenReady();
       const slotConfig = DreamsAdConfig.getSlot(this.slot);
       if (slotConfig) {
-        if (!this.networkId) {
-          this.networkId = DreamsAdConfig.getNetworkId();
-        }
-        if (!this.adUnit) {
-          this.adUnit = DreamsAdConfig.buildAdUnit(this.slot);
-        }
-        if (!this.mapping || this.mapping.length === 0) {
-          this.mapping = slotConfig.mapping;
-        }
-        if (!this.sizing || this.sizing.length === 0) {
-          this.sizing = slotConfig.sizing;
-        }
-        if (!this.pubId) {
-          this.pubId = DreamsAdConfig.getPubId() || "";
-        }
-        if (this.pubId) {
-          this.apstag = true;
-        }
+        if (!this.networkId) this.networkId = DreamsAdConfig.getNetworkId();
+        if (!this.adUnit) this.adUnit = DreamsAdConfig.buildAdUnit(this.slot);
+        if (!this.mapping || this.mapping.length === 0) this.mapping = slotConfig.mapping;
+        if (!this.sizing || this.sizing.length === 0) this.sizing = slotConfig.sizing;
+        if (!this.pubId) this.pubId = DreamsAdConfig.getPubId() || "";
+        if (this.pubId) this.apstag = true;
       }
     }
 
     // Parse JSON attributes with error handling
     if (typeof this.mapping === "string") {
-      try {
-        this.mapping = JSON.parse(this.mapping);
-      } catch {
-        this.mapping = [];
-      }
+      try { this.mapping = JSON.parse(this.mapping); } catch { this.mapping = []; }
     }
     if (typeof this.sizing === "string") {
-      try {
-        this.sizing = JSON.parse(this.sizing);
-      } catch {
-        this.sizing = [];
-      }
+      try { this.sizing = JSON.parse(this.sizing); } catch { this.sizing = []; }
     }
     if (this.targeting && typeof this.targeting === "string") {
-      try {
-        this.targeting = JSON.parse(this.targeting);
-      } catch {
-        this.targeting = [];
-      }
+      try { this.targeting = JSON.parse(this.targeting); } catch { this.targeting = []; }
     }
   }
 
@@ -402,7 +364,6 @@ export class DreamsAdComponent extends LitElement {
     const vw = typeof window !== "undefined" ? window.innerWidth : 0;
     let matchedEntry: DreamsAdMapping | null = null;
 
-    // Find the mapping entry whose viewport[0] is closest to but not exceeding window width
     for (const entry of this.mapping) {
       if (entry.viewport[0] <= vw) {
         if (!matchedEntry || entry.viewport[0] > matchedEntry.viewport[0]) {
@@ -413,7 +374,6 @@ export class DreamsAdComponent extends LitElement {
 
     if (!matchedEntry) return 2;
 
-    // Compute max height from matched entry's sizes, skip 1x1
     let maxH = 0;
     for (const [, h] of matchedEntry.sizing) {
       if (h > 1) maxH = Math.max(maxH, h);
@@ -431,7 +391,6 @@ export class DreamsAdComponent extends LitElement {
     adContainer.setAttribute("role", "complementary");
     adContainer.setAttribute("aria-label", "Advertisement");
     adContainer.classList.add("dae-slot");
-
     adContainer.style.cssText = "width:100%";
 
     // Apply CLS reserve to dae-serving wrapper
@@ -439,21 +398,14 @@ export class DreamsAdComponent extends LitElement {
     const serving = this.querySelector(".dae-serving");
     if (serving instanceof HTMLElement) {
       serving.style.minHeight = `${reserveHeight}px`;
+      serving.appendChild(adContainer);
+    } else {
+      this.appendChild(adContainer);
     }
 
-    if (!adContainer.parentElement) {
-      if (serving) {
-        serving.appendChild(adContainer);
-      } else {
-        this.appendChild(adContainer);
-      }
-    }
-
-    // Wait one frame to ensure appendChild has committed to the DOM
-    // before GPT tries to find the div via document.getElementById
+    // Wait one frame to ensure DOM commit before GPT registration
     requestAnimationFrame(() => {
     window.googletag.cmd.push(() => {
-      // Final safety check — verify div exists before GPT call
       if (!document.getElementById(CONTAINER_ID)) {
         console.warn(`[DreamsAdEngine] Slot div ${CONTAINER_ID} not in DOM, aborting`);
         return;
@@ -471,15 +423,19 @@ export class DreamsAdComponent extends LitElement {
       this.slotRenderHandler = (event: any) => {
         if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
 
-        this.adLoaded = true;
+        // Hide loader/skeleton imperatively — no Lit re-render needed
+        const loader = this.querySelector(".dae-loader");
+        if (loader instanceof HTMLElement) loader.style.display = "none";
+        const skeleton = this.querySelector("dreams-ad-skeleton");
+        if (skeleton instanceof HTMLElement) skeleton.style.display = "none";
 
         const container = this.querySelector(`#${CONTAINER_ID}`);
         if (event.isEmpty) {
           if (container instanceof HTMLElement) container.style.minHeight = "0";
-          const serving = this.querySelector(".dae-serving");
-          if (serving instanceof HTMLElement) serving.style.minHeight = "0";
+          const s = this.querySelector(".dae-serving");
+          if (s instanceof HTMLElement) s.style.minHeight = "0";
         } else if (container instanceof HTMLElement) {
-          // Use event.size as single source of truth — iframe attrs are unreliable
+          // Use event.size as single source of truth
           if (event.size?.length === 2) {
             const [w, h] = event.size;
             if (w > 1 && h > 1) {
@@ -492,7 +448,7 @@ export class DreamsAdComponent extends LitElement {
             }
           }
 
-          // ResizeObserver fallback for expandable creatives that grow beyond event.size
+          // ResizeObserver fallback for expandable creatives
           if (typeof ResizeObserver !== "undefined") {
             requestAnimationFrame(() => {
               const iframe = container.querySelector<HTMLIFrameElement>("iframe");
@@ -532,11 +488,7 @@ export class DreamsAdComponent extends LitElement {
         if (this.trackViewability && !event.isEmpty) {
           const adElement = this.querySelector(`#${CONTAINER_ID}`);
           if (adElement instanceof HTMLElement) {
-            ViewabilityService.track(
-              adElement,
-              CONTAINER_ID,
-              this.slot || this.adUnit,
-            );
+            ViewabilityService.track(adElement, CONTAINER_ID, this.slot || this.adUnit);
           }
         }
       };
@@ -571,11 +523,7 @@ export class DreamsAdComponent extends LitElement {
 
         this.dispatchEvent(new CustomEvent("ad:visibility", {
           bubbles: true,
-          detail: {
-            slotId: CONTAINER_ID,
-            adUnit: SLOT,
-            inViewPercentage: pct,
-          },
+          detail: { slotId: CONTAINER_ID, adUnit: SLOT, inViewPercentage: pct },
         }));
       };
       window.googletag
@@ -604,12 +552,9 @@ export class DreamsAdComponent extends LitElement {
       const useAps = this.apstag && this.pubId;
 
       if (!useAps) {
-        // Direct fetch — no APS bidding
         window.googletag.pubads().refresh([defineAdSlot]);
       } else {
-        // Check if apstag is available and properly initialized
         if (typeof window.apstag?.fetchBids !== "function") {
-          // Fallback to direct refresh without APS
           window.googletag.pubads().refresh([defineAdSlot]);
           return;
         }
@@ -617,7 +562,6 @@ export class DreamsAdComponent extends LitElement {
         let bidsReceived = false;
         const bidTimeout = this.bidTimeout || 2000;
 
-        // Timeout fallback - refresh ads even if APS doesn't respond
         this.pendingBidsTimeout = setTimeout(() => {
           if (!bidsReceived) {
             bidsReceived = true;
@@ -629,13 +573,11 @@ export class DreamsAdComponent extends LitElement {
 
         window.apstag.fetchBids(
           {
-            slots: [
-              {
-                slotID: CONTAINER_ID,
-                slotName: SLOT,
-                sizes: this.sizing,
-              },
-            ],
+            slots: [{
+              slotID: CONTAINER_ID,
+              slotName: SLOT,
+              sizes: this.sizing,
+            }],
           },
           () => {
             if (bidsReceived) return;
@@ -654,40 +596,39 @@ export class DreamsAdComponent extends LitElement {
   }
 
   protected render(): TemplateResult {
-    const skeletonDims = this.showSkeleton
-      ? getSkeletonDimensions(this.slot || "box-1", window.innerWidth)
-      : { width: 0, height: 0 };
+    // Render empty until ready — prevents React hydration mismatch (#418)
+    if (!this.ready) return html``;
 
     return html`
 			<div class="dae-container">
-				${when(
-          this.enableTitle,
-          () => html`<span class="dae-label">${this.title}</span>`,
-          () => html``,
-        )}
-				${when(
-          !this.adLoaded,
-          () =>
-            this.showSkeleton
-              ? html`<dreams-ad-skeleton
-                  width="${skeletonDims.width}"
-                  height="${skeletonDims.height}"
-                ></dreams-ad-skeleton>`
-              : html`<div
-                  class="dae-loader"
-                  data-ad-loader="${this.divId}"
-                ></div>`,
-          () => html``,
-        )}
+				${this.enableTitle
+          ? html`<span class="dae-label">${this.title}</span>`
+          : ""}
+				${this.showSkeleton
+          ? html`<dreams-ad-skeleton
+              width="${this.#getSkeletonWidth()}"
+              height="${this.#getSkeletonHeight()}"
+            ></dreams-ad-skeleton>`
+          : html`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
 				<div
 					class="dae-serving"
 					data-post-id="${this.divId}"
 					data-tag="${this.adUnit}"
 					data-refresh="${this.refresh ? "true" : "false"}"
-					style="${!this.adLoaded && this.showSkeleton ? "opacity: 0;" : ""}"
 				>
 				</div>
 			</div>
 		`;
+  }
+
+  #getSkeletonWidth(): number {
+    const vw = typeof window !== "undefined" ? window.innerWidth : 320;
+    if (vw >= 1280) return 970;
+    if (vw >= 728) return 728;
+    return 320;
+  }
+
+  #getSkeletonHeight(): number {
+    return this.#computeReserveHeight();
   }
 }
