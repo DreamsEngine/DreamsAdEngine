@@ -158,31 +158,40 @@ export class DreamsAdComponent extends LitElement {
 
   #initGoogleTag() {
     window.googletag = window.googletag || { cmd: [] };
-    window.googletag.cmd.push(() => {
-      window.dreamsAllSlots = window.dreamsAllSlots || [];
-      window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
 
-      // Check if services already enabled by external script (FirstImpression, deployads, etc.)
-      const alreadyEnabled = window.googletag.pubadsReady === true;
+    const enableGpt = () => {
+      window.googletag.cmd.push(() => {
+        window.dreamsAllSlots = window.dreamsAllSlots || [];
+        window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
 
-      if (!alreadyEnabled) {
-        // Prevent display() from auto-fetching — all fetches go through explicit refresh()
-        window.googletag.pubads().disableInitialLoad();
+        const alreadyEnabled = window.googletag.pubadsReady === true;
 
-        // Global GPT settings from config (must be set before enableServices)
-        if (DreamsAdConfig.isInitialized()) {
-          const lazyLoad = DreamsAdConfig.getLazyLoad();
-          if (lazyLoad) {
-            window.googletag.pubads().enableLazyLoad(lazyLoad);
+        if (!alreadyEnabled) {
+          window.googletag.pubads().disableInitialLoad();
+
+          if (DreamsAdConfig.isInitialized()) {
+            const lazyLoad = DreamsAdConfig.getLazyLoad();
+            if (lazyLoad) {
+              window.googletag.pubads().enableLazyLoad(lazyLoad);
+            }
+            if (DreamsAdConfig.getCentering()) {
+              window.googletag.pubads().setCentering(true);
+            }
           }
-          if (DreamsAdConfig.getCentering()) {
-            window.googletag.pubads().setCentering(true);
-          }
+
+          window.googletag.enableServices();
         }
+      });
+    };
 
-        window.googletag.enableServices();
-      }
-    });
+    // Wait for config if pending, but always enable GPT (manual config fallback)
+    if (DreamsAdConfig.isInitialized()) {
+      enableGpt();
+    } else {
+      DreamsAdConfig.whenReady()
+        .then(enableGpt)
+        .catch(() => enableGpt());
+    }
 
     // Set up SPA navigation detection
     DreamsAdComponent._setupNavigationListeners();
@@ -217,7 +226,8 @@ export class DreamsAdComponent extends LitElement {
   }
 
   async #resolveConfiguration() {
-    if (this.slot && DreamsAdConfig.isInitialized()) {
+    if (this.slot) {
+      await DreamsAdConfig.whenReady();
       const slotConfig = DreamsAdConfig.getSlot(this.slot);
       if (slotConfig) {
         if (!this.networkId) {

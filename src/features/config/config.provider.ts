@@ -15,6 +15,15 @@ const DEFAULT_LAZY_LOAD: LazyLoadConfig = {
 
 export class DreamsAdConfig {
   private static instance: AdConfigData | null = null;
+  private static readyResolve: (() => void) | null = null;
+  private static readyPromise: Promise<void> =
+    DreamsAdConfig.createReadyPromise();
+
+  private static createReadyPromise(): Promise<void> {
+    return new Promise((resolve) => {
+      DreamsAdConfig.readyResolve = resolve;
+    });
+  }
 
   static init(config: AdConfigInit): void {
     // Prevent accidental re-initialization
@@ -45,6 +54,41 @@ export class DreamsAdConfig {
         ...config.slots,
       },
     };
+
+    if (this.readyResolve) {
+      this.readyResolve();
+      this.readyResolve = null;
+    }
+  }
+
+  private static pendingReady: Promise<void> | null = null;
+
+  /** Resolves when init() has been called. Immediate if already initialized. */
+  static whenReady(timeout = 5000): Promise<void> {
+    if (this.instance) return Promise.resolve();
+    if (this.pendingReady) return this.pendingReady;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    this.pendingReady = Promise.race([
+      this.readyPromise,
+      new Promise<void>((_, reject) => {
+        timeoutId = setTimeout(
+          () =>
+            reject(
+              new Error(
+                "[DreamsAdConfig] init() not called within timeout. Ensure DreamsAdConfig.init() runs before <dreams-ad-engine> elements mount.",
+              ),
+            ),
+          timeout,
+        );
+      }),
+    ]).finally(() => {
+      clearTimeout(timeoutId);
+      this.pendingReady = null;
+    });
+
+    return this.pendingReady;
   }
 
   static isInitialized(): boolean {
@@ -148,6 +192,8 @@ export class DreamsAdConfig {
 
   static reset(): void {
     this.instance = null;
+    this.pendingReady = null;
+    this.readyPromise = DreamsAdConfig.createReadyPromise();
   }
 
   private static assertInitialized(): void {

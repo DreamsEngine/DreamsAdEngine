@@ -1,4 +1,4 @@
-const o = {
+const r = {
   "top-1": {
     mapping: [
       {
@@ -228,11 +228,16 @@ const o = {
     sizing: [[1, 1]],
     position: "interstitial"
   }
-}, r = {
+}, a = {
   fetchMarginPercent: 500,
   renderMarginPercent: 200,
   mobileScaling: 2
-}, s = class s {
+}, e = class e {
+  static createReadyPromise() {
+    return new Promise((i) => {
+      e.readyResolve = i;
+    });
+  }
   static init(i) {
     if (this.instance && !i.force) {
       console.warn(
@@ -249,10 +254,31 @@ const o = {
       lazyLoad: t,
       centering: i.centering ?? !1,
       slots: {
-        ...o,
+        ...r,
         ...i.slots
       }
-    };
+    }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
+  }
+  /** Resolves when init() has been called. Immediate if already initialized. */
+  static whenReady(i = 5e3) {
+    if (this.instance) return Promise.resolve();
+    if (this.pendingReady) return this.pendingReady;
+    let t;
+    return this.pendingReady = Promise.race([
+      this.readyPromise,
+      new Promise((o, s) => {
+        t = setTimeout(
+          () => s(
+            new Error(
+              "[DreamsAdConfig] init() not called within timeout. Ensure DreamsAdConfig.init() runs before <dreams-ad-engine> elements mount."
+            )
+          ),
+          i
+        );
+      })
+    ]).finally(() => {
+      clearTimeout(t), this.pendingReady = null;
+    }), this.pendingReady;
   }
   static isInitialized() {
     return this.instance !== null;
@@ -271,7 +297,7 @@ const o = {
   }
   /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad() {
-    return this.assertInitialized(), this.instance.lazyLoad || r;
+    return this.assertInitialized(), this.instance.lazyLoad || a;
   }
   static getLazyLoad() {
     return this.assertInitialized(), this.instance.lazyLoad;
@@ -299,7 +325,7 @@ const o = {
   }
   static buildAdUnit(i) {
     this.assertInitialized();
-    const t = this.instance.sitePrefix, n = {
+    const t = this.instance.sitePrefix, s = {
       "top-1": "is-t-01",
       "top-2": "is-t-02",
       "top-3": "is-t-03",
@@ -313,13 +339,13 @@ const o = {
       footer: "is-f-01",
       interstitial: "is-i"
     }[i];
-    return n ? `${t}-${n}` : `${t}-${i}`;
+    return s ? `${t}-${s}` : `${t}-${i}`;
   }
   static registerSlot(i, t) {
     this.assertInitialized(), this.instance.slots[i] = t;
   }
   static reset() {
-    this.instance = null;
+    this.instance = null, this.pendingReady = null, this.readyPromise = e.createReadyPromise();
   }
   static assertInitialized() {
     if (!this.instance)
@@ -328,9 +354,9 @@ const o = {
       );
   }
 };
-s.instance = null;
-let e = s;
+e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
+let n = e;
 export {
-  o as DEFAULT_SLOTS,
-  e as DreamsAdConfig
+  r as DEFAULT_SLOTS,
+  n as DreamsAdConfig
 };

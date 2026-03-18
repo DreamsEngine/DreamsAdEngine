@@ -65,9 +65,11 @@ DreamsAdConfig.init({
 
 That's it. The component resolves network ID, ad unit path, size mapping, and APS configuration from `DreamsAdConfig` automatically.
 
+> **Race-safe:** Components using `slot` that mount before `init()` completes will wait automatically (up to 5s). This handles Next.js dynamic imports, lazy hydration, and async module loading without any special ordering.
+
 ### Manual configuration (no config provider)
 
-For full control over individual slots without `DreamsAdConfig`:
+For full control over individual slots without `DreamsAdConfig`. No `init()` call needed — components render immediately using the provided attributes:
 
 ```html
 <dreams-ad-engine
@@ -112,6 +114,7 @@ DreamsAdConfig.init({
 ### Methods
 
 ```typescript
+DreamsAdConfig.whenReady(timeout?: number): Promise<void>  // Awaits init(), 5s default timeout
 DreamsAdConfig.isInitialized(): boolean
 DreamsAdConfig.getNetworkId(): string
 DreamsAdConfig.getSitePrefix(): string
@@ -175,7 +178,7 @@ When using `slot` with `DreamsAdConfig`, the component auto-resolves `networkId`
 
 The component manages GPT with the following sequence:
 
-1. **First component mounts** — calls `disableInitialLoad()`, applies `lazyLoad` and `centering` from config, then `enableServices()`
+1. **First component mounts** — waits for `DreamsAdConfig.whenReady()` if config is pending, then calls `disableInitialLoad()`, applies `lazyLoad` and `centering` from config, then `enableServices()`. If config is never initialized (manual mode), GPT enables without config settings after timeout.
 2. **Each component** — defines a slot, registers size mapping, calls `display()` (register only), then `refresh()` (actual fetch)
 3. **With APS** — `display()` registers the slot, `fetchBids()` requests bids, `setDisplayBids()` applies targeting, then `refresh()` fetches with bid data
 4. **On disconnect** — destroys the GPT slot, removes event listeners, clears pending timeouts
