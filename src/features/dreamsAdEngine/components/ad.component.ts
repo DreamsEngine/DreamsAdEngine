@@ -32,9 +32,10 @@ export class DreamsAdComponent extends LitElement {
     const currentUrl = location.href;
     if (DreamsAdComponent.old_url === currentUrl) return;
 
-    // Destroy all existing slots
+    // Destroy all existing slots and start new pageview
     if (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0) {
       window.googletag.destroySlots(window.dreamsAllSlots);
+      window.googletag.pubads().updateCorrelator();
     }
 
     DreamsAdComponent.old_url = currentUrl;
