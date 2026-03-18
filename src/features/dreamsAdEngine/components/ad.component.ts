@@ -312,20 +312,23 @@ export class DreamsAdComponent extends LitElement {
         if (event.slot.getSlotElementId() === CONTAINER_ID) {
           this.adLoaded = true;
 
-          // Resize GPT container to match rendered creative
+          // Resize container to match rendered creative
           if (!event.isEmpty) {
             const container = this.querySelector(`#${CONTAINER_ID}`);
             if (container instanceof HTMLElement) {
-              const gptContainer = container.querySelector<HTMLElement>(
-                `[id$="__container__"]`,
-              );
-              if (gptContainer && event.size && event.size.length === 2) {
-                const [width, height] = event.size;
-                if (width > 1 && height > 1) {
-                  gptContainer.style.width = `${width}px`;
-                  gptContainer.style.height = `${height}px`;
+              const applySize = () => {
+                const iframe =
+                  container.querySelector<HTMLIFrameElement>("iframe");
+                if (iframe) {
+                  const w = parseInt(iframe.width) || iframe.offsetWidth;
+                  const h = parseInt(iframe.height) || iframe.offsetHeight;
+                  if (w > 1 && h > 1) {
+                    container.style.minHeight = `${h}px`;
+                  }
                 }
-              }
+              };
+              applySize();
+              requestAnimationFrame(applySize);
             }
           }
 
