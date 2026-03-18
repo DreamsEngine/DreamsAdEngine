@@ -27,6 +27,8 @@ export class DreamsAdComponent extends LitElement {
   // Instance references for cleanup
   private adSlot: any = null;
   private slotRenderHandler: ((event: any) => void) | null = null;
+  private impressionViewableHandler: ((event: any) => void) | null = null;
+  private slotVisibilityHandler: ((event: any) => void) | null = null;
   private pendingBidsTimeout: ReturnType<typeof setTimeout> | null = null;
 
   /**
@@ -126,12 +128,21 @@ export class DreamsAdComponent extends LitElement {
       this.pendingBidsTimeout = null;
     }
 
-    // Remove event listener
-    if (this.slotRenderHandler && window.googletag?.pubads) {
-      window.googletag
-        .pubads()
-        .removeEventListener("slotRenderEnded", this.slotRenderHandler);
-      this.slotRenderHandler = null;
+    // Remove GPT event listeners
+    if (window.googletag?.pubads) {
+      const pubads = window.googletag.pubads();
+      if (this.slotRenderHandler) {
+        pubads.removeEventListener("slotRenderEnded", this.slotRenderHandler);
+        this.slotRenderHandler = null;
+      }
+      if (this.impressionViewableHandler) {
+        pubads.removeEventListener("impressionViewable", this.impressionViewableHandler);
+        this.impressionViewableHandler = null;
+      }
+      if (this.slotVisibilityHandler) {
+        pubads.removeEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
+        this.slotVisibilityHandler = null;
+      }
     }
 
     // Destroy this component's slot and remove from global arrays
@@ -356,50 +367,93 @@ export class DreamsAdComponent extends LitElement {
         defineAdSlot.setTargeting(target.key, target.value);
       });
 
-      // Store handler reference for cleanup
+      // slotRenderEnded — resize, collapse, dispatch ad:rendered
       this.slotRenderHandler = (event: any) => {
-        if (event.slot.getSlotElementId() === CONTAINER_ID) {
-          this.adLoaded = true;
+        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
 
-          const container = this.querySelector(`#${CONTAINER_ID}`);
-          if (container instanceof HTMLElement) {
-            if (event.isEmpty) {
-              // Collapse reserve space when no ad fills
-              container.style.minHeight = "0";
-            } else {
-              // Resize container to match rendered creative
-              const applySize = () => {
-                const iframe =
-                  container.querySelector<HTMLIFrameElement>("iframe");
-                if (iframe) {
-                  const w = parseInt(iframe.width) || iframe.offsetWidth;
-                  const h = parseInt(iframe.height) || iframe.offsetHeight;
-                  if (w > 1 && h > 1) {
-                    container.style.minHeight = `${h}px`;
-                  }
+        this.adLoaded = true;
+
+        const container = this.querySelector(`#${CONTAINER_ID}`);
+        if (container instanceof HTMLElement) {
+          if (event.isEmpty) {
+            container.style.minHeight = "0";
+          } else {
+            const applySize = () => {
+              const iframe =
+                container.querySelector<HTMLIFrameElement>("iframe");
+              if (iframe) {
+                const w = parseInt(iframe.width) || iframe.offsetWidth;
+                const h = parseInt(iframe.height) || iframe.offsetHeight;
+                if (w > 1 && h > 1) {
+                  container.style.minHeight = `${h}px`;
                 }
-              };
-              applySize();
-              requestAnimationFrame(applySize);
-            }
+              }
+            };
+            applySize();
+            requestAnimationFrame(applySize);
           }
+        }
 
-          // Start viewability tracking if enabled
-          if (this.trackViewability) {
-            const adElement = this.querySelector(`#${CONTAINER_ID}`);
-            if (adElement instanceof HTMLElement) {
-              ViewabilityService.track(
-                adElement,
-                CONTAINER_ID,
-                this.slot || this.adUnit,
-              );
-            }
+        // Dispatch rich ad:rendered event
+        this.dispatchEvent(new CustomEvent("ad:rendered", {
+          bubbles: true,
+          detail: {
+            isEmpty: event.isEmpty,
+            size: event.size ?? null,
+            advertiserId: event.advertiserId ?? null,
+            creativeId: event.creativeId ?? null,
+            lineItemId: event.lineItemId ?? null,
+            isBackfill: event.isBackfill ?? false,
+            slotId: CONTAINER_ID,
+            adUnit: SLOT,
+          },
+        }));
+
+        // Legacy viewability tracking (deprecated path)
+        if (this.trackViewability && !event.isEmpty) {
+          const adElement = this.querySelector(`#${CONTAINER_ID}`);
+          if (adElement instanceof HTMLElement) {
+            ViewabilityService.track(
+              adElement,
+              CONTAINER_ID,
+              this.slot || this.adUnit,
+            );
           }
         }
       };
       window.googletag
         .pubads()
         .addEventListener("slotRenderEnded", this.slotRenderHandler);
+
+      // impressionViewable — GPT MRC-accredited viewability
+      this.impressionViewableHandler = (event: any) => {
+        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+        this.dispatchEvent(new CustomEvent("ad:viewable", {
+          bubbles: true,
+          detail: { slotId: CONTAINER_ID, adUnit: SLOT },
+        }));
+      };
+      window.googletag
+        .pubads()
+        .addEventListener("impressionViewable", this.impressionViewableHandler);
+
+      // slotVisibilityChanged — continuous in-view percentage
+      this.slotVisibilityHandler = (event: any) => {
+        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+        this.dispatchEvent(new CustomEvent("ad:visibility", {
+          bubbles: true,
+          detail: {
+            slotId: CONTAINER_ID,
+            adUnit: SLOT,
+            inViewPercentage: event.inViewPercentage,
+          },
+        }));
+      };
+      window.googletag
+        .pubads()
+        .addEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
 
       // Define responsive size mapping
       const AD_MAPPING = window.googletag.sizeMapping();
