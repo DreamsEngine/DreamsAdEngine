@@ -430,7 +430,8 @@ export class DreamsAdComponent extends LitElement {
         if (skeleton instanceof HTMLElement) skeleton.style.display = "none";
 
         const container = this.querySelector(`#${CONTAINER_ID}`);
-        if (event.isEmpty) {
+        const isTrackingPixel = event.size?.length === 2 && event.size[0] <= 1 && event.size[1] <= 1;
+        if (event.isEmpty || isTrackingPixel) {
           if (container instanceof HTMLElement) container.style.minHeight = "0";
           const s = this.querySelector(".dae-serving");
           if (s instanceof HTMLElement) s.style.minHeight = "0";

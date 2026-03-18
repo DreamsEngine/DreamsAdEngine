@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsengine/dreams-ad-engine",
-	"version": "0.5.7",
+	"version": "0.5.8",
 	"type": "module",
 	"license": "GPL-3.0",
 	"main": "./dist/dreams-ad-engine.js",
