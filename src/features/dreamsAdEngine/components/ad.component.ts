@@ -432,12 +432,21 @@ export class DreamsAdComponent extends LitElement {
     adContainer.setAttribute("aria-label", "Advertisement");
     adContainer.classList.add("dae-slot");
 
-    // CLS reserve: compute max height from responsive mapping for current viewport
+    adContainer.style.cssText = "width:100%";
+
+    // Apply CLS reserve to dae-serving wrapper
     const reserveHeight = this.#computeReserveHeight();
-    adContainer.style.cssText = `width:100%;min-height:${reserveHeight}px`;
+    const serving = this.querySelector(".dae-serving");
+    if (serving instanceof HTMLElement) {
+      serving.style.minHeight = `${reserveHeight}px`;
+    }
 
     if (!adContainer.parentElement) {
-      this.appendChild(adContainer);
+      if (serving) {
+        serving.appendChild(adContainer);
+      } else {
+        this.appendChild(adContainer);
+      }
     }
 
     // Wait one frame to ensure appendChild has committed to the DOM
@@ -468,6 +477,8 @@ export class DreamsAdComponent extends LitElement {
         if (container instanceof HTMLElement) {
           if (event.isEmpty) {
             container.style.minHeight = "0";
+            const serving = this.querySelector(".dae-serving");
+            if (serving instanceof HTMLElement) serving.style.minHeight = "0";
           } else {
             let resized = false;
 
