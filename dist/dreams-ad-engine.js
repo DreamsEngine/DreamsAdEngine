@@ -1501,7 +1501,7 @@ d.initialized_aps = !1;
 d.navigationListenersAttached = !1;
 d._handleNavigation = () => {
   const n = location.href;
-  d.old_url !== n && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && window.googletag.destroySlots(window.dreamsAllSlots), d.old_url = n, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], G.clearCache());
+  d.old_url !== n && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && (window.googletag.destroySlots(window.dreamsAllSlots), window.googletag.pubads().updateCorrelator()), d.old_url = n, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], G.clearCache());
 };
 g([
   u({ type: String })

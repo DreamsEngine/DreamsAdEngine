@@ -36,6 +36,7 @@ interface PubAdsService {
     removeEventListener: (eventType: string, handler: (event: any) => void) => void;
     setCentering: (centerAds: boolean) => void;
     enableLazyLoad: (config: LazyLoadObject) => void;
+    updateCorrelator: () => void;
 }
 interface Slot {
     setTargeting: (key: string, value: string) => Slot;

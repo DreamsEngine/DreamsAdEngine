@@ -48,6 +48,7 @@ interface PubAdsService {
   ) => void;
   setCentering: (centerAds: boolean) => void;
   enableLazyLoad: (config: LazyLoadObject) => void;
+  updateCorrelator: () => void;
 }
 
 interface Slot {
