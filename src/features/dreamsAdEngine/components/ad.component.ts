@@ -469,19 +469,50 @@ export class DreamsAdComponent extends LitElement {
           if (event.isEmpty) {
             container.style.minHeight = "0";
           } else {
-            const applySize = () => {
+            let resized = false;
+
+            const applySize = (): boolean => {
               const iframe =
                 container.querySelector<HTMLIFrameElement>("iframe");
-              if (iframe) {
-                const w = parseInt(iframe.width) || iframe.offsetWidth;
-                const h = parseInt(iframe.height) || iframe.offsetHeight;
-                if (w > 1 && h > 1) {
-                  container.style.minHeight = `${h}px`;
-                }
+              if (!iframe) return false;
+              // CSS computed size first, then inline style, then HTML attribute
+              const w = iframe.offsetWidth || parseInt(iframe.style.width) || parseInt(iframe.width);
+              const h = iframe.offsetHeight || parseInt(iframe.style.height) || parseInt(iframe.height);
+              if (w > 1 && h > 1) {
+                container.style.minHeight = `${h}px`;
+                return true;
               }
+              return false;
             };
-            applySize();
-            requestAnimationFrame(applySize);
+
+            // Tier 1: Immediate
+            resized = applySize();
+
+            // Tier 2: Next frame (GPT may set inline styles after callback returns)
+            if (!resized) {
+              requestAnimationFrame(() => {
+                resized = applySize();
+
+                // Tier 3: ResizeObserver for rich media (Flashtalking, Sizmek, etc.)
+                if (!resized && typeof ResizeObserver !== "undefined") {
+                  const iframe = container.querySelector<HTMLIFrameElement>("iframe");
+                  if (iframe) {
+                    const observer = new ResizeObserver((entries) => {
+                      for (const entry of entries) {
+                        const { width, height } = entry.contentRect;
+                        if (width > 1 && height > 1) {
+                          container.style.minHeight = `${height}px`;
+                          observer.disconnect();
+                        }
+                      }
+                    });
+                    observer.observe(iframe);
+                    // Auto-disconnect after 10s to prevent leaks
+                    setTimeout(() => observer.disconnect(), 10000);
+                  }
+                }
+              });
+            }
           }
         }
 
