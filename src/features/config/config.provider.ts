@@ -2,7 +2,10 @@ import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
 import type {
   AdConfigData,
   AdConfigInit,
+  AnchorConfig,
+  InterstitialConfig,
   LazyLoadConfig,
+  PrivacyConfig,
   SlotConfig,
 } from "./config.types";
 import { DEFAULT_SLOTS } from "./default-mappings";
@@ -53,6 +56,10 @@ export class DreamsAdConfig {
         ...DEFAULT_SLOTS,
         ...config.slots,
       },
+      privacy: config.privacy || null,
+      interstitial: config.interstitial || null,
+      anchor: config.anchor || null,
+      threadYield: config.threadYield ?? false,
     };
 
     if (this.readyResolve) {
@@ -130,6 +137,36 @@ export class DreamsAdConfig {
   static getCentering(): boolean {
     this.assertInitialized();
     return this.instance!.centering;
+  }
+
+  static getPrivacy(): PrivacyConfig | null {
+    this.assertInitialized();
+    return this.instance!.privacy;
+  }
+
+  static getInterstitial(): InterstitialConfig | null {
+    this.assertInitialized();
+    return this.instance!.interstitial;
+  }
+
+  static getAnchor(): AnchorConfig | null {
+    this.assertInitialized();
+    return this.instance!.anchor;
+  }
+
+  static getThreadYield(): boolean {
+    this.assertInitialized();
+    return this.instance!.threadYield;
+  }
+
+  static setPrivacy(config: PrivacyConfig): void {
+    this.assertInitialized();
+    this.instance!.privacy = config;
+    if (typeof window !== "undefined" && window.googletag) {
+      window.googletag.cmd.push(() => {
+        window.googletag.pubads().setPrivacySettings(config as Record<string, boolean>);
+      });
+    }
   }
 
   static getSlot(slotName: string): SlotConfig | undefined {

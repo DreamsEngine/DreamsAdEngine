@@ -7,10 +7,22 @@ export interface Googletag {
     size: Array<number> | Array<Array<number>>,
     divId: string,
   ) => Slot;
+  defineOutOfPageSlot: (
+    adUnitPath: string,
+    format: unknown,
+  ) => Slot | null;
   display: (divId: string) => void;
   enableServices: () => void;
+  setConfig: (config: Record<string, unknown>) => void;
   sizeMapping: () => SizeMappingArray;
   destroySlots: (slots?: Slot[]) => void;
+  enums: {
+    OutOfPageFormat: {
+      INTERSTITIAL: unknown;
+      TOP_ANCHOR: unknown;
+      BOTTOM_ANCHOR: unknown;
+    };
+  };
 }
 
 export interface DreamsAdMapping {
@@ -48,6 +60,7 @@ interface PubAdsService {
   ) => void;
   setCentering: (centerAds: boolean) => void;
   enableLazyLoad: (config: LazyLoadObject) => void;
+  setPrivacySettings: (config: Record<string, boolean>) => void;
   updateCorrelator: () => void;
 }
 
@@ -55,6 +68,27 @@ interface Slot {
   setTargeting: (key: string, value: string) => Slot;
   addService: (service: ServiceType) => Slot;
   defineSizeMapping(sizeMapping: SizeMappingArray[]): Slot;
+  getSlotElementId(): string;
+  getAdUnitPath(): string;
+}
+
+export interface SlotRenderEndedEvent {
+  slot: Slot;
+  isEmpty: boolean;
+  size: [number, number] | null;
+  advertiserId: number | null;
+  creativeId: number | null;
+  lineItemId: number | null;
+  isBackfill: boolean;
+}
+
+export interface ImpressionViewableEvent {
+  slot: Slot;
+}
+
+export interface SlotVisibilityChangedEvent {
+  slot: Slot;
+  inViewPercentage: number;
 }
 
 type ServiceType = PubAdsService;
