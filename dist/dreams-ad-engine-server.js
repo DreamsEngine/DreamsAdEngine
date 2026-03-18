@@ -1,4 +1,4 @@
-const r = {
+const a = {
   "top-1": {
     mapping: [
       {
@@ -222,13 +222,8 @@ const r = {
       [320, 100]
     ],
     position: "footer"
-  },
-  interstitial: {
-    mapping: [{ viewport: [320, 0], sizing: [[1, 1]] }],
-    sizing: [[1, 1]],
-    position: "interstitial"
   }
-}, a = {
+}, o = {
   fetchMarginPercent: 500,
   renderMarginPercent: 200,
   mobileScaling: 2
@@ -254,9 +249,13 @@ const r = {
       lazyLoad: t,
       centering: i.centering ?? !1,
       slots: {
-        ...r,
+        ...a,
         ...i.slots
-      }
+      },
+      privacy: i.privacy || null,
+      interstitial: i.interstitial || null,
+      anchor: i.anchor || null,
+      threadYield: i.threadYield ?? !1
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
   /** Resolves when init() has been called. Immediate if already initialized. */
@@ -266,7 +265,7 @@ const r = {
     let t;
     return this.pendingReady = Promise.race([
       this.readyPromise,
-      new Promise((o, s) => {
+      new Promise((r, s) => {
         t = setTimeout(
           () => s(
             new Error(
@@ -297,13 +296,30 @@ const r = {
   }
   /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad() {
-    return this.assertInitialized(), this.instance.lazyLoad || a;
+    return this.assertInitialized(), this.instance.lazyLoad || o;
   }
   static getLazyLoad() {
     return this.assertInitialized(), this.instance.lazyLoad;
   }
   static getCentering() {
     return this.assertInitialized(), this.instance.centering;
+  }
+  static getPrivacy() {
+    return this.assertInitialized(), this.instance.privacy;
+  }
+  static getInterstitial() {
+    return this.assertInitialized(), this.instance.interstitial;
+  }
+  static getAnchor() {
+    return this.assertInitialized(), this.instance.anchor;
+  }
+  static getThreadYield() {
+    return this.assertInitialized(), this.instance.threadYield;
+  }
+  static setPrivacy(i) {
+    this.assertInitialized(), this.instance.privacy = i, typeof window < "u" && window.googletag && window.googletag.cmd.push(() => {
+      window.googletag.pubads().setPrivacySettings(i);
+    });
   }
   static getSlot(i) {
     return this.assertInitialized(), this.instance.slots[i];
@@ -357,6 +373,6 @@ const r = {
 e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
 let n = e;
 export {
-  r as DEFAULT_SLOTS,
+  a as DEFAULT_SLOTS,
   n as DreamsAdConfig
 };
