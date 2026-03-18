@@ -225,9 +225,4 @@ export const DEFAULT_SLOTS: Record<string, SlotConfig> = {
     ],
     position: "footer",
   },
-  interstitial: {
-    mapping: [{ viewport: [320, 0], sizing: [[1, 1]] }],
-    sizing: [[1, 1]],
-    position: "interstitial",
-  },
 };

@@ -213,6 +213,11 @@ export class DreamsAdComponent extends LitElement {
 
           window.googletag.enableServices();
         }
+
+        // Register out-of-page slots after services are enabled
+        if (DreamsAdConfig.isInitialized()) {
+          this.#registerOutOfPageSlots();
+        }
       });
     };
 
@@ -258,6 +263,14 @@ export class DreamsAdComponent extends LitElement {
   }
 
   async #resolveConfiguration() {
+    if (this.slot === "interstitial") {
+      console.warn(
+        '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. ' +
+        "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
+      );
+      return;
+    }
+
     if (this.slot) {
       await DreamsAdConfig.whenReady();
       const slotConfig = DreamsAdConfig.getSlot(this.slot);
@@ -313,6 +326,51 @@ export class DreamsAdComponent extends LitElement {
       this.resolvedTargeting = result.targeting;
     } else if (this.targeting && this.targeting.length > 0) {
       this.resolvedTargeting = this.targeting;
+    }
+  }
+
+  #registerOutOfPageSlots() {
+    const networkId = DreamsAdConfig.getNetworkId();
+    const sitePrefix = DreamsAdConfig.getSitePrefix();
+    const adUnitBase = `/${networkId}/${sitePrefix}-is-i`;
+
+    const interstitial = DreamsAdConfig.getInterstitial();
+    if (interstitial?.enabled) {
+      const slot = window.googletag.defineOutOfPageSlot(
+        adUnitBase,
+        window.googletag.enums.OutOfPageFormat.INTERSTITIAL,
+      );
+      if (slot) {
+        slot.addService(window.googletag.pubads());
+        window.dreamsAllSlots.push(slot);
+      }
+    }
+
+    const anchor = DreamsAdConfig.getAnchor();
+    if (anchor?.enabled) {
+      const anchorUnit = `/${networkId}/${sitePrefix}-is-a`;
+
+      if (anchor.position === "top" || anchor.position === "both") {
+        const slot = window.googletag.defineOutOfPageSlot(
+          anchorUnit,
+          window.googletag.enums.OutOfPageFormat.TOP_ANCHOR,
+        );
+        if (slot) {
+          slot.addService(window.googletag.pubads());
+          window.dreamsAllSlots.push(slot);
+        }
+      }
+
+      if (anchor.position === "bottom" || anchor.position === "both") {
+        const slot = window.googletag.defineOutOfPageSlot(
+          anchorUnit,
+          window.googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR,
+        );
+        if (slot) {
+          slot.addService(window.googletag.pubads());
+          window.dreamsAllSlots.push(slot);
+        }
+      }
     }
   }
 
