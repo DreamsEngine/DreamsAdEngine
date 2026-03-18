@@ -18,6 +18,9 @@ A lightweight, framework-agnostic Web Component for Google Ad Manager (GPT) with
 - **Privacy/consent API** — GDPR/CCPA support via `setPrivacySettings()`
 - **Web interstitials & anchors** — via `defineOutOfPageSlot()` (config-driven)
 - **Viewability-gated refresh** — only refreshes slots confirmed viewable by GPT
+- **Accessibility** — ARIA `role="complementary"` and `aria-label="Advertisement"` on ad containers
+- **Motion-safe animations** — respects `prefers-reduced-motion`
+- **Backward-compatible** — graceful fallback to legacy GPT methods when `setConfig` is unavailable
 - **Optional services** — skeleton loaders, ad block detection, sticky ads, auto-refresh, logging
 
 ## Installation
@@ -249,7 +252,7 @@ When using `slot` with `DreamsAdConfig`, the component auto-resolves `networkId`
 
 The component manages GPT with the following sequence:
 
-1. **First component mounts** -- waits for `DreamsAdConfig.whenReady()` if config is pending, then calls `disableInitialLoad()`, applies `lazyLoad` and `threadYield` via `googletag.setConfig()`, applies `centering` and `privacy`, then `enableServices()`. After services are enabled, registers interstitial/anchor out-of-page slots if configured.
+1. **First component mounts** -- waits for `DreamsAdConfig.whenReady()` if config is pending, then calls `disableInitialLoad()`, applies `lazyLoad` and `threadYield` via `googletag.setConfig()` (falls back to `enableLazyLoad()` on older GPT versions), applies `centering` and `privacy`, then `enableServices()`. After services are enabled, registers interstitial/anchor out-of-page slots if configured (once only, guarded against re-registration).
 2. **Each component** -- defines a slot, registers size mapping, calls `display()` (register only), then `refresh()` (actual fetch)
 3. **With APS** -- `display()` registers the slot, `fetchBids()` requests bids, `setDisplayBids()` applies targeting, then `refresh()` fetches with bid data
 4. **On disconnect** -- destroys the GPT slot, removes all event listeners (slotRenderEnded, impressionViewable, slotVisibilityChanged), clears pending timeouts
@@ -300,35 +303,38 @@ element.addEventListener("ad:viewable", (e) => {
 
 #### `ad:visibility`
 
-Fired on GPT `slotVisibilityChanged` -- continuous in-view percentage updates.
+Fired on GPT `slotVisibilityChanged`, throttled to 25% threshold crossings (0%, 25%, 50%, 75%, 100%) to prevent scroll jank.
 
 ```typescript
 element.addEventListener("ad:visibility", (e) => {
   const { slotId, adUnit, inViewPercentage } = e.detail;
+  // inViewPercentage dispatched at: 0, 25, 50, 75, 100
 });
 ```
 
 ### CSS Class Names
 
-v0.5.0 uses `dae-` prefixed class names to prevent collisions with publisher CSS:
+All internal class names use a `dae-` prefix to prevent collisions with publisher CSS:
 
 | Class | Description |
 |-------|-------------|
 | `dae-container` | Outer wrapper |
 | `dae-serving` | Inner flex container with `[AD]` placeholder |
-| `dae-slot` | The GPT ad container div (created dynamically) |
+| `dae-slot` | The GPT ad container div (created dynamically, has `role="complementary"`) |
 | `dae-label` | "Publicidad" label (when `enableTitle` is set) |
-| `dae-loader` | Shimmer loading animation |
+| `dae-loader` | Shimmer loading animation (uses `transform`-based animation, compositor-only) |
+| `dae-skeleton` | Skeleton loader placeholder (from `<dreams-ad-skeleton>`) |
+| `dae-skeleton-label` | Optional "Ad" label on skeleton |
 
 ### CSS Custom Properties
 
-The component exposes CSS custom properties for styling. Since v0.5.0 renders in light DOM, these apply directly in your stylesheets:
+The component renders in light DOM, so custom properties apply directly in your stylesheets:
 
 ```css
 dreams-ad-engine {
   --dae-display: block;
-  --dae-min-heigh: 100px;
-  --dae-contain: content;
+  --dae-min-height: 100px;
+  --dae-contain: layout style;  /* safe for expandable creatives */
   --dae-ad-serving-display: flex;
   --dae-ad-serving-justify-content: center;
   --dae-ad-serving-padding-block: 1rem;
@@ -338,6 +344,17 @@ dreams-ad-engine {
   --dae-ad-label-font-size: 9px;
   --dae-ad-serving-before-content: "[AD]";
   /* See ad.styles.css for full list */
+}
+```
+
+The skeleton component uses separate custom properties:
+
+```css
+dreams-ad-skeleton {
+  --dreams-skeleton-bg: #f0f0f0;
+  --dreams-skeleton-shine: rgba(255, 255, 255, 0.6);
+  --dreams-skeleton-radius: 4px;
+  --dreams-skeleton-label-color: #999;
 }
 ```
 
@@ -774,7 +791,9 @@ import type {
 
 ## Migration
 
-### From v0.4.x to v0.5.0
+### From v0.4.x to v0.5.x
+
+> **Use v0.5.1+.** Version 0.5.0 had a bug where light DOM styles were not injected into the document. v0.5.1 fixes this and adds additional hardening.
 
 #### Breaking: Light DOM (Shadow DOM removed)
 
@@ -795,13 +814,15 @@ dreams-ad-engine .dae-serving { }
 
 All internal class names now use a `dae-` prefix to prevent collisions with publisher CSS.
 
-| v0.4.x | v0.5.0 |
+| v0.4.x | v0.5.x |
 |--------|--------|
 | `.ad-container` | `.dae-container` |
 | `.ad-serving` | `.dae-serving` |
 | `.ad-serving-rendered` | `.dae-slot` |
 | `.ad-label` | `.dae-label` |
 | `.ad-loader` | `.dae-loader` |
+| `.skeleton` | `.dae-skeleton` |
+| `.skeleton-label` | `.dae-skeleton-label` |
 
 **Action required:** Search your theme CSS for any of the v0.4.x class names and update them. CSS custom properties (`--dae-*`) remain unchanged.
 
@@ -831,7 +852,7 @@ When an ad returns empty (`isEmpty: true`), the reserve collapses to `0`.
 
 #### New: GPT `setConfig()` migration
 
-`enableLazyLoad()` is replaced by `googletag.setConfig({ lazyLoad: ... })` per GPT's July 2025 deprecation notice. No action required -- the config API is unchanged, only the internal implementation changed.
+`enableLazyLoad()` is replaced by `googletag.setConfig({ lazyLoad: ... })` per GPT's July 2025 deprecation notice. The library detects whether `setConfig` is available and falls back to `enableLazyLoad()` on older GPT script versions. No action required -- the config API is unchanged.
 
 #### New: `threadYield` option
 
@@ -915,6 +936,22 @@ DreamsAdConfig.init({
 6. Replace `slot="interstitial"` with `interstitial: { enabled: true }` in config
 7. Update any CSS targeting old class names (`.ad-container` -> `.dae-container`, etc.)
 8. Replace `ViewabilityService.track()` usage with `ad:viewable` event listeners
+
+---
+
+## Accessibility
+
+Ad containers are rendered with `role="complementary"` and `aria-label="Advertisement"` for screen reader identification.
+
+Loading animations respect `prefers-reduced-motion`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .dae-loader::after { animation: none; }
+}
+```
+
+This is built in -- no configuration needed.
 
 ---
 
