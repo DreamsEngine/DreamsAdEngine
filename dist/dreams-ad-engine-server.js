@@ -1,4 +1,4 @@
-const e = {
+const o = {
   "top-1": {
     mapping: [
       {
@@ -240,14 +240,16 @@ const e = {
       );
       return;
     }
-    this.instance = {
+    let t = !1;
+    i.lazyLoad !== void 0 ? t = i.lazyLoad : i.defaultLazyLoad && (t = i.defaultLazyLoad), this.instance = {
       networkId: i.networkId,
       sitePrefix: i.sitePrefix,
       pubId: i.pubId || "",
       bidTimeout: i.bidTimeout || 2e3,
-      defaultLazyLoad: i.defaultLazyLoad || r,
+      lazyLoad: t,
+      centering: i.centering ?? !1,
       slots: {
-        ...e,
+        ...o,
         ...i.slots
       }
     };
@@ -267,8 +269,15 @@ const e = {
   static getBidTimeout() {
     return this.assertInitialized(), this.instance.bidTimeout;
   }
+  /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad() {
-    return this.assertInitialized(), this.instance.defaultLazyLoad;
+    return this.assertInitialized(), this.instance.lazyLoad || r;
+  }
+  static getLazyLoad() {
+    return this.assertInitialized(), this.instance.lazyLoad;
+  }
+  static getCentering() {
+    return this.assertInitialized(), this.instance.centering;
   }
   static getSlot(i) {
     return this.assertInitialized(), this.instance.slots[i];
@@ -320,8 +329,8 @@ const e = {
   }
 };
 s.instance = null;
-let o = s;
+let e = s;
 export {
-  e as DEFAULT_SLOTS,
-  o as DreamsAdConfig
+  o as DEFAULT_SLOTS,
+  e as DreamsAdConfig
 };

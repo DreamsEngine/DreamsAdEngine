@@ -10,10 +10,9 @@ export declare class DreamsAdComponent extends LitElement {
     static old_url: string;
     static initialized_aps: boolean;
     static navigationListenersAttached: boolean;
-    static servicesWereAlreadyEnabled: boolean;
-    static lazyLoadConfigured: boolean;
     private adSlot;
     private slotRenderHandler;
+    private pendingBidsTimeout;
     /**
      * Handle SPA navigation - destroys all slots and clears targeting cache
      */
@@ -31,13 +30,6 @@ export declare class DreamsAdComponent extends LitElement {
     targeting: DreamsAdTargeting[];
     autoTargeting: boolean;
     private resolvedTargeting;
-    setCentering: boolean;
-    enableLazyLoad: boolean;
-    configLazyLoad: {
-        fetchMarginPercent: number;
-        renderMarginPercent: number;
-        mobileScaling: number;
-    };
     refresh: boolean;
     enableTitle: boolean;
     apstag: boolean;

@@ -25,12 +25,21 @@ export class DreamsAdConfig {
       return;
     }
 
+    // Resolve lazyLoad: new `lazyLoad` takes precedence over deprecated `defaultLazyLoad`
+    let resolvedLazyLoad: LazyLoadConfig | false = false;
+    if (config.lazyLoad !== undefined) {
+      resolvedLazyLoad = config.lazyLoad;
+    } else if (config.defaultLazyLoad) {
+      resolvedLazyLoad = config.defaultLazyLoad;
+    }
+
     this.instance = {
       networkId: config.networkId,
       sitePrefix: config.sitePrefix,
       pubId: config.pubId || "",
       bidTimeout: config.bidTimeout || 2000,
-      defaultLazyLoad: config.defaultLazyLoad || DEFAULT_LAZY_LOAD,
+      lazyLoad: resolvedLazyLoad,
+      centering: config.centering ?? false,
       slots: {
         ...DEFAULT_SLOTS,
         ...config.slots,
@@ -62,9 +71,21 @@ export class DreamsAdConfig {
     return this.instance!.bidTimeout;
   }
 
+  /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad(): LazyLoadConfig {
     this.assertInitialized();
-    return this.instance!.defaultLazyLoad;
+    const ll = this.instance!.lazyLoad;
+    return ll || DEFAULT_LAZY_LOAD;
+  }
+
+  static getLazyLoad(): LazyLoadConfig | false {
+    this.assertInitialized();
+    return this.instance!.lazyLoad;
+  }
+
+  static getCentering(): boolean {
+    this.assertInitialized();
+    return this.instance!.centering;
   }
 
   static getSlot(slotName: string): SlotConfig | undefined {

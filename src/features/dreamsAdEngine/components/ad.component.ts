@@ -19,12 +19,11 @@ export class DreamsAdComponent extends LitElement {
   static old_url = "";
   static initialized_aps = false;
   static navigationListenersAttached = false;
-  static servicesWereAlreadyEnabled = false;
-  static lazyLoadConfigured = false;
 
   // Instance references for cleanup
   private adSlot: any = null;
   private slotRenderHandler: ((event: any) => void) | null = null;
+  private pendingBidsTimeout: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Handle SPA navigation - destroys all slots and clears targeting cache
@@ -85,13 +84,6 @@ export class DreamsAdComponent extends LitElement {
   @property({ type: Array }) targeting: DreamsAdTargeting[] = [];
   @property({ type: Boolean, reflect: true }) autoTargeting = false;
   @state() private resolvedTargeting: DreamsAdTargeting[] = [];
-  @property({ type: Boolean, reflect: true }) setCentering = false;
-  @property({ type: Boolean, reflect: true }) enableLazyLoad = false;
-  @property({ type: Object }) configLazyLoad = {
-    fetchMarginPercent: 500,
-    renderMarginPercent: 200,
-    mobileScaling: 2.0,
-  };
   @property({ type: Boolean, reflect: true }) refresh = false;
   @property({ type: Boolean, reflect: true }) enableTitle = false;
   @property({ type: Boolean, reflect: true }) apstag = false;
@@ -121,6 +113,12 @@ export class DreamsAdComponent extends LitElement {
     // Stop viewability tracking
     if (this.trackViewability && this.divId) {
       ViewabilityService.untrack(this.divId);
+    }
+
+    // Clear pending APS timeout
+    if (this.pendingBidsTimeout) {
+      clearTimeout(this.pendingBidsTimeout);
+      this.pendingBidsTimeout = null;
     }
 
     // Remove event listener
@@ -166,11 +164,22 @@ export class DreamsAdComponent extends LitElement {
 
       // Check if services already enabled by external script (FirstImpression, deployads, etc.)
       const alreadyEnabled = window.googletag.pubadsReady === true;
-      DreamsAdComponent.servicesWereAlreadyEnabled = alreadyEnabled;
 
       if (!alreadyEnabled) {
-        // SRA disabled - causes timing issues with async web components
-        // Each slot will make individual requests instead
+        // Prevent display() from auto-fetching — all fetches go through explicit refresh()
+        window.googletag.pubads().disableInitialLoad();
+
+        // Global GPT settings from config (must be set before enableServices)
+        if (DreamsAdConfig.isInitialized()) {
+          const lazyLoad = DreamsAdConfig.getLazyLoad();
+          if (lazyLoad) {
+            window.googletag.pubads().enableLazyLoad(lazyLoad);
+          }
+          if (DreamsAdConfig.getCentering()) {
+            window.googletag.pubads().setCentering(true);
+          }
+        }
+
         window.googletag.enableServices();
       }
     });
@@ -254,17 +263,6 @@ export class DreamsAdComponent extends LitElement {
         this.targeting = [];
       }
     }
-    if (this.configLazyLoad && typeof this.configLazyLoad === "string") {
-      try {
-        this.configLazyLoad = JSON.parse(this.configLazyLoad);
-      } catch {
-        this.configLazyLoad = {
-          fetchMarginPercent: 500,
-          renderMarginPercent: 200,
-          mobileScaling: 2.0,
-        };
-      }
-    }
   }
 
   async #resolveTargeting() {
@@ -284,22 +282,17 @@ export class DreamsAdComponent extends LitElement {
     adContainer.setAttribute("data-ad", this.divId);
     adContainer.setAttribute("slot", "ad-slot");
     adContainer.classList.add("ad-serving-rendered");
+    adContainer.style.cssText = "width:100%;min-height:2px";
 
     if (!adContainer.parentElement) {
       this.appendChild(adContainer);
     }
 
     window.googletag.cmd.push(() => {
-      window.googletag.pubads().setCentering(this.setCentering);
-
-      // Lazy load is global - only configure once with first component's settings
-      if (this.enableLazyLoad && !DreamsAdComponent.lazyLoadConfigured) {
-        window.googletag.pubads().enableLazyLoad(this.configLazyLoad);
-        DreamsAdComponent.lazyLoadConfigured = true;
-      }
       const defineAdSlot = window.googletag
         .defineSlot(SLOT, this.sizing, CONTAINER_ID)
         .addService(window.googletag.pubads());
+
       this.resolvedTargeting.forEach((target: DreamsAdTargeting) => {
         defineAdSlot.setTargeting(target.key, target.value);
       });
@@ -326,58 +319,50 @@ export class DreamsAdComponent extends LitElement {
         .pubads()
         .addEventListener("slotRenderEnded", this.slotRenderHandler);
 
-      // Define mapping
+      // Define responsive size mapping
       const AD_MAPPING = window.googletag.sizeMapping();
       this.mapping.forEach((map: DreamsAdMapping) => {
         AD_MAPPING.addSize(map.viewport, map.sizing);
       });
-      const AD_MAPPING_BUILD = AD_MAPPING.build();
-      const DEFINED_AD_SLOT = defineAdSlot
-        .defineSizeMapping(AD_MAPPING_BUILD)
-        .addService(window.googletag.pubads());
+      defineAdSlot.defineSizeMapping(AD_MAPPING.build());
 
       // Store slot reference for cleanup
-      this.adSlot = DEFINED_AD_SLOT;
+      this.adSlot = defineAdSlot;
 
       if (this.refresh) {
-        window.dreamsSlotsToUpdate.push(DEFINED_AD_SLOT);
+        window.dreamsSlotsToUpdate.push(defineAdSlot);
       }
-      window.dreamsAllSlots.push(DEFINED_AD_SLOT);
+      window.dreamsAllSlots.push(defineAdSlot);
+
+      // Register slot — with disableInitialLoad(), this only registers without fetching
+      window.googletag.display(CONTAINER_ID);
 
       // Use APS flow only if both apstag is enabled AND pubId is set
       const useAps = this.apstag && this.pubId;
 
       if (!useAps) {
-        window.googletag.display(CONTAINER_ID);
-
-        // Late-slot refresh: if services were already enabled by external script,
-        // slots defined after enableServices() won't auto-fetch, so refresh them
-        if (DreamsAdComponent.servicesWereAlreadyEnabled) {
-          window.googletag.pubads().refresh([DEFINED_AD_SLOT]);
-        }
+        // Direct fetch — no APS bidding
+        window.googletag.pubads().refresh([defineAdSlot]);
       } else {
         // Check if apstag is available and properly initialized
         if (typeof window.apstag?.fetchBids !== "function") {
-          // Fallback to direct display without APS
-          window.googletag.display(CONTAINER_ID);
-          if (DreamsAdComponent.servicesWereAlreadyEnabled) {
-            window.googletag.pubads().refresh([DEFINED_AD_SLOT]);
-          }
+          // Fallback to direct refresh without APS
+          window.googletag.pubads().refresh([defineAdSlot]);
           return;
         }
 
         let bidsReceived = false;
         const bidTimeout = this.bidTimeout || 2000;
 
-        // Timeout fallback - display ads even if APS doesn't respond
-        const timeoutId = setTimeout(() => {
+        // Timeout fallback - refresh ads even if APS doesn't respond
+        this.pendingBidsTimeout = setTimeout(() => {
           if (!bidsReceived) {
             bidsReceived = true;
             window.googletag.cmd.push(() => {
-              window.googletag.pubads().refresh([DEFINED_AD_SLOT]);
+              window.googletag.pubads().refresh([defineAdSlot]);
             });
           }
-        }, bidTimeout + 500); // Add buffer to APS timeout
+        }, bidTimeout + 500);
 
         window.apstag.fetchBids(
           {
@@ -390,13 +375,13 @@ export class DreamsAdComponent extends LitElement {
             ],
           },
           () => {
-            if (bidsReceived) return; // Timeout already fired
+            if (bidsReceived) return;
             bidsReceived = true;
-            clearTimeout(timeoutId);
+            clearTimeout(this.pendingBidsTimeout!);
 
             window.googletag.cmd.push(() => {
               window.apstag.setDisplayBids();
-              window.googletag.pubads().refresh([DEFINED_AD_SLOT]);
+              window.googletag.pubads().refresh([defineAdSlot]);
             });
           },
         );

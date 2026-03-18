@@ -8,7 +8,10 @@ export declare class DreamsAdConfig {
     static getSitePrefix(): string;
     static getPubId(): string | undefined;
     static getBidTimeout(): number;
+    /** @deprecated Use `getLazyLoad()` instead */
     static getDefaultLazyLoad(): LazyLoadConfig;
+    static getLazyLoad(): LazyLoadConfig | false;
+    static getCentering(): boolean;
     static getSlot(slotName: string): SlotConfig | undefined;
     static getSlotMapping(slotName: string): DreamsAdMapping[];
     static getSlotSizing(slotName: string): number[][];
