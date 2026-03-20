@@ -26,4 +26,7 @@ export type {
   DFPContext,
   TargetingResult,
 } from "./features/targeting/targeting.types";
-export type { RefreshConfig, RefreshEvent } from "./features/refresh/refresh.types";
+export type {
+  RefreshConfig,
+  RefreshEvent,
+} from "./features/refresh/refresh.types";

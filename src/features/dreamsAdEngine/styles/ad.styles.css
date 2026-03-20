@@ -59,7 +59,10 @@ dreams-ad-engine > .dae-slot {
       rgba(255, 255, 255, 0)
     )
   );
-  animation: var(--dae-ad-loader-animation, dae-loader-shimmer 2s ease infinite);
+  animation: var(
+    --dae-ad-loader-animation,
+    dae-loader-shimmer 2s ease infinite
+  );
 }
 .dae-serving {
   position: var(--dae-ad-serving-position, relative);
@@ -86,10 +89,16 @@ dreams-ad-engine > .dae-slot {
 }
 
 @keyframes dae-loader-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dae-loader::after { animation: none; }
+  .dae-loader::after {
+    animation: none;
+  }
 }

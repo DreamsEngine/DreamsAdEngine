@@ -146,11 +146,17 @@ export class DreamsAdComponent extends LitElement {
         this.slotRenderHandler = null;
       }
       if (this.impressionViewableHandler) {
-        pubads.removeEventListener("impressionViewable", this.impressionViewableHandler);
+        pubads.removeEventListener(
+          "impressionViewable",
+          this.impressionViewableHandler,
+        );
         this.impressionViewableHandler = null;
       }
       if (this.slotVisibilityHandler) {
-        pubads.removeEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
+        pubads.removeEventListener(
+          "slotVisibilityChanged",
+          this.slotVisibilityHandler,
+        );
         this.slotVisibilityHandler = null;
       }
     }
@@ -211,7 +217,9 @@ export class DreamsAdComponent extends LitElement {
 
             const privacy = DreamsAdConfig.getPrivacy();
             if (privacy) {
-              window.googletag.pubads().setPrivacySettings(privacy as Record<string, boolean>);
+              window.googletag
+                .pubads()
+                .setPrivacySettings(privacy as Record<string, boolean>);
             }
           }
 
@@ -271,7 +279,7 @@ export class DreamsAdComponent extends LitElement {
     if (this.slot === "interstitial") {
       console.warn(
         '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. ' +
-        "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
+          "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
       );
       return;
     }
@@ -282,8 +290,10 @@ export class DreamsAdComponent extends LitElement {
       if (slotConfig) {
         if (!this.networkId) this.networkId = DreamsAdConfig.getNetworkId();
         if (!this.adUnit) this.adUnit = DreamsAdConfig.buildAdUnit(this.slot);
-        if (!this.mapping || this.mapping.length === 0) this.mapping = slotConfig.mapping;
-        if (!this.sizing || this.sizing.length === 0) this.sizing = slotConfig.sizing;
+        if (!this.mapping || this.mapping.length === 0)
+          this.mapping = slotConfig.mapping;
+        if (!this.sizing || this.sizing.length === 0)
+          this.sizing = slotConfig.sizing;
         if (!this.pubId) this.pubId = DreamsAdConfig.getPubId() || "";
         if (this.pubId) this.apstag = true;
       }
@@ -291,13 +301,25 @@ export class DreamsAdComponent extends LitElement {
 
     // Parse JSON attributes with error handling
     if (typeof this.mapping === "string") {
-      try { this.mapping = JSON.parse(this.mapping); } catch { this.mapping = []; }
+      try {
+        this.mapping = JSON.parse(this.mapping);
+      } catch {
+        this.mapping = [];
+      }
     }
     if (typeof this.sizing === "string") {
-      try { this.sizing = JSON.parse(this.sizing); } catch { this.sizing = []; }
+      try {
+        this.sizing = JSON.parse(this.sizing);
+      } catch {
+        this.sizing = [];
+      }
     }
     if (this.targeting && typeof this.targeting === "string") {
-      try { this.targeting = JSON.parse(this.targeting); } catch { this.targeting = []; }
+      try {
+        this.targeting = JSON.parse(this.targeting);
+      } catch {
+        this.targeting = [];
+      }
     }
   }
 
@@ -405,194 +427,239 @@ export class DreamsAdComponent extends LitElement {
 
     // Wait one frame to ensure DOM commit before GPT registration
     requestAnimationFrame(() => {
-    window.googletag.cmd.push(() => {
-      if (!document.getElementById(CONTAINER_ID)) {
-        console.warn(`[DreamsAdEngine] Slot div ${CONTAINER_ID} not in DOM, aborting`);
-        return;
-      }
-
-      const defineAdSlot = window.googletag
-        .defineSlot(SLOT, this.sizing, CONTAINER_ID)
-        .addService(window.googletag.pubads());
-
-      this.resolvedTargeting.forEach((target: DreamsAdTargeting) => {
-        defineAdSlot.setTargeting(target.key, target.value);
-      });
-
-      // slotRenderEnded — resize, collapse, dispatch ad:rendered
-      this.slotRenderHandler = (event: any) => {
-        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
-
-        // Hide loader/skeleton imperatively — no Lit re-render needed
-        const loader = this.querySelector(".dae-loader");
-        if (loader instanceof HTMLElement) loader.style.display = "none";
-        const skeleton = this.querySelector("dreams-ad-skeleton");
-        if (skeleton instanceof HTMLElement) skeleton.style.display = "none";
-
-        const container = this.querySelector(`#${CONTAINER_ID}`);
-        const isTrackingPixel = event.size?.length === 2 && event.size[0] <= 1 && event.size[1] <= 1;
-        if (event.isEmpty || isTrackingPixel) {
-          if (container instanceof HTMLElement) container.style.minHeight = "0";
-          const s = this.querySelector(".dae-serving");
-          if (s instanceof HTMLElement) s.style.minHeight = "0";
-        } else if (container instanceof HTMLElement) {
-          // Use event.size as single source of truth
-          if (event.size?.length === 2) {
-            const [w, h] = event.size;
-            if (w > 1 && h > 1) {
-              container.style.minHeight = `${h}px`;
-              const iframe = container.querySelector<HTMLIFrameElement>("iframe");
-              if (iframe) {
-                iframe.style.width = `${w}px`;
-                iframe.style.height = `${h}px`;
-              }
-            }
-          }
-
-          // ResizeObserver fallback for expandable creatives
-          if (typeof ResizeObserver !== "undefined") {
-            requestAnimationFrame(() => {
-              const iframe = container.querySelector<HTMLIFrameElement>("iframe");
-              if (iframe) {
-                const observer = new ResizeObserver((entries) => {
-                  for (const entry of entries) {
-                    const { width, height } = entry.contentRect;
-                    if (width > 1 && height > 1) {
-                      container.style.minHeight = `${height}px`;
-                      observer.disconnect();
-                    }
-                  }
-                });
-                observer.observe(iframe);
-                setTimeout(() => observer.disconnect(), 10000);
-              }
-            });
-          }
-        }
-
-        // Dispatch rich ad:rendered event
-        this.dispatchEvent(new CustomEvent("ad:rendered", {
-          bubbles: true,
-          detail: {
-            isEmpty: event.isEmpty,
-            size: event.size ?? null,
-            advertiserId: event.advertiserId ?? null,
-            creativeId: event.creativeId ?? null,
-            lineItemId: event.lineItemId ?? null,
-            isBackfill: event.isBackfill ?? false,
-            slotId: CONTAINER_ID,
-            adUnit: SLOT,
-          },
-        }));
-
-        // Legacy viewability tracking (deprecated path)
-        if (this.trackViewability && !event.isEmpty) {
-          const adElement = this.querySelector(`#${CONTAINER_ID}`);
-          if (adElement instanceof HTMLElement) {
-            ViewabilityService.track(adElement, CONTAINER_ID, this.slot || this.adUnit);
-          }
-        }
-      };
-      window.googletag
-        .pubads()
-        .addEventListener("slotRenderEnded", this.slotRenderHandler);
-
-      // impressionViewable — GPT MRC-accredited viewability
-      this.impressionViewableHandler = (event: any) => {
-        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
-
-        RefreshManager.markViewable(CONTAINER_ID);
-
-        this.dispatchEvent(new CustomEvent("ad:viewable", {
-          bubbles: true,
-          detail: { slotId: CONTAINER_ID, adUnit: SLOT },
-        }));
-      };
-      window.googletag
-        .pubads()
-        .addEventListener("impressionViewable", this.impressionViewableHandler);
-
-      // slotVisibilityChanged — dispatch only on 25% threshold crossings
-      this.slotVisibilityHandler = (event: any) => {
-        if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
-
-        const pct = event.inViewPercentage;
-        const bucket = Math.floor(pct / 25) * 25;
-        const lastBucket = Math.floor(this.lastVisibilityPct / 25) * 25;
-        if (bucket === lastBucket && this.lastVisibilityPct >= 0) return;
-        this.lastVisibilityPct = pct;
-
-        this.dispatchEvent(new CustomEvent("ad:visibility", {
-          bubbles: true,
-          detail: { slotId: CONTAINER_ID, adUnit: SLOT, inViewPercentage: pct },
-        }));
-      };
-      window.googletag
-        .pubads()
-        .addEventListener("slotVisibilityChanged", this.slotVisibilityHandler);
-
-      // Define responsive size mapping
-      const AD_MAPPING = window.googletag.sizeMapping();
-      this.mapping.forEach((map: DreamsAdMapping) => {
-        AD_MAPPING.addSize(map.viewport, map.sizing);
-      });
-      defineAdSlot.defineSizeMapping(AD_MAPPING.build());
-
-      // Store slot reference for cleanup
-      this.adSlot = defineAdSlot;
-
-      if (this.refresh) {
-        window.dreamsSlotsToUpdate.push(defineAdSlot);
-      }
-      window.dreamsAllSlots.push(defineAdSlot);
-
-      // Register slot — with disableInitialLoad(), this only registers without fetching
-      window.googletag.display(CONTAINER_ID);
-
-      // Use APS flow only if both apstag is enabled AND pubId is set
-      const useAps = this.apstag && this.pubId;
-
-      if (!useAps) {
-        window.googletag.pubads().refresh([defineAdSlot]);
-      } else {
-        if (typeof window.apstag?.fetchBids !== "function") {
-          window.googletag.pubads().refresh([defineAdSlot]);
+      try {
+        if (!window.googletag?.cmd?.push) {
+          console.error(
+            "[DreamsAdEngine] googletag.cmd not available for",
+            this.adUnit,
+          );
           return;
         }
-
-        let bidsReceived = false;
-        const bidTimeout = this.bidTimeout || 2000;
-
-        this.pendingBidsTimeout = setTimeout(() => {
-          if (!bidsReceived) {
-            bidsReceived = true;
-            window.googletag.cmd.push(() => {
-              window.googletag.pubads().refresh([defineAdSlot]);
-            });
+        window.googletag.cmd.push(() => {
+          if (!document.getElementById(CONTAINER_ID)) {
+            console.warn(
+              `[DreamsAdEngine] Slot div ${CONTAINER_ID} not in DOM, aborting`,
+            );
+            return;
           }
-        }, bidTimeout + 500);
 
-        window.apstag.fetchBids(
-          {
-            slots: [{
-              slotID: CONTAINER_ID,
-              slotName: SLOT,
-              sizes: this.sizing,
-            }],
-          },
-          () => {
-            if (bidsReceived) return;
-            bidsReceived = true;
-            clearTimeout(this.pendingBidsTimeout!);
+          const defineAdSlot = window.googletag
+            .defineSlot(SLOT, this.sizing, CONTAINER_ID)
+            .addService(window.googletag.pubads());
 
-            window.googletag.cmd.push(() => {
-              window.apstag.setDisplayBids();
+          this.resolvedTargeting.forEach((target: DreamsAdTargeting) => {
+            defineAdSlot.setTargeting(target.key, target.value);
+          });
+
+          // slotRenderEnded — resize, collapse, dispatch ad:rendered
+          this.slotRenderHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+            // Hide loader/skeleton imperatively — no Lit re-render needed
+            const loader = this.querySelector(".dae-loader");
+            if (loader instanceof HTMLElement) loader.style.display = "none";
+            const skeleton = this.querySelector("dreams-ad-skeleton");
+            if (skeleton instanceof HTMLElement)
+              skeleton.style.display = "none";
+
+            const container = this.querySelector(`#${CONTAINER_ID}`);
+            const isTrackingPixel =
+              event.size?.length === 2 &&
+              event.size[0] <= 1 &&
+              event.size[1] <= 1;
+            if (event.isEmpty || isTrackingPixel) {
+              if (container instanceof HTMLElement)
+                container.style.minHeight = "0";
+              const s = this.querySelector(".dae-serving");
+              if (s instanceof HTMLElement) s.style.minHeight = "0";
+            } else if (container instanceof HTMLElement) {
+              // Use event.size as single source of truth
+              if (event.size?.length === 2) {
+                const [w, h] = event.size;
+                if (w > 1 && h > 1) {
+                  container.style.minHeight = `${h}px`;
+                  const iframe =
+                    container.querySelector<HTMLIFrameElement>("iframe");
+                  if (iframe) {
+                    iframe.style.width = `${w}px`;
+                    iframe.style.height = `${h}px`;
+                  }
+                }
+              }
+
+              // ResizeObserver fallback for expandable creatives
+              if (typeof ResizeObserver !== "undefined") {
+                requestAnimationFrame(() => {
+                  const iframe =
+                    container.querySelector<HTMLIFrameElement>("iframe");
+                  if (iframe) {
+                    const observer = new ResizeObserver((entries) => {
+                      for (const entry of entries) {
+                        const { width, height } = entry.contentRect;
+                        if (width > 1 && height > 1) {
+                          container.style.minHeight = `${height}px`;
+                          observer.disconnect();
+                        }
+                      }
+                    });
+                    observer.observe(iframe);
+                    setTimeout(() => observer.disconnect(), 10000);
+                  }
+                });
+              }
+            }
+
+            // Dispatch rich ad:rendered event
+            this.dispatchEvent(
+              new CustomEvent("ad:rendered", {
+                bubbles: true,
+                detail: {
+                  isEmpty: event.isEmpty,
+                  size: event.size ?? null,
+                  advertiserId: event.advertiserId ?? null,
+                  creativeId: event.creativeId ?? null,
+                  lineItemId: event.lineItemId ?? null,
+                  isBackfill: event.isBackfill ?? false,
+                  slotId: CONTAINER_ID,
+                  adUnit: SLOT,
+                },
+              }),
+            );
+
+            // Legacy viewability tracking (deprecated path)
+            if (this.trackViewability && !event.isEmpty) {
+              const adElement = this.querySelector(`#${CONTAINER_ID}`);
+              if (adElement instanceof HTMLElement) {
+                ViewabilityService.track(
+                  adElement,
+                  CONTAINER_ID,
+                  this.slot || this.adUnit,
+                );
+              }
+            }
+          };
+          window.googletag
+            .pubads()
+            .addEventListener("slotRenderEnded", this.slotRenderHandler);
+
+          // impressionViewable — GPT MRC-accredited viewability
+          this.impressionViewableHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+            RefreshManager.markViewable(CONTAINER_ID);
+
+            this.dispatchEvent(
+              new CustomEvent("ad:viewable", {
+                bubbles: true,
+                detail: { slotId: CONTAINER_ID, adUnit: SLOT },
+              }),
+            );
+          };
+          window.googletag
+            .pubads()
+            .addEventListener(
+              "impressionViewable",
+              this.impressionViewableHandler,
+            );
+
+          // slotVisibilityChanged — dispatch only on 25% threshold crossings
+          this.slotVisibilityHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+
+            const pct = event.inViewPercentage;
+            const bucket = Math.floor(pct / 25) * 25;
+            const lastBucket = Math.floor(this.lastVisibilityPct / 25) * 25;
+            if (bucket === lastBucket && this.lastVisibilityPct >= 0) return;
+            this.lastVisibilityPct = pct;
+
+            this.dispatchEvent(
+              new CustomEvent("ad:visibility", {
+                bubbles: true,
+                detail: {
+                  slotId: CONTAINER_ID,
+                  adUnit: SLOT,
+                  inViewPercentage: pct,
+                },
+              }),
+            );
+          };
+          window.googletag
+            .pubads()
+            .addEventListener(
+              "slotVisibilityChanged",
+              this.slotVisibilityHandler,
+            );
+
+          // Define responsive size mapping
+          const AD_MAPPING = window.googletag.sizeMapping();
+          this.mapping.forEach((map: DreamsAdMapping) => {
+            AD_MAPPING.addSize(map.viewport, map.sizing);
+          });
+          defineAdSlot.defineSizeMapping(AD_MAPPING.build());
+
+          // Store slot reference for cleanup
+          this.adSlot = defineAdSlot;
+
+          if (this.refresh) {
+            window.dreamsSlotsToUpdate.push(defineAdSlot);
+          }
+          window.dreamsAllSlots.push(defineAdSlot);
+
+          // Register slot — with disableInitialLoad(), this only registers without fetching
+          window.googletag.display(CONTAINER_ID);
+
+          // Use APS flow only if both apstag is enabled AND pubId is set
+          const useAps = this.apstag && this.pubId;
+
+          if (!useAps) {
+            window.googletag.pubads().refresh([defineAdSlot]);
+          } else {
+            if (typeof window.apstag?.fetchBids !== "function") {
               window.googletag.pubads().refresh([defineAdSlot]);
-            });
-          },
+              return;
+            }
+
+            let bidsReceived = false;
+            const bidTimeout = this.bidTimeout || 2000;
+
+            this.pendingBidsTimeout = setTimeout(() => {
+              if (!bidsReceived) {
+                bidsReceived = true;
+                window.googletag.cmd.push(() => {
+                  window.googletag.pubads().refresh([defineAdSlot]);
+                });
+              }
+            }, bidTimeout + 500);
+
+            window.apstag.fetchBids(
+              {
+                slots: [
+                  {
+                    slotID: CONTAINER_ID,
+                    slotName: SLOT,
+                    sizes: this.sizing,
+                  },
+                ],
+              },
+              () => {
+                if (bidsReceived) return;
+                bidsReceived = true;
+                clearTimeout(this.pendingBidsTimeout!);
+
+                window.googletag.cmd.push(() => {
+                  window.apstag.setDisplayBids();
+                  window.googletag.pubads().refresh([defineAdSlot]);
+                });
+              },
+            );
+          }
+        });
+      } catch (error) {
+        console.error(
+          `[DreamsAdEngine] Slot registration failed: ${this.adUnit}`,
+          error,
         );
       }
-    });
     }); // end requestAnimationFrame
   }
 
@@ -602,15 +669,19 @@ export class DreamsAdComponent extends LitElement {
 
     return html`
 			<div class="dae-container">
-				${this.enableTitle
-          ? html`<span class="dae-label">${this.title}</span>`
-          : ""}
-				${this.showSkeleton
-          ? html`<dreams-ad-skeleton
+				${
+          this.enableTitle
+            ? html`<span class="dae-label">${this.title}</span>`
+            : ""
+        }
+				${
+          this.showSkeleton
+            ? html`<dreams-ad-skeleton
               width="${this.#getSkeletonWidth()}"
               height="${this.#getSkeletonHeight()}"
             ></dreams-ad-skeleton>`
-          : html`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
+            : html`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`
+        }
 				<div
 					class="dae-serving"
 					data-post-id="${this.divId}"

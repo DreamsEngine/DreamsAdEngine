@@ -164,7 +164,9 @@ export class DreamsAdConfig {
     this.instance!.privacy = config;
     if (typeof window !== "undefined" && window.googletag) {
       window.googletag.cmd.push(() => {
-        window.googletag.pubads().setPrivacySettings(config as Record<string, boolean>);
+        window.googletag
+          .pubads()
+          .setPrivacySettings(config as Record<string, boolean>);
       });
     }
   }

@@ -7,10 +7,7 @@ export interface Googletag {
     size: Array<number> | Array<Array<number>>,
     divId: string,
   ) => Slot;
-  defineOutOfPageSlot: (
-    adUnitPath: string,
-    format: unknown,
-  ) => Slot | null;
+  defineOutOfPageSlot: (adUnitPath: string, format: unknown) => Slot | null;
   display: (divId: string) => void;
   enableServices: () => void;
   setConfig: (config: Record<string, unknown>) => void;
