@@ -425,8 +425,9 @@ export class DreamsAdComponent extends LitElement {
       this.appendChild(adContainer);
     }
 
-    // Wait one frame to ensure DOM commit before GPT registration
-    requestAnimationFrame(() => {
+    // Use setTimeout(0) instead of rAF — rAF never fires in background tabs,
+    // which silently prevents slot registration when the page loads unfocused.
+    setTimeout(() => {
       try {
         if (!window.googletag?.cmd?.push) {
           console.error(
@@ -660,7 +661,7 @@ export class DreamsAdComponent extends LitElement {
           error,
         );
       }
-    }); // end requestAnimationFrame
+    }, 0); // end setTimeout
   }
 
   protected render(): TemplateResult {

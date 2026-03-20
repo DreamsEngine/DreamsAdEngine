@@ -1601,7 +1601,7 @@ jt = function() {
   const n = `/${this.networkId}/${this.adUnit}`, t = this.divId, e = document.createElement("div");
   e.id = t, e.setAttribute("data-ad", this.divId), e.setAttribute("role", "complementary"), e.setAttribute("aria-label", "Advertisement"), e.classList.add("dae-slot"), e.style.cssText = "width:100%";
   const i = A(this, v, at).call(this), s = this.querySelector(".dae-serving");
-  s instanceof HTMLElement ? (s.style.minHeight = `${i}px`, s.appendChild(e)) : this.appendChild(e), requestAnimationFrame(() => {
+  s instanceof HTMLElement ? (s.style.minHeight = `${i}px`, s.appendChild(e)) : this.appendChild(e), setTimeout(() => {
     try {
       if (!window.googletag?.cmd?.push) {
         console.error(
@@ -1742,7 +1742,7 @@ jt = function() {
         o
       );
     }
-  });
+  }, 0);
 };
 qt = function() {
   const n = typeof window < "u" ? window.innerWidth : 320;
