@@ -50,7 +50,7 @@ export const DEFAULT_SLOTS: Record<string, SlotConfig> = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90],
@@ -76,7 +76,7 @@ export const DEFAULT_SLOTS: Record<string, SlotConfig> = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90],
@@ -102,7 +102,7 @@ export const DEFAULT_SLOTS: Record<string, SlotConfig> = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90],

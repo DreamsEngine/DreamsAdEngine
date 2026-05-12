@@ -33,7 +33,7 @@ export class DreamsAdComponent extends LitElement {
   static outOfPageRegistered = false;
 
   // Instance references for cleanup
-  private adSlot: any = null;
+  private gptSlot: any = null;
   private slotRenderHandler: ((event: any) => void) | null = null;
   private impressionViewableHandler: ((event: any) => void) | null = null;
   private slotVisibilityHandler: ((event: any) => void) | null = null;
@@ -94,7 +94,7 @@ export class DreamsAdComponent extends LitElement {
   @property({ type: String }) networkId = "";
   @property({ type: String }) adUnit = "";
   @property({ type: String }) divId = "";
-  @property({ type: String }) slot = "";
+  @property({ type: String, attribute: 'ad-slot' }) adSlot = "";
   @property({ type: Array }) mapping: DreamsAdMapping[] = [];
   @property({ type: Array }) sizing: number[][] = [];
   @property({ type: Array }) targeting: DreamsAdTargeting[] = [];
@@ -162,19 +162,19 @@ export class DreamsAdComponent extends LitElement {
     }
 
     // Destroy this component's slot and remove from global arrays
-    if (this.adSlot) {
+    if (this.gptSlot) {
       if (window.dreamsAllSlots) {
-        const allIndex = window.dreamsAllSlots.indexOf(this.adSlot);
+        const allIndex = window.dreamsAllSlots.indexOf(this.gptSlot);
         if (allIndex > -1) window.dreamsAllSlots.splice(allIndex, 1);
       }
       if (window.dreamsSlotsToUpdate) {
-        const updateIndex = window.dreamsSlotsToUpdate.indexOf(this.adSlot);
+        const updateIndex = window.dreamsSlotsToUpdate.indexOf(this.gptSlot);
         if (updateIndex > -1) window.dreamsSlotsToUpdate.splice(updateIndex, 1);
       }
       if (window.googletag?.destroySlots) {
-        window.googletag.destroySlots([this.adSlot]);
+        window.googletag.destroySlots([this.gptSlot]);
       }
-      this.adSlot = null;
+      this.gptSlot = null;
     }
   }
 
@@ -189,12 +189,16 @@ export class DreamsAdComponent extends LitElement {
         const alreadyEnabled = window.googletag.pubadsReady === true;
 
         if (!alreadyEnabled) {
-          window.googletag.pubads().disableInitialLoad();
+          const lazyLoad = DreamsAdConfig.isInitialized()
+            ? DreamsAdConfig.getLazyLoad()
+            : null;
+
+          if (!lazyLoad) {
+            window.googletag.pubads().disableInitialLoad();
+          }
 
           if (DreamsAdConfig.isInitialized()) {
             const setConfigPayload: Record<string, unknown> = {};
-
-            const lazyLoad = DreamsAdConfig.getLazyLoad();
             if (lazyLoad) {
               setConfigPayload.lazyLoad = lazyLoad;
             }
@@ -248,7 +252,10 @@ export class DreamsAdComponent extends LitElement {
     await this.#resolveConfiguration();
     await this.#resolveTargeting();
 
-    this.divId = `div-gpt-ad-${this.adUnit}-${crypto.randomUUID()}`;
+    const uid = typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
 
     // Initialize APS if configured and available
     if (this.apstag && this.pubId && !DreamsAdComponent.initialized_aps) {
@@ -276,7 +283,7 @@ export class DreamsAdComponent extends LitElement {
   }
 
   async #resolveConfiguration() {
-    if (this.slot === "interstitial") {
+    if (this.adSlot === "interstitial") {
       console.warn(
         '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. ' +
           "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
@@ -284,12 +291,12 @@ export class DreamsAdComponent extends LitElement {
       return;
     }
 
-    if (this.slot) {
+    if (this.adSlot) {
       await DreamsAdConfig.whenReady();
-      const slotConfig = DreamsAdConfig.getSlot(this.slot);
+      const slotConfig = DreamsAdConfig.getSlot(this.adSlot);
       if (slotConfig) {
         if (!this.networkId) this.networkId = DreamsAdConfig.getNetworkId();
-        if (!this.adUnit) this.adUnit = DreamsAdConfig.buildAdUnit(this.slot);
+        if (!this.adUnit) this.adUnit = DreamsAdConfig.buildAdUnit(this.adSlot);
         if (!this.mapping || this.mapping.length === 0)
           this.mapping = slotConfig.mapping;
         if (!this.sizing || this.sizing.length === 0)
@@ -534,7 +541,7 @@ export class DreamsAdComponent extends LitElement {
                 ViewabilityService.track(
                   adElement,
                   CONTAINER_ID,
-                  this.slot || this.adUnit,
+                  this.adSlot || this.adUnit,
                 );
               }
             }
@@ -599,60 +606,65 @@ export class DreamsAdComponent extends LitElement {
           defineAdSlot.defineSizeMapping(AD_MAPPING.build());
 
           // Store slot reference for cleanup
-          this.adSlot = defineAdSlot;
+          this.gptSlot = defineAdSlot;
 
           if (this.refresh) {
             window.dreamsSlotsToUpdate.push(defineAdSlot);
           }
           window.dreamsAllSlots.push(defineAdSlot);
 
-          // Register slot — with disableInitialLoad(), this only registers without fetching
+          // Register slot with GPT
           window.googletag.display(CONTAINER_ID);
 
-          // Use APS flow only if both apstag is enabled AND pubId is set
-          const useAps = this.apstag && this.pubId;
+          // When lazy load is active, GPT manages fetch timing — skip manual refresh
+          const lazyLoadActive = DreamsAdConfig.isInitialized() && !!DreamsAdConfig.getLazyLoad();
 
-          if (!useAps) {
-            window.googletag.pubads().refresh([defineAdSlot]);
-          } else {
-            if (typeof window.apstag?.fetchBids !== "function") {
+          if (!lazyLoadActive) {
+            // Manual fetch — only when disableInitialLoad() was called
+            const useAps = this.apstag && this.pubId;
+
+            if (!useAps) {
               window.googletag.pubads().refresh([defineAdSlot]);
-              return;
-            }
-
-            let bidsReceived = false;
-            const bidTimeout = this.bidTimeout || 2000;
-
-            this.pendingBidsTimeout = setTimeout(() => {
-              if (!bidsReceived) {
-                bidsReceived = true;
-                window.googletag.cmd.push(() => {
-                  window.googletag.pubads().refresh([defineAdSlot]);
-                });
+            } else {
+              if (typeof window.apstag?.fetchBids !== "function") {
+                window.googletag.pubads().refresh([defineAdSlot]);
+                return;
               }
-            }, bidTimeout + 500);
 
-            window.apstag.fetchBids(
-              {
-                slots: [
-                  {
-                    slotID: CONTAINER_ID,
-                    slotName: SLOT,
-                    sizes: this.sizing,
-                  },
-                ],
-              },
-              () => {
-                if (bidsReceived) return;
-                bidsReceived = true;
-                clearTimeout(this.pendingBidsTimeout!);
+              let bidsReceived = false;
+              const bidTimeout = this.bidTimeout || 2000;
 
-                window.googletag.cmd.push(() => {
-                  window.apstag.setDisplayBids();
-                  window.googletag.pubads().refresh([defineAdSlot]);
-                });
-              },
-            );
+              this.pendingBidsTimeout = setTimeout(() => {
+                if (!bidsReceived) {
+                  bidsReceived = true;
+                  window.googletag.cmd.push(() => {
+                    window.googletag.pubads().refresh([defineAdSlot]);
+                  });
+                }
+              }, bidTimeout + 500);
+
+              window.apstag.fetchBids(
+                {
+                  slots: [
+                    {
+                      slotID: CONTAINER_ID,
+                      slotName: SLOT,
+                      sizes: this.sizing,
+                    },
+                  ],
+                },
+                () => {
+                  if (bidsReceived) return;
+                  bidsReceived = true;
+                  clearTimeout(this.pendingBidsTimeout!);
+
+                  window.googletag.cmd.push(() => {
+                    window.apstag.setDisplayBids();
+                    window.googletag.pubads().refresh([defineAdSlot]);
+                  });
+                },
+              );
+            }
           }
         });
       } catch (error) {
