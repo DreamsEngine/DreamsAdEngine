@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-05-12
+
+### Fixed
+
+- **GPT `Slot.setTargeting` deprecation (#171)**: Migrated the two
+  remaining call sites to `slot.setConfig({ targeting })`, the
+  documented replacement.
+  - `ad.component.ts` — per-slot targeting collapses into one
+    `setConfig({ targeting })` call instead of N `setTargeting` calls.
+  - `refresh.service.ts` — `refresh_count` now applied via
+    `setConfig({ targeting: { refresh_count } })`. `setConfig` merges
+    with existing slot targeting, preserving prior behavior.
+- TypeScript: `Slot.setConfig` added to the GPT type surface;
+  `Slot.setTargeting` retained as `@deprecated` so downstream consumers
+  see the warning in their editor.
+- Interstitial deprecation warning now references `ad-slot="interstitial"`
+  to match the renamed attribute (was stale `slot="interstitial"`).
+
 ## [0.6.0] - 2026-05-12
 
 ### Added
