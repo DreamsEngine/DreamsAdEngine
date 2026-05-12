@@ -300,24 +300,31 @@ export class DreamsAdComponent extends LitElement {
       if (typeof window.pbjs?.que?.push === "function") {
         try {
           window.pbjs.que.push(() => {
-            if (this.prebidConfig) {
-              const cfg =
-                typeof this.prebidConfig === "string"
-                  ? JSON.parse(this.prebidConfig)
-                  : this.prebidConfig;
-              window.pbjs.setConfig(cfg);
-            }
-            // bidWon → dataLayer for attribution. Registered once.
-            window.pbjs.onEvent("bidWon", (bid: any) => {
-              (window.dataLayer = window.dataLayer || []).push({
-                event: "prebid_bid_won",
-                bidder: bid.bidderCode,
-                cpm: bid.cpm,
-                currency: bid.currency,
-                ad_unit: bid.adUnitCode,
-                size: bid.size,
+            // Inner try/catch — the outer one only covers que.push itself.
+            // Malformed prebidConfig JSON or pbjs.setConfig failure must not
+            // bubble as an unhandled error inside the pbjs queue.
+            try {
+              if (this.prebidConfig) {
+                const cfg =
+                  typeof this.prebidConfig === "string"
+                    ? JSON.parse(this.prebidConfig)
+                    : this.prebidConfig;
+                window.pbjs.setConfig(cfg);
+              }
+              // bidWon → dataLayer for attribution. Registered once.
+              window.pbjs.onEvent("bidWon", (bid: any) => {
+                (window.dataLayer = window.dataLayer || []).push({
+                  event: "prebid_bid_won",
+                  bidder: bid.bidderCode,
+                  cpm: bid.cpm,
+                  currency: bid.currency,
+                  ad_unit: bid.adUnitCode,
+                  size: bid.size,
+                });
               });
-            });
+            } catch (e) {
+              console.warn("[DreamsAdEngine] prebid init failed", e);
+            }
           });
           DreamsAdComponent.initialized_prebid = true;
         } catch {
@@ -537,7 +544,9 @@ export class DreamsAdComponent extends LitElement {
             if (skeleton instanceof HTMLElement)
               skeleton.style.display = "none";
 
-            const container = this.querySelector(`#${CONTAINER_ID}`);
+            // getElementById, not querySelector — CONTAINER_ID embeds the
+            // GAM ad unit path which can contain "/" (invalid in CSS selectors).
+            const container = document.getElementById(CONTAINER_ID);
             const isTrackingPixel =
               event.size?.length === 2 &&
               event.size[0] <= 1 &&
@@ -603,7 +612,8 @@ export class DreamsAdComponent extends LitElement {
 
             // Legacy viewability tracking (deprecated path)
             if (this.trackViewability && !event.isEmpty) {
-              const adElement = this.querySelector(`#${CONTAINER_ID}`);
+              // getElementById handles slashes in CONTAINER_ID; see above.
+              const adElement = document.getElementById(CONTAINER_ID);
               if (adElement instanceof HTMLElement) {
                 ViewabilityService.track(
                   adElement,

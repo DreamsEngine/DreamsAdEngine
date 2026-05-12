@@ -241,8 +241,8 @@ let z = class extends HTMLElement {
 };
 z.elementStyles = [], z.shadowRootOptions = { mode: "open" }, z[R("elementProperties")] = /* @__PURE__ */ new Map(), z[R("finalized")] = /* @__PURE__ */ new Map(), oe?.({ ReactiveElement: z }), (X.reactiveElementVersions ??= []).push("2.1.2");
 const nt = globalThis, gt = (n) => n, W = nt.trustedTypes, ft = W ? W.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Lt = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, Ot = "?" + S, re = `<${Ot}>`, C = document, V = () => C.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", ot = Array.isArray, ae = (n) => ot(n) || typeof n?.[Symbol.iterator] == "function", Q = `[ 	
-\f\r]`, U = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, wt = />/g, T = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, bt = /"/g, Ut = /^(?:script|style|textarea|title)$/i, le = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), k = le(1), I = /* @__PURE__ */ Symbol.for("lit-noChange"), y = /* @__PURE__ */ Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), x = C.createTreeWalker(C, 129);
+\f\r]`, U = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, wt = />/g, E = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, bt = /"/g, Ut = /^(?:script|style|textarea|title)$/i, le = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), T = le(1), I = /* @__PURE__ */ Symbol.for("lit-noChange"), y = /* @__PURE__ */ Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), x = C.createTreeWalker(C, 129);
 function Rt(n, t) {
   if (!ot(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return ft !== void 0 ? ft.createHTML(t) : t;
@@ -253,8 +253,8 @@ const de = (n, t) => {
   for (let d = 0; d < e; d++) {
     const a = n[d];
     let c, p, h = -1, b = 0;
-    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = T) : p[3] !== void 0 && (r = T) : r === T ? p[0] === ">" ? (r = s ?? U, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? T : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = T : r === mt || r === wt ? r = U : (r = T, s = void 0);
-    const u = r === T && n[d + 1].startsWith("/>") ? " " : "";
+    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = E) : p[3] !== void 0 && (r = E) : r === E ? p[0] === ">" ? (r = s ?? U, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? E : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = E : r === mt || r === wt ? r = U : (r = E, s = void 0);
+    const u = r === E && n[d + 1].startsWith("/>") ? " " : "";
     o += r === U ? a + re : h >= 0 ? (i.push(c), a.slice(0, h) + Lt + a.slice(h) + S + u) : a + S + (h === -2 ? d : u);
   }
   return [Rt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
@@ -1212,7 +1212,7 @@ const tt = 3e4, St = {
   disableOnSinglePost: !0,
   singlePostSelector: "body.single",
   viewabilityGated: !0
-}, E = class E {
+}, k = class k {
   /**
    * Configure the refresh manager
    */
@@ -1327,14 +1327,14 @@ const tt = 3e4, St = {
     );
   }
 };
-E.config = St, E.refreshTimer = null, E.running = !1, E.viewableSlots = /* @__PURE__ */ new Set(), E.refreshCounts = /* @__PURE__ */ new Map();
-let et = E;
+k.config = St, k.refreshTimer = null, k.running = !1, k.viewableSlots = /* @__PURE__ */ new Set(), k.refreshCounts = /* @__PURE__ */ new Map();
+let et = k;
 var Se = Object.defineProperty, _e = Object.getOwnPropertyDescriptor, F = (n, t, e, i) => {
   for (var s = i > 1 ? void 0 : i ? _e(t, e) : t, o = n.length - 1, r; o >= 0; o--)
     (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
   return i && s && Se(t, e, s), s;
 };
-const Te = `
+const Ee = `
 dreams-ad-skeleton { display: block; }
 .dae-skeleton { position: relative; overflow: hidden; background: var(--dreams-skeleton-bg, #f0f0f0); border-radius: var(--dreams-skeleton-radius, 4px); max-width: 100%; }
 .dae-skeleton::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent 0%, var(--dreams-skeleton-shine, rgba(255,255,255,0.6)) 50%, transparent 100%); animation: dae-shimmer 1.5s infinite; }
@@ -1342,10 +1342,10 @@ dreams-ad-skeleton { display: block; }
 .dae-skeleton-label { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--dreams-skeleton-label-color, #999); font-family: system-ui, -apple-system, sans-serif; }
 `;
 let _t = !1;
-function ke() {
+function Te() {
   if (_t || typeof document > "u") return;
   const n = document.createElement("style");
-  n.textContent = Te, document.head.appendChild(n), _t = !0;
+  n.textContent = Ee, document.head.appendChild(n), _t = !0;
 }
 let O = class extends P {
   constructor() {
@@ -1355,15 +1355,15 @@ let O = class extends P {
     return this;
   }
   connectedCallback() {
-    super.connectedCallback(), ke();
+    super.connectedCallback(), Te();
   }
   render() {
-    return k`
+    return T`
       <div
         class="dae-skeleton"
         style="width: ${this.width}px; height: ${this.height}px;"
       >
-        ${this.showLabel ? k`<span class="dae-skeleton-label">${this.label}</span>` : ""}
+        ${this.showLabel ? T`<span class="dae-skeleton-label">${this.label}</span>` : ""}
       </div>
     `;
   }
@@ -1405,18 +1405,18 @@ function Oe(n, t) {
       return { width: 300, height: 250 };
   }
 }
-var Ee = Object.defineProperty, xe = Object.getOwnPropertyDescriptor, Nt = (n) => {
+var ke = Object.defineProperty, xe = Object.getOwnPropertyDescriptor, Nt = (n) => {
   throw TypeError(n);
 }, m = (n, t, e, i) => {
   for (var s = i > 1 ? void 0 : i ? xe(t, e) : t, o = n.length - 1, r; o >= 0; o--)
     (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
-  return i && s && Ee(t, e, s), s;
+  return i && s && ke(t, e, s), s;
 }, Ce = (n, t, e) => t.has(n) || Nt("Cannot " + e), ze = (n, t, e) => t.has(n) ? Nt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(n) : t.set(n, e), A = (n, t, e) => (Ce(n, t, "access private method"), e), v, Vt, Mt, Bt, jt, at, Ft, qt, Gt;
-let Tt = !1;
+let Et = !1;
 function Pe() {
-  if (Tt || typeof document > "u") return;
+  if (Et || typeof document > "u") return;
   const n = document.createElement("style");
-  n.textContent = ve, document.head.appendChild(n), Tt = !0;
+  n.textContent = ve, document.head.appendChild(n), Et = !0;
 }
 let l = class extends P {
   constructor() {
@@ -1484,20 +1484,24 @@ let l = class extends P {
       if (typeof window.pbjs?.que?.push == "function")
         try {
           window.pbjs.que.push(() => {
-            if (this.prebidConfig) {
-              const t = typeof this.prebidConfig == "string" ? JSON.parse(this.prebidConfig) : this.prebidConfig;
-              window.pbjs.setConfig(t);
-            }
-            window.pbjs.onEvent("bidWon", (t) => {
-              (window.dataLayer = window.dataLayer || []).push({
-                event: "prebid_bid_won",
-                bidder: t.bidderCode,
-                cpm: t.cpm,
-                currency: t.currency,
-                ad_unit: t.adUnitCode,
-                size: t.size
+            try {
+              if (this.prebidConfig) {
+                const t = typeof this.prebidConfig == "string" ? JSON.parse(this.prebidConfig) : this.prebidConfig;
+                window.pbjs.setConfig(t);
+              }
+              window.pbjs.onEvent("bidWon", (t) => {
+                (window.dataLayer = window.dataLayer || []).push({
+                  event: "prebid_bid_won",
+                  bidder: t.bidderCode,
+                  cpm: t.cpm,
+                  currency: t.currency,
+                  ad_unit: t.adUnitCode,
+                  size: t.size
+                });
               });
-            });
+            } catch (t) {
+              console.warn("[DreamsAdEngine] prebid init failed", t);
+            }
           }), l.initialized_prebid = !0;
         } catch {
           this.prebid = !1;
@@ -1507,13 +1511,13 @@ let l = class extends P {
     this.ready = !0, await this.updateComplete, A(this, v, Ft).call(this);
   }
   render() {
-    return this.ready ? k`
+    return this.ready ? T`
 			<div class="dae-container">
-				${this.enableTitle ? k`<span class="dae-label">${this.title}</span>` : ""}
-				${this.showSkeleton ? k`<dreams-ad-skeleton
+				${this.enableTitle ? T`<span class="dae-label">${this.title}</span>` : ""}
+				${this.showSkeleton ? T`<dreams-ad-skeleton
               width="${A(this, v, qt).call(this)}"
               height="${A(this, v, Gt).call(this)}"
-            ></dreams-ad-skeleton>` : k`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
+            ></dreams-ad-skeleton>` : T`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
 				<div
 					class="dae-serving"
 					data-post-id="${this.divId}"
@@ -1522,7 +1526,7 @@ let l = class extends P {
 				>
 				</div>
 			</div>
-		` : k``;
+		` : T``;
   }
 };
 v = /* @__PURE__ */ new WeakSet();
@@ -1662,7 +1666,7 @@ Ft = function() {
           c instanceof HTMLElement && (c.style.display = "none");
           const p = this.querySelector("dreams-ad-skeleton");
           p instanceof HTMLElement && (p.style.display = "none");
-          const h = this.querySelector(`#${t}`), b = a.size?.length === 2 && a.size[0] <= 1 && a.size[1] <= 1;
+          const h = document.getElementById(t), b = a.size?.length === 2 && a.size[0] <= 1 && a.size[1] <= 1;
           if (a.isEmpty || b) {
             h instanceof HTMLElement && (h.style.minHeight = "0");
             const u = this.querySelector(".dae-serving");
@@ -1704,7 +1708,7 @@ Ft = function() {
               }
             })
           ), this.trackViewability && !a.isEmpty) {
-            const u = this.querySelector(`#${t}`);
+            const u = document.getElementById(t);
             u instanceof HTMLElement && Y.track(
               u,
               t,
@@ -1909,7 +1913,7 @@ m([
 l = m([
   Ht("dreams-ad-engine")
 ], l);
-const kt = {
+const Tt = {
   enabled: !0,
   addBodyClass: !0,
   bodyClass: "ad-blocker-detected",
@@ -1919,7 +1923,7 @@ const kt = {
    * Configure the ad block detector
    */
   static configure(t) {
-    this.config = { ...kt, ...t };
+    this.config = { ...Tt, ...t };
   }
   /**
    * Check if ad blocker is detected (cached result)
@@ -2021,8 +2025,8 @@ const kt = {
     });
   }
 };
-D.config = kt, D.detected = null, D.detecting = null;
-let Et = D;
+D.config = Tt, D.detected = null, D.detecting = null;
+let kt = D;
 const xt = {
   enabled: "auto",
   prefix: "[DreamsAdEngine]",
@@ -2210,7 +2214,7 @@ const zt = {
 N.config = zt, N.stickyAds = /* @__PURE__ */ new Map(), N.lastScrollTime = 0;
 let Pt = N;
 export {
-  Et as AdBlockDetector,
+  kt as AdBlockDetector,
   $e as DEFAULT_SLOTS,
   l as DreamsAdComponent,
   f as DreamsAdConfig,
