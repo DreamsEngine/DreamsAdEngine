@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2026-05-12
+
+### Fixed
+
+- **`querySelector` chokes on slash chars in CONTAINER_ID**
+  (`SyntaxError: Failed to execute 'querySelector' on 'Element'`).
+  The slot's container `id` embeds the GAM ad unit path
+  (e.g. `div-gpt-ad-/21825384248/c360_default_box_a-<uuid>`), and
+  `/` is not a valid CSS-identifier character. Switched two callsites
+  in `slotRenderEnded` (container resize + legacy viewability hook)
+  from `this.querySelector(\`#${CONTAINER_ID}\`)` to
+  `document.getElementById(CONTAINER_ID)`, matching the existing
+  guard at line 507. Observed as a GPT `slotRenderEnded` listener
+  exception in production consoles; was silently swallowed by GPT
+  but prevented container resize for slot ids containing `/`.
+- **Prebid init: malformed `prebidConfig` JSON no longer bubbles**
+  through the `pbjs.que` callback as an unhandled error. Wrapped the
+  inner body in try/catch with a `console.warn` so a typo in the
+  config string degrades to a one-line warning instead of breaking
+  the prebid queue for the rest of the page.
+
 ## [0.6.2] - 2026-05-12
 
 ### Fixed
