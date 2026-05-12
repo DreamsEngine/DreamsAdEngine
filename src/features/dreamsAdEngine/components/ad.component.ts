@@ -499,9 +499,16 @@ export class DreamsAdComponent extends LitElement {
             .defineSlot(SLOT, this.sizing, CONTAINER_ID)
             .addService(window.googletag.pubads());
 
-          this.resolvedTargeting.forEach((target: DreamsAdTargeting) => {
-            defineAdSlot.setTargeting(target.key, target.value);
-          });
+          // GAM's setTargeting(key, value) was deprecated in 2025. The
+          // replacement is slot.setConfig({ targeting: { ... } }), which
+          // accepts the full targeting map in one call.
+          if (this.resolvedTargeting.length > 0) {
+            const targeting: Record<string, string> = {};
+            for (const t of this.resolvedTargeting as DreamsAdTargeting[]) {
+              targeting[t.key] = t.value;
+            }
+            defineAdSlot.setConfig({ targeting });
+          }
 
           // slotRenderEnded — resize, collapse, dispatch ad:rendered
           this.slotRenderHandler = (event: any) => {

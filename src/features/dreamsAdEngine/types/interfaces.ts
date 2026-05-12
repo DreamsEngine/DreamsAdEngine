@@ -62,7 +62,16 @@ interface PubAdsService {
 }
 
 interface Slot {
+  /**
+   * @deprecated Use setConfig({ targeting: { key: value } }) instead.
+   * https://developers.google.com/publisher-tag/reference#googletag.Slot_setTargeting
+   */
   setTargeting: (key: string, value: string) => Slot;
+  /**
+   * Per-slot configuration — replaces deprecated setTargeting and others.
+   * https://developers.google.com/publisher-tag/reference#googletag.Slot_setConfig
+   */
+  setConfig: (config: Record<string, unknown>) => Slot;
   addService: (service: ServiceType) => Slot;
   defineSizeMapping(sizeMapping: SizeMappingArray[]): Slot;
   getSlotElementId(): string;

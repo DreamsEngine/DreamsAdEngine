@@ -252,10 +252,10 @@ const de = (n, t) => {
   let s, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = U;
   for (let d = 0; d < e; d++) {
     const a = n[d];
-    let h, p, c = -1, b = 0;
-    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = E) : p[3] !== void 0 && (r = E) : r === E ? p[0] === ">" ? (r = s ?? U, c = -1) : p[1] === void 0 ? c = -2 : (c = r.lastIndex - p[2].length, h = p[1], r = p[3] === void 0 ? E : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = E : r === mt || r === wt ? r = U : (r = E, s = void 0);
+    let c, p, h = -1, b = 0;
+    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = E) : p[3] !== void 0 && (r = E) : r === E ? p[0] === ">" ? (r = s ?? U, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? E : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = E : r === mt || r === wt ? r = U : (r = E, s = void 0);
     const u = r === E && n[d + 1].startsWith("/>") ? " " : "";
-    o += r === U ? a + re : c >= 0 ? (i.push(h), a.slice(0, c) + Ot + a.slice(c) + S + u) : a + S + (c === -2 ? d : u);
+    o += r === U ? a + re : h >= 0 ? (i.push(c), a.slice(0, h) + Ot + a.slice(h) + S + u) : a + S + (h === -2 ? d : u);
   }
   return [Rt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -264,29 +264,29 @@ class B {
     let s;
     this.parts = [];
     let o = 0, r = 0;
-    const d = t.length - 1, a = this.parts, [h, p] = de(t, e);
-    if (this.el = B.createElement(h, i), x.currentNode = this.el.content, e === 2 || e === 3) {
-      const c = this.el.content.firstChild;
-      c.replaceWith(...c.childNodes);
+    const d = t.length - 1, a = this.parts, [c, p] = de(t, e);
+    if (this.el = B.createElement(c, i), x.currentNode = this.el.content, e === 2 || e === 3) {
+      const h = this.el.content.firstChild;
+      h.replaceWith(...h.childNodes);
     }
     for (; (s = x.nextNode()) !== null && a.length < d; ) {
       if (s.nodeType === 1) {
-        if (s.hasAttributes()) for (const c of s.getAttributeNames()) if (c.endsWith(Ot)) {
-          const b = p[r++], u = s.getAttribute(c).split(S), w = /([.?@])?(.*)/.exec(b);
-          a.push({ type: 1, index: o, name: w[2], strings: u, ctor: w[1] === "." ? he : w[1] === "?" ? pe : w[1] === "@" ? ue : Z }), s.removeAttribute(c);
-        } else c.startsWith(S) && (a.push({ type: 6, index: o }), s.removeAttribute(c));
+        if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(Ot)) {
+          const b = p[r++], u = s.getAttribute(h).split(S), w = /([.?@])?(.*)/.exec(b);
+          a.push({ type: 1, index: o, name: w[2], strings: u, ctor: w[1] === "." ? he : w[1] === "?" ? pe : w[1] === "@" ? ue : Z }), s.removeAttribute(h);
+        } else h.startsWith(S) && (a.push({ type: 6, index: o }), s.removeAttribute(h));
         if (Ut.test(s.tagName)) {
-          const c = s.textContent.split(S), b = c.length - 1;
+          const h = s.textContent.split(S), b = h.length - 1;
           if (b > 0) {
             s.textContent = W ? W.emptyScript : "";
-            for (let u = 0; u < b; u++) s.append(c[u], V()), x.nextNode(), a.push({ type: 2, index: ++o });
-            s.append(c[b], V());
+            for (let u = 0; u < b; u++) s.append(h[u], V()), x.nextNode(), a.push({ type: 2, index: ++o });
+            s.append(h[b], V());
           }
         }
       } else if (s.nodeType === 8) if (s.data === Lt) a.push({ type: 2, index: o });
       else {
-        let c = -1;
-        for (; (c = s.data.indexOf(S, c + 1)) !== -1; ) a.push({ type: 7, index: o }), c += S.length - 1;
+        let h = -1;
+        for (; (h = s.data.indexOf(S, h + 1)) !== -1; ) a.push({ type: 7, index: o }), h += S.length - 1;
       }
       o++;
     }
@@ -318,8 +318,8 @@ class ce {
     let o = x.nextNode(), r = 0, d = 0, a = i[0];
     for (; a !== void 0; ) {
       if (r === a.index) {
-        let h;
-        a.type === 2 ? h = new j(o, o.nextSibling, this, t) : a.type === 1 ? h = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (h = new ge(o, this, t)), this._$AV.push(h), a = i[++d];
+        let c;
+        a.type === 2 ? c = new j(o, o.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (c = new ge(o, this, t)), this._$AV.push(c), a = i[++d];
       }
       r !== a?.index && (o = x.nextNode(), r++);
     }
@@ -405,8 +405,8 @@ class Z {
     if (o === void 0) t = O(this, t, e, 0), r = !M(t) || t !== this._$AH && t !== I, r && (this._$AH = t);
     else {
       const d = t;
-      let a, h;
-      for (t = o[0], a = 0; a < o.length - 1; a++) h = O(this, d[i + a], e, a), h === I && (h = this._$AH[a]), r ||= !M(h) || h !== this._$AH[a], h === y ? t = y : t !== y && (t += (h ?? "") + o[a + 1]), this._$AH[a] = h;
+      let a, c;
+      for (t = o[0], a = 0; a < o.length - 1; a++) c = O(this, d[i + a], e, a), c === I && (c = this._$AH[a]), r ||= !M(c) || c !== this._$AH[a], c === y ? t = y : t !== y && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
     }
     r && !s && this.j(t);
   }
@@ -1029,11 +1029,11 @@ const $t = {
       let o = 0, r = null;
       const d = () => {
         if (typeof window > "u") return null;
-        const h = window.dfp;
-        if (!h?.[t.contextKey]) return null;
+        const c = window.dfp;
+        if (!c?.[t.contextKey]) return null;
         try {
-          const p = h[t.contextKey], c = this.buildFromContext(p, t);
-          return this.cache = c, this.cacheUrl = e, { targeting: c, source: "context" };
+          const p = c[t.contextKey], h = this.buildFromContext(p, t);
+          return this.cache = h, this.cacheUrl = e, { targeting: h, source: "context" };
         } catch (p) {
           return s(p), null;
         }
@@ -1044,9 +1044,9 @@ const $t = {
       }
       r = setInterval(() => {
         o++;
-        const h = d();
-        if (h) {
-          r && clearInterval(r), i(h);
+        const c = d();
+        if (c) {
+          r && clearInterval(r), i(c);
           return;
         }
         o >= t.maxRetries && (r && clearInterval(r), i({ targeting: [], source: "timeout" }));
@@ -1302,8 +1302,8 @@ const tt = 3e4, St = {
       return !1;
     for (const d of o)
       try {
-        const a = d.getSlotElementId(), h = (this.refreshCounts.get(a) || 0) + 1;
-        this.refreshCounts.set(a, h), d.setTargeting("refresh_count", String(h));
+        const a = d.getSlotElementId(), c = (this.refreshCounts.get(a) || 0) + 1;
+        this.refreshCounts.set(a, c), d.setConfig({ targeting: { refresh_count: String(c) } });
       } catch {
       }
     try {
@@ -1651,35 +1651,39 @@ Ft = function() {
           return;
         }
         const o = window.googletag.defineSlot(n, this.sizing, t).addService(window.googletag.pubads());
-        this.resolvedTargeting.forEach((a) => {
-          o.setTargeting(a.key, a.value);
-        }), this.slotRenderHandler = (a) => {
+        if (this.resolvedTargeting.length > 0) {
+          const a = {};
+          for (const c of this.resolvedTargeting)
+            a[c.key] = c.value;
+          o.setConfig({ targeting: a });
+        }
+        this.slotRenderHandler = (a) => {
           if (a.slot.getSlotElementId() !== t) return;
-          const h = this.querySelector(".dae-loader");
-          h instanceof HTMLElement && (h.style.display = "none");
+          const c = this.querySelector(".dae-loader");
+          c instanceof HTMLElement && (c.style.display = "none");
           const p = this.querySelector("dreams-ad-skeleton");
           p instanceof HTMLElement && (p.style.display = "none");
-          const c = this.querySelector(`#${t}`), b = a.size?.length === 2 && a.size[0] <= 1 && a.size[1] <= 1;
+          const h = this.querySelector(`#${t}`), b = a.size?.length === 2 && a.size[0] <= 1 && a.size[1] <= 1;
           if (a.isEmpty || b) {
-            c instanceof HTMLElement && (c.style.minHeight = "0");
+            h instanceof HTMLElement && (h.style.minHeight = "0");
             const u = this.querySelector(".dae-serving");
             u instanceof HTMLElement && (u.style.minHeight = "0");
-          } else if (c instanceof HTMLElement) {
+          } else if (h instanceof HTMLElement) {
             if (a.size?.length === 2) {
               const [u, w] = a.size;
               if (u > 1 && w > 1) {
-                c.style.minHeight = `${w}px`;
-                const _ = c.querySelector("iframe");
+                h.style.minHeight = `${w}px`;
+                const _ = h.querySelector("iframe");
                 _ && (_.style.width = `${u}px`, _.style.height = `${w}px`);
               }
             }
             typeof ResizeObserver < "u" && requestAnimationFrame(() => {
-              const u = c.querySelector("iframe");
+              const u = h.querySelector("iframe");
               if (u) {
                 const w = new ResizeObserver((_) => {
                   for (const Wt of _) {
                     const { width: Jt, height: dt } = Wt.contentRect;
-                    Jt > 1 && dt > 1 && (c.style.minHeight = `${dt}px`, w.disconnect());
+                    Jt > 1 && dt > 1 && (h.style.minHeight = `${dt}px`, w.disconnect());
                   }
                 });
                 w.observe(u), setTimeout(() => w.disconnect(), 1e4);
@@ -1720,14 +1724,14 @@ Ft = function() {
           this.impressionViewableHandler
         ), this.slotVisibilityHandler = (a) => {
           if (a.slot.getSlotElementId() !== t) return;
-          const h = a.inViewPercentage, p = Math.floor(h / 25) * 25, c = Math.floor(this.lastVisibilityPct / 25) * 25;
-          p === c && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = h, this.dispatchEvent(
+          const c = a.inViewPercentage, p = Math.floor(c / 25) * 25, h = Math.floor(this.lastVisibilityPct / 25) * 25;
+          p === h && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = c, this.dispatchEvent(
             new CustomEvent("ad:visibility", {
               bubbles: !0,
               detail: {
                 slotId: t,
                 adUnit: n,
-                inViewPercentage: h
+                inViewPercentage: c
               }
             })
           ));
@@ -1739,15 +1743,15 @@ Ft = function() {
         if (this.mapping.forEach((a) => {
           r.addSize(a.viewport, a.sizing);
         }), o.defineSizeMapping(r.build()), this.gptSlot = o, this.refresh && window.dreamsSlotsToUpdate.push(o), window.dreamsAllSlots.push(o), window.googletag.display(t), !(f.isInitialized() && !!f.getLazyLoad())) {
-          const a = this.apstag && this.pubId && typeof window.apstag?.fetchBids == "function", h = this.prebid && Array.isArray(this.bidders) && this.bidders.length > 0 && typeof window.pbjs?.requestBids == "function";
-          if (!a && !h)
+          const a = this.apstag && this.pubId && typeof window.apstag?.fetchBids == "function", c = this.prebid && Array.isArray(this.bidders) && this.bidders.length > 0 && typeof window.pbjs?.requestBids == "function";
+          if (!a && !c)
             window.googletag.pubads().refresh([o]);
           else {
             const p = this.bidTimeout || 2e3;
-            let c = !1;
+            let h = !1;
             const b = () => {
-              c || (c = !0, this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag.cmd.push(() => {
-                if (h)
+              h || (h = !0, this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag.cmd.push(() => {
+                if (c)
                   try {
                     window.pbjs.setTargetingForGPTAsync([t]);
                   } catch (w) {
@@ -1788,7 +1792,7 @@ Ft = function() {
                   () => w()
                 );
               })
-            ), h && u.push(
+            ), c && u.push(
               new Promise((w) => {
                 window.pbjs.que.push(() => {
                   try {
