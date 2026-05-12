@@ -240,9 +240,9 @@ let z = class extends HTMLElement {
   }
 };
 z.elementStyles = [], z.shadowRootOptions = { mode: "open" }, z[R("elementProperties")] = /* @__PURE__ */ new Map(), z[R("finalized")] = /* @__PURE__ */ new Map(), oe?.({ ReactiveElement: z }), (X.reactiveElementVersions ??= []).push("2.1.2");
-const nt = globalThis, gt = (n) => n, W = nt.trustedTypes, ft = W ? W.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Ot = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, Lt = "?" + S, re = `<${Lt}>`, C = document, V = () => C.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", ot = Array.isArray, ae = (n) => ot(n) || typeof n?.[Symbol.iterator] == "function", Q = `[ 	
-\f\r]`, U = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, wt = />/g, E = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, bt = /"/g, Ut = /^(?:script|style|textarea|title)$/i, le = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), T = le(1), I = /* @__PURE__ */ Symbol.for("lit-noChange"), y = /* @__PURE__ */ Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), x = C.createTreeWalker(C, 129);
+const nt = globalThis, gt = (n) => n, W = nt.trustedTypes, ft = W ? W.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Lt = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, Ot = "?" + S, re = `<${Ot}>`, C = document, V = () => C.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", ot = Array.isArray, ae = (n) => ot(n) || typeof n?.[Symbol.iterator] == "function", Q = `[ 	
+\f\r]`, U = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, wt = />/g, T = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, bt = /"/g, Ut = /^(?:script|style|textarea|title)$/i, le = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), k = le(1), I = /* @__PURE__ */ Symbol.for("lit-noChange"), y = /* @__PURE__ */ Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), x = C.createTreeWalker(C, 129);
 function Rt(n, t) {
   if (!ot(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return ft !== void 0 ? ft.createHTML(t) : t;
@@ -253,9 +253,9 @@ const de = (n, t) => {
   for (let d = 0; d < e; d++) {
     const a = n[d];
     let c, p, h = -1, b = 0;
-    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = E) : p[3] !== void 0 && (r = E) : r === E ? p[0] === ">" ? (r = s ?? U, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? E : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = E : r === mt || r === wt ? r = U : (r = E, s = void 0);
-    const u = r === E && n[d + 1].startsWith("/>") ? " " : "";
-    o += r === U ? a + re : h >= 0 ? (i.push(c), a.slice(0, h) + Ot + a.slice(h) + S + u) : a + S + (h === -2 ? d : u);
+    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === U ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Ut.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = T) : p[3] !== void 0 && (r = T) : r === T ? p[0] === ">" ? (r = s ?? U, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? T : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = T : r === mt || r === wt ? r = U : (r = T, s = void 0);
+    const u = r === T && n[d + 1].startsWith("/>") ? " " : "";
+    o += r === U ? a + re : h >= 0 ? (i.push(c), a.slice(0, h) + Lt + a.slice(h) + S + u) : a + S + (h === -2 ? d : u);
   }
   return [Rt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -271,7 +271,7 @@ class B {
     }
     for (; (s = x.nextNode()) !== null && a.length < d; ) {
       if (s.nodeType === 1) {
-        if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(Ot)) {
+        if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(Lt)) {
           const b = p[r++], u = s.getAttribute(h).split(S), w = /([.?@])?(.*)/.exec(b);
           a.push({ type: 1, index: o, name: w[2], strings: u, ctor: w[1] === "." ? he : w[1] === "?" ? pe : w[1] === "@" ? ue : Z }), s.removeAttribute(h);
         } else h.startsWith(S) && (a.push({ type: 6, index: o }), s.removeAttribute(h));
@@ -283,7 +283,7 @@ class B {
             s.append(h[b], V());
           }
         }
-      } else if (s.nodeType === 8) if (s.data === Lt) a.push({ type: 2, index: o });
+      } else if (s.nodeType === 8) if (s.data === Ot) a.push({ type: 2, index: o });
       else {
         let h = -1;
         for (; (h = s.data.indexOf(S, h + 1)) !== -1; ) a.push({ type: 7, index: o }), h += S.length - 1;
@@ -296,11 +296,11 @@ class B {
     return i.innerHTML = t, i;
   }
 }
-function O(n, t, e = n, i) {
+function L(n, t, e = n, i) {
   if (t === I) return t;
   let s = i !== void 0 ? e._$Co?.[i] : e._$Cl;
   const o = M(t) ? void 0 : t._$litDirective$;
-  return s?.constructor !== o && (s?._$AO?.(!1), o === void 0 ? s = void 0 : (s = new o(n), s._$AT(n, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = s : e._$Cl = s), s !== void 0 && (t = O(n, s._$AS(n, t.values), s, i)), t;
+  return s?.constructor !== o && (s?._$AO?.(!1), o === void 0 ? s = void 0 : (s = new o(n), s._$AT(n, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = s : e._$Cl = s), s !== void 0 && (t = L(n, s._$AS(n, t.values), s, i)), t;
 }
 class ce {
   constructor(t, e) {
@@ -349,7 +349,7 @@ class j {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = O(this, t, e), M(t) ? t === y || t == null || t === "" ? (this._$AH !== y && this._$AR(), this._$AH = y) : t !== this._$AH && t !== I && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ae(t) ? this.k(t) : this._(t);
+    t = L(this, t, e), M(t) ? t === y || t == null || t === "" ? (this._$AH !== y && this._$AR(), this._$AH = y) : t !== this._$AH && t !== I && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ae(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -402,11 +402,11 @@ class Z {
   _$AI(t, e = this, i, s) {
     const o = this.strings;
     let r = !1;
-    if (o === void 0) t = O(this, t, e, 0), r = !M(t) || t !== this._$AH && t !== I, r && (this._$AH = t);
+    if (o === void 0) t = L(this, t, e, 0), r = !M(t) || t !== this._$AH && t !== I, r && (this._$AH = t);
     else {
       const d = t;
       let a, c;
-      for (t = o[0], a = 0; a < o.length - 1; a++) c = O(this, d[i + a], e, a), c === I && (c = this._$AH[a]), r ||= !M(c) || c !== this._$AH[a], c === y ? t = y : t !== y && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
+      for (t = o[0], a = 0; a < o.length - 1; a++) c = L(this, d[i + a], e, a), c === I && (c = this._$AH[a]), r ||= !M(c) || c !== this._$AH[a], c === y ? t = y : t !== y && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
     }
     r && !s && this.j(t);
   }
@@ -435,7 +435,7 @@ class ue extends Z {
     super(t, e, i, s, o), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = O(this, t, e, 0) ?? y) === I) return;
+    if ((t = L(this, t, e, 0) ?? y) === I) return;
     const i = this._$AH, s = t === y && i !== y || t.capture !== i.capture || t.once !== i.once || t.passive !== i.passive, o = t !== y && (i === y || s);
     s && this.element.removeEventListener(this.name, this, i), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
@@ -451,7 +451,7 @@ class ge {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    O(this, t);
+    L(this, t);
   }
 }
 const fe = nt.litHtmlPolyfillSupport;
@@ -1212,7 +1212,7 @@ const tt = 3e4, St = {
   disableOnSinglePost: !0,
   singlePostSelector: "body.single",
   viewabilityGated: !0
-}, k = class k {
+}, E = class E {
   /**
    * Configure the refresh manager
    */
@@ -1327,14 +1327,14 @@ const tt = 3e4, St = {
     );
   }
 };
-k.config = St, k.refreshTimer = null, k.running = !1, k.viewableSlots = /* @__PURE__ */ new Set(), k.refreshCounts = /* @__PURE__ */ new Map();
-let et = k;
+E.config = St, E.refreshTimer = null, E.running = !1, E.viewableSlots = /* @__PURE__ */ new Set(), E.refreshCounts = /* @__PURE__ */ new Map();
+let et = E;
 var Se = Object.defineProperty, _e = Object.getOwnPropertyDescriptor, F = (n, t, e, i) => {
   for (var s = i > 1 ? void 0 : i ? _e(t, e) : t, o = n.length - 1, r; o >= 0; o--)
     (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
   return i && s && Se(t, e, s), s;
 };
-const Ee = `
+const Te = `
 dreams-ad-skeleton { display: block; }
 .dae-skeleton { position: relative; overflow: hidden; background: var(--dreams-skeleton-bg, #f0f0f0); border-radius: var(--dreams-skeleton-radius, 4px); max-width: 100%; }
 .dae-skeleton::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent 0%, var(--dreams-skeleton-shine, rgba(255,255,255,0.6)) 50%, transparent 100%); animation: dae-shimmer 1.5s infinite; }
@@ -1342,12 +1342,12 @@ dreams-ad-skeleton { display: block; }
 .dae-skeleton-label { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--dreams-skeleton-label-color, #999); font-family: system-ui, -apple-system, sans-serif; }
 `;
 let _t = !1;
-function Te() {
+function ke() {
   if (_t || typeof document > "u") return;
   const n = document.createElement("style");
-  n.textContent = Ee, document.head.appendChild(n), _t = !0;
+  n.textContent = Te, document.head.appendChild(n), _t = !0;
 }
-let L = class extends P {
+let O = class extends P {
   constructor() {
     super(...arguments), this.width = 300, this.height = 250, this.showLabel = !1, this.label = "Ad";
   }
@@ -1355,35 +1355,35 @@ let L = class extends P {
     return this;
   }
   connectedCallback() {
-    super.connectedCallback(), Te();
+    super.connectedCallback(), ke();
   }
   render() {
-    return T`
+    return k`
       <div
         class="dae-skeleton"
         style="width: ${this.width}px; height: ${this.height}px;"
       >
-        ${this.showLabel ? T`<span class="dae-skeleton-label">${this.label}</span>` : ""}
+        ${this.showLabel ? k`<span class="dae-skeleton-label">${this.label}</span>` : ""}
       </div>
     `;
   }
 };
 F([
   g({ type: Number })
-], L.prototype, "width", 2);
+], O.prototype, "width", 2);
 F([
   g({ type: Number })
-], L.prototype, "height", 2);
+], O.prototype, "height", 2);
 F([
   g({ type: Boolean })
-], L.prototype, "showLabel", 2);
+], O.prototype, "showLabel", 2);
 F([
   g({ type: String })
-], L.prototype, "label", 2);
-L = F([
+], O.prototype, "label", 2);
+O = F([
   Ht("dreams-ad-skeleton")
-], L);
-function Le(n, t) {
+], O);
+function Oe(n, t) {
   const e = t >= 1280, i = t >= 728;
   switch (n) {
     case "top-1":
@@ -1405,18 +1405,18 @@ function Le(n, t) {
       return { width: 300, height: 250 };
   }
 }
-var ke = Object.defineProperty, xe = Object.getOwnPropertyDescriptor, Nt = (n) => {
+var Ee = Object.defineProperty, xe = Object.getOwnPropertyDescriptor, Nt = (n) => {
   throw TypeError(n);
 }, m = (n, t, e, i) => {
   for (var s = i > 1 ? void 0 : i ? xe(t, e) : t, o = n.length - 1, r; o >= 0; o--)
     (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
-  return i && s && ke(t, e, s), s;
+  return i && s && Ee(t, e, s), s;
 }, Ce = (n, t, e) => t.has(n) || Nt("Cannot " + e), ze = (n, t, e) => t.has(n) ? Nt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(n) : t.set(n, e), A = (n, t, e) => (Ce(n, t, "access private method"), e), v, Vt, Mt, Bt, jt, at, Ft, qt, Gt;
-let Et = !1;
+let Tt = !1;
 function Pe() {
-  if (Et || typeof document > "u") return;
+  if (Tt || typeof document > "u") return;
   const n = document.createElement("style");
-  n.textContent = ve, document.head.appendChild(n), Et = !0;
+  n.textContent = ve, document.head.appendChild(n), Tt = !0;
 }
 let l = class extends P {
   constructor() {
@@ -1507,13 +1507,13 @@ let l = class extends P {
     this.ready = !0, await this.updateComplete, A(this, v, Ft).call(this);
   }
   render() {
-    return this.ready ? T`
+    return this.ready ? k`
 			<div class="dae-container">
-				${this.enableTitle ? T`<span class="dae-label">${this.title}</span>` : ""}
-				${this.showSkeleton ? T`<dreams-ad-skeleton
+				${this.enableTitle ? k`<span class="dae-label">${this.title}</span>` : ""}
+				${this.showSkeleton ? k`<dreams-ad-skeleton
               width="${A(this, v, qt).call(this)}"
               height="${A(this, v, Gt).call(this)}"
-            ></dreams-ad-skeleton>` : T`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
+            ></dreams-ad-skeleton>` : k`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
 				<div
 					class="dae-serving"
 					data-post-id="${this.divId}"
@@ -1522,7 +1522,7 @@ let l = class extends P {
 				>
 				</div>
 			</div>
-		` : T``;
+		` : k``;
   }
 };
 v = /* @__PURE__ */ new WeakSet();
@@ -1530,20 +1530,19 @@ Vt = function() {
   window.googletag = window.googletag || { cmd: [] };
   const n = () => {
     window.googletag.cmd.push(() => {
-      if (window.dreamsAllSlots = window.dreamsAllSlots || [], window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [], !(window.googletag.pubadsReady === !0)) {
-        const e = f.isInitialized() ? f.getLazyLoad() : null;
-        if (e || window.googletag.pubads().disableInitialLoad(), f.isInitialized()) {
-          const i = {};
-          e && (i.lazyLoad = e), f.getThreadYield() && (i.threadYield = "ENABLED_ALL_SLOTS"), Object.keys(i).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(i) : e && window.googletag.pubads().enableLazyLoad(e)), f.getCentering() && window.googletag.pubads().setCentering(!0);
-          const s = f.getPrivacy();
-          s && window.googletag.pubads().setPrivacySettings(s);
-        }
-        window.googletag.enableServices();
-      }
-      f.isInitialized() && A(this, v, jt).call(this);
+      if (window.dreamsAllSlots = window.dreamsAllSlots || [], window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [], window.googletag.pubadsReady === !0) return;
+      f.isInitialized() && f.getLazyLoad() || window.googletag.pubads().disableInitialLoad(), window.googletag.enableServices();
     });
+  }, t = () => {
+    f.isInitialized() && (l.configApplied || (l.configApplied = !0, window.googletag.cmd.push(() => {
+      const e = {}, i = f.getLazyLoad();
+      i && (e.lazyLoad = i), f.getThreadYield() && (e.threadYield = "ENABLED_ALL_SLOTS"), Object.keys(e).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(e) : i && window.googletag.pubads().enableLazyLoad(i)), f.getCentering() && window.googletag.pubads().setCentering(!0);
+      const s = f.getPrivacy();
+      s && window.googletag.pubads().setPrivacySettings(s), A(this, v, jt).call(this);
+    })));
   };
-  f.isInitialized() ? n() : f.whenReady().then(n).catch(() => n()), l._setupNavigationListeners();
+  n(), f.isInitialized() ? t() : f.whenReady().then(t).catch(() => {
+  }), l._setupNavigationListeners();
 };
 Mt = async function() {
   if (this.adSlot === "interstitial") {
@@ -1837,6 +1836,7 @@ l.initialized = !1;
 l.old_url = "";
 l.initialized_aps = !1;
 l.initialized_prebid = !1;
+l.configApplied = !1;
 l.navigationListenersAttached = !1;
 l.outOfPageRegistered = !1;
 l._handleNavigation = () => {
@@ -1909,7 +1909,7 @@ m([
 l = m([
   Ht("dreams-ad-engine")
 ], l);
-const Tt = {
+const kt = {
   enabled: !0,
   addBodyClass: !0,
   bodyClass: "ad-blocker-detected",
@@ -1919,7 +1919,7 @@ const Tt = {
    * Configure the ad block detector
    */
   static configure(t) {
-    this.config = { ...Tt, ...t };
+    this.config = { ...kt, ...t };
   }
   /**
    * Check if ad blocker is detected (cached result)
@@ -2021,8 +2021,8 @@ const Tt = {
     });
   }
 };
-D.config = Tt, D.detected = null, D.detecting = null;
-let kt = D;
+D.config = kt, D.detected = null, D.detecting = null;
+let Et = D;
 const xt = {
   enabled: "auto",
   prefix: "[DreamsAdEngine]",
@@ -2210,15 +2210,15 @@ const zt = {
 N.config = zt, N.stickyAds = /* @__PURE__ */ new Map(), N.lastScrollTime = 0;
 let Pt = N;
 export {
-  kt as AdBlockDetector,
+  Et as AdBlockDetector,
   $e as DEFAULT_SLOTS,
   l as DreamsAdComponent,
   f as DreamsAdConfig,
-  L as DreamsAdSkeleton,
+  O as DreamsAdSkeleton,
   J as DreamsTargetingService,
   Ct as Logger,
   et as RefreshManager,
   Pt as StickyManager,
   Y as ViewabilityService,
-  Le as getSkeletonDimensions
+  Oe as getSkeletonDimensions
 };

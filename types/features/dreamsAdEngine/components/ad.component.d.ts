@@ -10,6 +10,7 @@ export declare class DreamsAdComponent extends LitElement {
     static old_url: string;
     static initialized_aps: boolean;
     static initialized_prebid: boolean;
+    static configApplied: boolean;
     static navigationListenersAttached: boolean;
     static outOfPageRegistered: boolean;
     private gptSlot;

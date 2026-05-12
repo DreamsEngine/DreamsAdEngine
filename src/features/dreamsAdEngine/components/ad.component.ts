@@ -30,6 +30,7 @@ export class DreamsAdComponent extends LitElement {
   static old_url = "";
   static initialized_aps = false;
   static initialized_prebid = false;
+  static configApplied = false;
   static navigationListenersAttached = false;
   static outOfPageRegistered = false;
 
@@ -185,68 +186,83 @@ export class DreamsAdComponent extends LitElement {
   #initGoogleTag() {
     window.googletag = window.googletag || { cmd: [] };
 
-    const enableGpt = () => {
+    // Phase A: enable GPT services. ALWAYS runs synchronously so the
+    // dreamsAllSlots/dreamsSlotsToUpdate globals and pubads service exist
+    // before any slot push from #renderSlot(). Idempotent via pubadsReady.
+    // disableInitialLoad() runs only when lazyLoad is not configured;
+    // if DreamsAdConfig isn't initialized yet we default to the safer
+    // "no lazy load" path (matches pre-config-provider behavior).
+    const enableGptServices = () => {
       window.googletag.cmd.push(() => {
         window.dreamsAllSlots = window.dreamsAllSlots || [];
         window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [];
 
-        const alreadyEnabled = window.googletag.pubadsReady === true;
+        if (window.googletag.pubadsReady === true) return;
 
-        if (!alreadyEnabled) {
-          const lazyLoad = DreamsAdConfig.isInitialized()
-            ? DreamsAdConfig.getLazyLoad()
-            : null;
+        const lazyLoad = DreamsAdConfig.isInitialized()
+          ? DreamsAdConfig.getLazyLoad()
+          : null;
 
-          if (!lazyLoad) {
-            window.googletag.pubads().disableInitialLoad();
-          }
-
-          if (DreamsAdConfig.isInitialized()) {
-            const setConfigPayload: Record<string, unknown> = {};
-            if (lazyLoad) {
-              setConfigPayload.lazyLoad = lazyLoad;
-            }
-
-            if (DreamsAdConfig.getThreadYield()) {
-              setConfigPayload.threadYield = "ENABLED_ALL_SLOTS";
-            }
-
-            if (Object.keys(setConfigPayload).length > 0) {
-              if (typeof window.googletag.setConfig === "function") {
-                window.googletag.setConfig(setConfigPayload);
-              } else if (lazyLoad) {
-                window.googletag.pubads().enableLazyLoad(lazyLoad);
-              }
-            }
-
-            if (DreamsAdConfig.getCentering()) {
-              window.googletag.pubads().setCentering(true);
-            }
-
-            const privacy = DreamsAdConfig.getPrivacy();
-            if (privacy) {
-              window.googletag
-                .pubads()
-                .setPrivacySettings(privacy as Record<string, boolean>);
-            }
-          }
-
-          window.googletag.enableServices();
+        if (!lazyLoad) {
+          window.googletag.pubads().disableInitialLoad();
         }
 
-        // Register out-of-page slots after services are enabled
-        if (DreamsAdConfig.isInitialized()) {
-          this.#registerOutOfPageSlots();
-        }
+        window.googletag.enableServices();
       });
     };
 
+    // Phase B: apply config-dependent settings. Safe to call after
+    // enableServices — setConfig/setCentering/setPrivacySettings are
+    // documented as runtime-mutable. Guarded by configApplied so it
+    // only fires once when DreamsAdConfig is (or eventually becomes)
+    // initialized.
+    const applyConfigSettings = () => {
+      if (!DreamsAdConfig.isInitialized()) return;
+      if (DreamsAdComponent.configApplied) return;
+      DreamsAdComponent.configApplied = true;
+
+      window.googletag.cmd.push(() => {
+        const setConfigPayload: Record<string, unknown> = {};
+        const lazyLoad = DreamsAdConfig.getLazyLoad();
+        if (lazyLoad) {
+          setConfigPayload.lazyLoad = lazyLoad;
+        }
+
+        if (DreamsAdConfig.getThreadYield()) {
+          setConfigPayload.threadYield = "ENABLED_ALL_SLOTS";
+        }
+
+        if (Object.keys(setConfigPayload).length > 0) {
+          if (typeof window.googletag.setConfig === "function") {
+            window.googletag.setConfig(setConfigPayload);
+          } else if (lazyLoad) {
+            window.googletag.pubads().enableLazyLoad(lazyLoad);
+          }
+        }
+
+        if (DreamsAdConfig.getCentering()) {
+          window.googletag.pubads().setCentering(true);
+        }
+
+        const privacy = DreamsAdConfig.getPrivacy();
+        if (privacy) {
+          window.googletag
+            .pubads()
+            .setPrivacySettings(privacy as Record<string, boolean>);
+        }
+
+        this.#registerOutOfPageSlots();
+      });
+    };
+
+    enableGptServices();
+
     if (DreamsAdConfig.isInitialized()) {
-      enableGpt();
+      applyConfigSettings();
     } else {
       DreamsAdConfig.whenReady()
-        .then(enableGpt)
-        .catch(() => enableGpt());
+        .then(applyConfigSettings)
+        .catch(() => {});
     }
 
     DreamsAdComponent._setupNavigationListeners();
