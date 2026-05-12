@@ -29,6 +29,7 @@ export class DreamsAdComponent extends LitElement {
   static initialized = false;
   static old_url = "";
   static initialized_aps = false;
+  static initialized_prebid = false;
   static navigationListenersAttached = false;
   static outOfPageRegistered = false;
 
@@ -105,6 +106,9 @@ export class DreamsAdComponent extends LitElement {
   @property({ type: Boolean, reflect: true }) apstag = false;
   @property({ type: String }) pubId = "";
   @property({ type: Number }) bidTimeout = 2e3;
+  @property({ type: Boolean, reflect: true }) prebid = false;
+  @property({ type: String }) prebidConfig = "";
+  @property({ type: Array }) bidders: Array<{ bidder: string; params: Record<string, unknown> }> = [];
   @property({ type: String }) title = "Publicidad";
   @property({ type: Boolean, reflect: true }) trackViewability = false;
   @property({ type: Boolean, reflect: true }) showSkeleton = false;
@@ -275,6 +279,39 @@ export class DreamsAdComponent extends LitElement {
       }
     }
 
+    // Initialize Prebid.js if configured and available
+    if (this.prebid && !DreamsAdComponent.initialized_prebid) {
+      if (typeof window.pbjs?.que?.push === "function") {
+        try {
+          window.pbjs.que.push(() => {
+            if (this.prebidConfig) {
+              const cfg =
+                typeof this.prebidConfig === "string"
+                  ? JSON.parse(this.prebidConfig)
+                  : this.prebidConfig;
+              window.pbjs.setConfig(cfg);
+            }
+            // bidWon → dataLayer for attribution. Registered once.
+            window.pbjs.onEvent("bidWon", (bid: any) => {
+              (window.dataLayer = window.dataLayer || []).push({
+                event: "prebid_bid_won",
+                bidder: bid.bidderCode,
+                cpm: bid.cpm,
+                currency: bid.currency,
+                ad_unit: bid.adUnitCode,
+                size: bid.size,
+              });
+            });
+          });
+          DreamsAdComponent.initialized_prebid = true;
+        } catch {
+          this.prebid = false;
+        }
+      } else {
+        this.prebid = false;
+      }
+    }
+
     // Signal ready — triggers first real render (empty before this for SSR compat)
     this.ready = true;
     // Wait for Lit to flush the ready render so dae-serving is in the DOM
@@ -326,6 +363,13 @@ export class DreamsAdComponent extends LitElement {
         this.targeting = JSON.parse(this.targeting);
       } catch {
         this.targeting = [];
+      }
+    }
+    if (this.bidders && typeof this.bidders === "string") {
+      try {
+        this.bidders = JSON.parse(this.bidders);
+      } catch {
+        this.bidders = [];
       }
     }
   }
@@ -620,50 +664,114 @@ export class DreamsAdComponent extends LitElement {
           const lazyLoadActive = DreamsAdConfig.isInitialized() && !!DreamsAdConfig.getLazyLoad();
 
           if (!lazyLoadActive) {
-            // Manual fetch — only when disableInitialLoad() was called
-            const useAps = this.apstag && this.pubId;
+            // Manual fetch — only when disableInitialLoad() was called.
+            // Run APS and Prebid in parallel when both are enabled; refresh
+            // GPT once after both settle (or shared timeout fires).
+            const useAps =
+              this.apstag &&
+              this.pubId &&
+              typeof window.apstag?.fetchBids === "function";
+            const usePrebid =
+              this.prebid &&
+              Array.isArray(this.bidders) &&
+              this.bidders.length > 0 &&
+              typeof window.pbjs?.requestBids === "function";
 
-            if (!useAps) {
+            if (!useAps && !usePrebid) {
               window.googletag.pubads().refresh([defineAdSlot]);
             } else {
-              if (typeof window.apstag?.fetchBids !== "function") {
-                window.googletag.pubads().refresh([defineAdSlot]);
-                return;
+              const bidTimeout = this.bidTimeout || 2000;
+              let refreshed = false;
+
+              const refreshOnce = () => {
+                if (refreshed) return;
+                refreshed = true;
+                if (this.pendingBidsTimeout) {
+                  clearTimeout(this.pendingBidsTimeout);
+                  this.pendingBidsTimeout = null;
+                }
+                window.googletag.cmd.push(() => {
+                  // Order matters: prebid targeting → APS bids → refresh.
+                  if (usePrebid) {
+                    try {
+                      window.pbjs.setTargetingForGPTAsync([CONTAINER_ID]);
+                    } catch (e) {
+                      console.warn(
+                        "[DreamsAdEngine] pbjs.setTargetingForGPTAsync failed",
+                        e,
+                      );
+                    }
+                  }
+                  if (useAps) {
+                    try {
+                      window.apstag.setDisplayBids();
+                    } catch (e) {
+                      console.warn(
+                        "[DreamsAdEngine] apstag.setDisplayBids failed",
+                        e,
+                      );
+                    }
+                  }
+                  window.googletag.pubads().refresh([defineAdSlot]);
+                });
+              };
+
+              // Shared timeout — refreshes whichever (or none) has resolved.
+              this.pendingBidsTimeout = setTimeout(
+                refreshOnce,
+                bidTimeout + 500,
+              );
+
+              const fetches: Promise<void>[] = [];
+
+              if (useAps) {
+                fetches.push(
+                  new Promise<void>((resolve) => {
+                    window.apstag.fetchBids(
+                      {
+                        slots: [
+                          {
+                            slotID: CONTAINER_ID,
+                            slotName: SLOT,
+                            sizes: this.sizing,
+                          },
+                        ],
+                      },
+                      () => resolve(),
+                    );
+                  }),
+                );
               }
 
-              let bidsReceived = false;
-              const bidTimeout = this.bidTimeout || 2000;
+              if (usePrebid) {
+                fetches.push(
+                  new Promise<void>((resolve) => {
+                    window.pbjs.que.push(() => {
+                      try {
+                        window.pbjs.addAdUnits([
+                          {
+                            code: CONTAINER_ID,
+                            mediaTypes: { banner: { sizes: this.sizing } },
+                            bids: this.bidders,
+                          },
+                        ]);
+                        window.pbjs.requestBids({
+                          adUnitCodes: [CONTAINER_ID],
+                          bidsBackHandler: () => resolve(),
+                        });
+                      } catch (e) {
+                        console.warn(
+                          "[DreamsAdEngine] pbjs.requestBids failed",
+                          e,
+                        );
+                        resolve();
+                      }
+                    });
+                  }),
+                );
+              }
 
-              this.pendingBidsTimeout = setTimeout(() => {
-                if (!bidsReceived) {
-                  bidsReceived = true;
-                  window.googletag.cmd.push(() => {
-                    window.googletag.pubads().refresh([defineAdSlot]);
-                  });
-                }
-              }, bidTimeout + 500);
-
-              window.apstag.fetchBids(
-                {
-                  slots: [
-                    {
-                      slotID: CONTAINER_ID,
-                      slotName: SLOT,
-                      sizes: this.sizing,
-                    },
-                  ],
-                },
-                () => {
-                  if (bidsReceived) return;
-                  bidsReceived = true;
-                  clearTimeout(this.pendingBidsTimeout!);
-
-                  window.googletag.cmd.push(() => {
-                    window.apstag.setDisplayBids();
-                    window.googletag.pubads().refresh([defineAdSlot]);
-                  });
-                },
-              );
+              Promise.all(fetches).then(refreshOnce);
             }
           }
         });

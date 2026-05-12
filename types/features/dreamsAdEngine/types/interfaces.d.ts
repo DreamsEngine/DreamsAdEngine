@@ -78,6 +78,8 @@ declare global {
         dreamsSlotsToUpdate: Slot[];
         dreamsAllSlots: Slot[];
         apstag: any;
+        pbjs?: any;
+        dataLayer?: any[];
     }
 }
 export {};

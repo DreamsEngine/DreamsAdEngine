@@ -9,9 +9,10 @@ export declare class DreamsAdComponent extends LitElement {
     static initialized: boolean;
     static old_url: string;
     static initialized_aps: boolean;
+    static initialized_prebid: boolean;
     static navigationListenersAttached: boolean;
     static outOfPageRegistered: boolean;
-    private adSlot;
+    private gptSlot;
     private slotRenderHandler;
     private impressionViewableHandler;
     private slotVisibilityHandler;
@@ -28,7 +29,7 @@ export declare class DreamsAdComponent extends LitElement {
     networkId: string;
     adUnit: string;
     divId: string;
-    slot: string;
+    adSlot: string;
     mapping: DreamsAdMapping[];
     sizing: number[][];
     targeting: DreamsAdTargeting[];
@@ -39,6 +40,12 @@ export declare class DreamsAdComponent extends LitElement {
     apstag: boolean;
     pubId: string;
     bidTimeout: number;
+    prebid: boolean;
+    prebidConfig: string;
+    bidders: Array<{
+        bidder: string;
+        params: Record<string, unknown>;
+    }>;
     title: string;
     trackViewability: boolean;
     showSkeleton: boolean;

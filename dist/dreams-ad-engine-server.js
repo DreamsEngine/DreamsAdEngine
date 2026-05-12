@@ -48,7 +48,7 @@ const a = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90]
@@ -74,7 +74,7 @@ const a = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90]
@@ -100,7 +100,7 @@ const a = {
       },
       { viewport: [760, 0], sizing: [[728, 90]] },
       {
-        viewport: [970, 90],
+        viewport: [970, 0],
         sizing: [
           [970, 90],
           [728, 90]

@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-12
+
+### Added
+
+- **Prebid.js header bidding (opt-in)**: parallel auction alongside Amazon APS
+  - New `<dreams-ad-engine>` attributes:
+    - `prebid` (Boolean, default `false`) — enables Prebid for the slot
+    - `prebidConfig` (String JSON) — global config passed to `pbjs.setConfig()`; parsed once via `static initialized_prebid` guard
+    - `bidders` (String JSON) — array of `{ bidder, params }` becomes the `bids` array in the per-slot adUnit definition
+  - When both `apstag` and `prebid` are enabled, the component runs
+    `apstag.fetchBids` and `pbjs.requestBids` concurrently and refreshes GPT
+    once both settle (or the shared `bidTimeout + 500ms` fires). Order on
+    refresh: `pbjs.setTargetingForGPTAsync` → `apstag.setDisplayBids` →
+    `googletag.pubads().refresh`.
+  - `bidWon` events are forwarded to `window.dataLayer` as
+    `{ event: "prebid_bid_won", bidder, cpm, currency, ad_unit, size }` for
+    attribution.
+  - Library does **not** inject the pbjs script. Consumers load their own
+    custom-built `window.pbjs` (each publisher picks its own bidder adapters).
+  - Backward compatible: when `prebid` is absent, behavior is identical to
+    0.5.x. APS-only and no-bidder consumers see zero change.
+- TypeScript: extended `Window` with `pbjs?: any` and `dataLayer?: any[]`.
+
 ## [0.3.0] - 2026-02-02
 
 ### Added
