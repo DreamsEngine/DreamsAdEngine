@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-05-12
+
+### Fixed
+
+- **Init race when `DreamsAdConfig.init()` is not called before mount**
+  (`TypeError: Cannot read properties of undefined (reading 'push')`).
+  `#initGoogleTag` now runs `enableServices` synchronously regardless
+  of config state, guaranteeing `window.dreamsAllSlots` and
+  `window.dreamsSlotsToUpdate` exist before any slot push from
+  `#renderSlot`. Config-dependent settings (`setConfig`,
+  `setCentering`, `setPrivacySettings`, out-of-page slots) are
+  applied in a second `googletag.cmd` push — either synchronously
+  when config is already initialized, or after `whenReady()`
+  resolves for consumers that init config after mount. Guarded by a
+  new `configApplied` static flag for idempotency.
+- Without `DreamsAdConfig.init()`, the library now falls back to a
+  safe "no lazy load" default (calls `disableInitialLoad()`).
+  Consumers that need lazy load MUST call `DreamsAdConfig.init()`
+  before mounting `<dreams-ad-engine>`.
+
 ## [0.6.1] - 2026-05-12
 
 ### Fixed

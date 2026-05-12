@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>0.6.1 prebid test — with DreamsAdConfig.init</title>
+<style>
+  body { font: 14px ui-sans-serif, system-ui; max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
+  pre#log { background: #111; color: #0f0; padding: 0.75rem; height: 60vh; overflow: auto; font: 12px ui-monospace, monospace; border-radius: 4px; white-space: pre-wrap; }
+  .ad-host { min-height: 250px; min-width: 300px; background: #f4f4f4; padding: 0.5rem; }
+  .check { padding: 2px 6px; border-radius: 3px; font-weight: 600; margin-right: 6px; }
+  .pass { background: #0a4; color: white; }
+  .wait { background: #888; color: white; }
+  .fail { background: #c33; color: white; }
+</style>
+</head>
+<body>
+<h1>0.6.1 with DreamsAdConfig.init({}) — confirming Cobertura-style consumers crash without it</h1>
+<div id="checks">
+  <span id="c-crash" class="check wait">no crash</span>
+  <span id="c-refresh" class="check wait">refresh called</span>
+  <span id="c-requestbids" class="check wait">requestBids called</span>
+  <span id="c-settarget" class="check wait">setTargetingForGPTAsync called</span>
+</div>
+<pre id="log"></pre>
+<div class="ad-host" id="host"></div>
+
+<script type="module">
+const log = (...p) => {
+  const t = new Date().toISOString().slice(11,23);
+  document.getElementById('log').textContent += `${t} ${p.map(x=>typeof x==='string'?x:JSON.stringify(x)).join(' ')}\n`;
+};
+const mark = (id, s) => { const el = document.getElementById(id); if (el) el.className = `check ${s}`; };
+window.addEventListener('error', e => {
+  log('[error]', e.message, e.filename, e.lineno);
+  mark('c-crash', 'fail');
+});
+window.addEventListener('unhandledrejection', e => log('[unhandled-rejection]', e.reason?.message || String(e.reason)));
+
+window.dataLayer = window.dataLayer || [];
+const origDLPush = window.dataLayer.push.bind(window.dataLayer);
+window.dataLayer.push = (...a) => { log('[dataLayer]', a[0]); return origDLPush(...a); };
+
+window.googletag = window.googletag || { cmd: [] };
+window.googletag.cmd.push(() => {
+  const pa = window.googletag.pubads();
+  const origR = pa.refresh.bind(pa);
+  pa.refresh = (...a) => { log('[gpt] refresh()'); mark('c-refresh', 'pass'); return origR(...a); };
+});
+
+window.pbjs = window.pbjs || { que: [] };
+window.pbjs.que.push(() => {
+  const orig = window.pbjs.requestBids.bind(window.pbjs);
+  window.pbjs.requestBids = o => { log('[pbjs] requestBids'); mark('c-requestbids', 'pass'); return orig(o); };
+  const origSt = window.pbjs.setTargetingForGPTAsync.bind(window.pbjs);
+  window.pbjs.setTargetingForGPTAsync = (...a) => { log('[pbjs] setTargetingForGPTAsync'); mark('c-settarget', 'pass'); return origSt(...a); };
+});
+
+// Import the library AND call DreamsAdConfig.init() BEFORE mounting the element
+const mod = await import('../dist/dreams-ad-engine.js');
+log('[mod] DreamsAdConfig.init({}) ← workaround');
+mod.DreamsAdConfig.init({
+  networkId: '21825384248',
+  sitePrefix: 'c360',
+});
+
+// Now mount
+const el = document.createElement('dreams-ad-engine');
+el.setAttribute('networkid', '21825384248');
+el.setAttribute('adunit', '/21825384248/c360_default_box_a');
+el.setAttribute('sizing', '[[300,250]]');
+el.setAttribute('prebid', '');
+el.setAttribute('bidders', JSON.stringify([
+  { bidder: 'appnexus', params: { placementId: 'test' } },
+  { bidder: 'rubicon', params: { accountId: '1001', siteId: '1234', zoneId: '5678' } },
+]));
+el.setAttribute('bidtimeout', '1500');
+document.getElementById('host').appendChild(el);
+log('[mount] element appended');
+
+// If no crash within 5s and refresh fired, we pass
+setTimeout(() => {
+  if (document.getElementById('c-crash').className.includes('wait')) mark('c-crash', 'pass');
+  log('[done] state at +5s');
+}, 5000);
+</script>
+
+<script async src="https://cdn.jsdelivr.net/npm/prebid.js@9/dist/not-for-prod/prebid.js"></script>
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+</body>
+</html>
