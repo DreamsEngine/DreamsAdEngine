@@ -322,7 +322,7 @@ export class DreamsAdComponent extends LitElement {
   async #resolveConfiguration() {
     if (this.adSlot === "interstitial") {
       console.warn(
-        '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. ' +
+        '[DreamsAdEngine] <dreams-ad-engine ad-slot="interstitial"> is deprecated. ' +
           "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
       );
       return;

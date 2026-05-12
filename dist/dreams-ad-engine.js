@@ -1548,7 +1548,7 @@ Vt = function() {
 Mt = async function() {
   if (this.adSlot === "interstitial") {
     console.warn(
-      '[DreamsAdEngine] <dreams-ad-engine slot="interstitial"> is deprecated. Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).'
+      '[DreamsAdEngine] <dreams-ad-engine ad-slot="interstitial"> is deprecated. Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).'
     );
     return;
   }
