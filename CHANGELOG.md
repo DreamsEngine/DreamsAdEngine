@@ -27,6 +27,235 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     0.5.x. APS-only and no-bidder consumers see zero change.
 - TypeScript: extended `Window` with `pbjs?: any` and `dataLayer?: any[]`.
 
+## [0.5.10] - 2026-03-20
+
+### Changed
+
+- Republish of 0.5.9 with corrected version metadata. No behavior change.
+
+## [0.5.9] - 2026-03-20
+
+### Fixed
+
+- Replace `requestAnimationFrame` with `setTimeout(0)` for GPT slot
+  registration. `rAF` never fires in background tabs, silently preventing
+  slot registration when pages loaded unfocused.
+
+## [0.5.8] - 2026-03-18
+
+### Fixed
+
+- Surface silent errors in the slot-registration callback with try/catch
+  and a defensive `googletag.cmd` existence check.
+- Collapse 1×1 tracking pixels to zero height like empty slots so they
+  don't reserve space in the layout.
+
+## [0.5.7] - 2026-03-18
+
+### Fixed
+
+- Deferred-render architecture: `render()` returns empty until `ready=true`
+  (set after config and targeting resolve). Eliminates the React
+  hydration mismatch (#418) caused by Lit light-DOM `render()` running
+  during SSR, and prevents the "slot div not in DOM" error caused by
+  re-renders displacing the imperatively-appended GPT container.
+- Loader and skeleton are now hidden imperatively via `style.display` on
+  `slotRenderEnded` instead of via a reactive `adLoaded` state.
+
+## [0.5.6] - 2026-03-18
+
+### Fixed
+
+- Use `event.size` from `slotRenderEnded` as the source of truth for
+  creative dimensions. Stop reading iframe attributes (always 1×1 from
+  GPT). Iframe inline styles are forced to match `event.size`.
+  `ResizeObserver` remains as a fallback for expandable creatives.
+
+## [0.5.5] - 2026-03-18
+
+### Fixed
+
+- Move `.dae-slot` (GPT container) inside `.dae-serving` (CLS reserve)
+  so the ad fills the reserved space instead of stacking vertically at
+  double height. Empty slots collapse both to zero.
+
+## [0.5.4] - 2026-03-18
+
+### Fixed
+
+- Three-tier size detection for rich-media creatives (Flashtalking,
+  Sizmek, Celtra) that report 1×1 to `slotRenderEnded` then expand via
+  internal JS:
+  1. Immediate read of `offsetWidth` / inline styles / attributes.
+  2. `requestAnimationFrame` pass for GPT post-callback inline styles.
+  3. `ResizeObserver` (auto-disconnect after 10s) for async expansion.
+
+## [0.5.3] - 2026-03-18
+
+### Fixed
+
+- Light-DOM `defineSlot`-before-DIV race condition. GPT threw "could not
+  find div" when `googletag.cmd.push` ran before the imperatively-appended
+  ad container was committed to the DOM. Three-layer fix:
+  - `await this.updateComplete` before `#renderSlot()` flushes Lit
+    re-renders.
+  - `requestAnimationFrame` before `googletag.cmd.push` ensures DOM commit.
+  - `document.getElementById` guard before `defineSlot` fails safe.
+
+## [0.5.2] - 2026-03-18
+
+### Changed
+
+- Version bump to refresh README on npm; no code change.
+
+## [0.5.1] - 2026-03-18
+
+### Fixed
+
+- Light-DOM style injection — `<style>` block now appended to
+  `document.head` (in shadow DOM it was silently dropped after the
+  0.5.0 migration).
+- Guard `googletag.setConfig` existence, fall back to legacy
+  `enableLazyLoad` when absent.
+- Guard out-of-page slot re-registration with a static flag so SPA
+  navigation doesn't re-create interstitials.
+- Throttle `slotVisibilityChanged` dispatches to 25% threshold
+  crossings instead of every pixel.
+- Fix `--dae-min-heigh` typo → `--dae-min-height`.
+- Downgrade `contain: content` → `contain: layout style` to allow
+  expandable creatives to render outside the slot bounds.
+- Refactor `dae-loader` shimmer to use `transform` (compositor-only).
+- Add `prefers-reduced-motion` media query.
+- Namespace skeleton classes and keyframes with `dae-` prefix to
+  prevent publisher CSS collisions.
+- Add `max-width: 100%` to skeleton for mobile overflow.
+- Add ARIA `role="complementary"` + `aria-label` on the ad container.
+- Remove stale `interstitial` case from `getSkeletonDimensions`.
+- Remove orphaned `pinno-ad-container` class.
+
+### Changed
+
+- Updated TypeScript declarations to match the v0.5.0 surface.
+
+## [0.5.0] - 2026-03-18
+
+### Changed
+
+- **BREAKING — Shadow DOM → Light DOM**: `DreamsAdComponent` and
+  `DreamsAdSkeleton` now disable the shadow root so third-party
+  viewability vendors (IAS, MOAT, DoubleVerify) can traverse the slot.
+  Internal CSS classes were renamed with a `dae-` prefix
+  (`.dae-container`, `.dae-label`, `.dae-loader`, `.dae-serving`,
+  `.dae-slot`) to avoid colliding with publisher CSS.
+- **GPT `setConfig` migration**: Replaced `pubads().enableLazyLoad()`
+  with `googletag.setConfig({ lazyLoad })` per GPT's deprecation
+  notice. A legacy fallback is retained for older GPT loaders.
+
+### Added
+
+- **CLS reserve**: Reserve `min-height` from the largest creative in
+  the matched responsive size mapping. Collapse to zero on empty fill.
+- **Privacy controls**: `privacy` config object passed to
+  `pubads().setPrivacySettings()`.
+- **Thread yield**: `threadYield: true` opts into GPT's
+  `ENABLED_ALL_SLOTS` thread-yield mode for INP improvements.
+- **GPT-native viewability**: New `ad:viewable`, `ad:visibility`, and
+  enriched `ad:rendered` (with `advertiserId`, `creativeId`,
+  `lineItemId`, `isBackfill`) CustomEvents emitted from GPT's
+  `impressionViewable`, `slotVisibilityChanged`, and `slotRenderEnded`
+  listeners. `ViewabilityService.track()` is deprecated in favor of
+  these native events.
+- **Out-of-page slots**: Interstitial and anchor ads now use
+  `googletag.defineOutOfPageSlot()` instead of a 1×1 `defineSlot`.
+  Configurable via `DreamsAdConfig.init({ interstitial: { ... },
+  anchor: { ... } })`. `<dreams-ad-engine slot="interstitial">` is
+  deprecated.
+- **Viewability-gated refresh**: `RefreshManager` only refreshes slots
+  that have received an `impressionViewable` event (per GAM policy).
+  Tracks a `refresh_count` targeting key for reporting. Opt-in via
+  `viewabilityGated` (default true).
+- New TypeScript exports for the v0.5.0 surface.
+
+### Migration notes
+
+- If you styled internal parts via `::part(...)` or via shadow-DOM
+  selectors (`:host`, etc.), those will no-op. The component renders
+  in light DOM, so use the public `--dae-*` custom properties (see
+  `src/features/dreamsAdEngine/styles/ad.styles.css`) or target the
+  `dae-` classes directly.
+- Replace `slot="interstitial"` usage with
+  `DreamsAdConfig.init({ interstitial: { enabled: true } })`.
+
+## [0.4.7] - 2026-03-18
+
+### Fixed
+
+- `pubads().updateCorrelator()` is now called on SPA navigation so
+  GAM treats route changes as a new pageview for reporting.
+
+### Changed
+
+- Expanded GPT TypeScript interfaces; added `updateCorrelator` to
+  `PubAdsService`.
+
+## [0.4.6] - 2026-03-18
+
+### Fixed
+
+- Read iframe dimensions for container sizing so the GPT container
+  matches the rendered creative when `event.size` is unavailable.
+
+## [0.4.5] - 2026-03-18
+
+### Fixed
+
+- Resize the GPT container to match the rendered creative.
+
+## [0.4.4] - 2026-03-18
+
+### Fixed
+
+- Race condition between `<dreams-ad-engine>` mount and
+  `DreamsAdConfig.init()`: components now `await
+  DreamsAdConfig.whenReady()` before resolving named slots.
+
+## [0.4.2] - 2026-03-18
+
+### Changed
+
+- Rewrote README for the v0.4.x API.
+
+## [0.4.1] - 2026-03-17
+
+### Fixed
+
+- GPT lifecycle for APS rendering and slot dimensions. Calls
+  `disableInitialLoad()` before `enableServices()` so `display()` only
+  registers slots without fetching; all fetches go through explicit
+  `refresh()`. Fixes the double-request bug when APS is enabled.
+- Move `enableLazyLoad()` and `setCentering()` from per-slot
+  `renderSlot()` to `initGoogleTag()` before `enableServices()` per
+  GPT requirements. New `lazyLoad` and `centering` options on
+  `DreamsAdConfig`.
+- Set `min-height: 2px` on slot divs to prevent 0×0 collapse that
+  blocks GPT iframe creation. Remove duplicate
+  `addService(pubads())` call.
+
+## [0.4.0] - 2026-03-10
+
+### Added
+
+- **SSR-safe server entry**: New `./server` export resolves to a
+  pure-TypeScript bundle (`dist/dreams-ad-engine-server.js`) exporting
+  only `DreamsAdConfig`, `DreamsTargetingService`, types, and
+  constants. Imports nothing browser-only, fixing Next.js App Router
+  builds that crash on `customElements`.
+
+### Changed
+
+- Upgrade Lit to 3.3.2, TypeScript to 5.9.3, Vite to 7.3.1, Biome to
+  2.4.6. Remove dead `cz-conventional-changelog` devDep.
+
 ## [0.3.0] - 2026-02-02
 
 ### Added
