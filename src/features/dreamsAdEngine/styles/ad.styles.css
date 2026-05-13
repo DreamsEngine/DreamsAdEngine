@@ -75,7 +75,7 @@ dreams-ad-engine > .dae-slot {
   min-height: var(--dae-ad-serving-min-height, 100px);
 }
 .dae-serving::before {
-  content: var(--dae-ad-serving-before-content, "[AD]");
+  content: var(--dae-ad-serving-before-content, "");
   position: var(--dae-ad-serving-before-position, absolute);
   top: var(--dae-ad-serving-before-top, 0);
   left: var(--dae-ad-serving-before-left, 0);
