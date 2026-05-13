@@ -1,3 +1,30 @@
+/**
+ * Page-level settings accepted by `googletag.setConfig()`. Mirrors the
+ * documented PageSettingsConfig surface. Open-ended: unknown future keys
+ * are still accepted by GPT, so we keep an index signature for forward
+ * compatibility without losing the typed-key autocomplete on known fields.
+ *
+ * https://developers.google.com/publisher-tag/reference#googletag.setConfig
+ */
+export interface PageSettingsConfig {
+  /** GPT-managed lazy loading. Set before `enableServices()`. */
+  lazyLoad?: LazyLoadObject;
+  /**
+   * Yield the main thread between slot work to improve INP/Core Web Vitals.
+   * Default: yields only for off-viewport slots.
+   */
+  threadYield?: "DISABLED" | "ENABLED_ALL_SLOTS";
+  /**
+   * Replacement for `pubads().collapseEmptyDivs()`. Controls when empty
+   * slots collapse. `DISABLED` preserves the current CLS-reserve behavior.
+   */
+  collapseDiv?: "DISABLED" | "BEFORE_FETCH" | "AFTER_FETCH";
+  /** Publisher Provided Signals taxonomy data. Post-cookie audience signal. */
+  pps?: Record<string, { values: string[] }>;
+  /** Forward-compat escape hatch — unknown keys pass through to GPT. */
+  [key: string]: unknown;
+}
+
 export interface Googletag {
   cmd: Array<() => void>;
   pubads: () => PubAdsService;
@@ -10,7 +37,7 @@ export interface Googletag {
   defineOutOfPageSlot: (adUnitPath: string, format: unknown) => Slot | null;
   display: (divId: string) => void;
   enableServices: () => void;
-  setConfig: (config: Record<string, unknown>) => void;
+  setConfig: (config: PageSettingsConfig) => void;
   sizeMapping: () => SizeMappingArray;
   destroySlots: (slots?: Slot[]) => void;
   enums: {
