@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2026-05-12
+
+### Changed
+
+- Default value of `--dae-ad-serving-before-content` changed from
+  `"[AD]"` to `""`. The `.dae-serving::before` overlay no longer
+  renders dev-debug placeholder text out of the box. Consumers can
+  still opt in by setting `--dae-ad-serving-before-content: "Sponsored"`
+  (or any other label) on the host element. No API surface change.
+
 ## [0.6.3] - 2026-05-12
 
 ### Fixed
