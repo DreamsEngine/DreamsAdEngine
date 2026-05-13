@@ -63,12 +63,16 @@ interface PubAdsService {
 
 interface Slot {
   /**
-   * @deprecated Use setConfig({ targeting: { key: value } }) instead.
+   * Slot-level key-value targeting. Still supported and not deprecated;
+   * use it when you need to set targeting incrementally. Prefer setConfig
+   * when applying a full targeting map in one call.
    * https://developers.google.com/publisher-tag/reference#googletag.Slot_setTargeting
    */
   setTargeting: (key: string, value: string) => Slot;
   /**
-   * Per-slot configuration — replaces deprecated setTargeting and others.
+   * Per-slot configuration. Accepts a batch of slot settings including
+   * `targeting`, `interstitial`, `componentAuction`, etc. Newer alternative
+   * to chained setTargeting() calls.
    * https://developers.google.com/publisher-tag/reference#googletag.Slot_setConfig
    */
   setConfig: (config: Record<string, unknown>) => Slot;

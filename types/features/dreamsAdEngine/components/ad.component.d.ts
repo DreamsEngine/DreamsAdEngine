@@ -17,6 +17,9 @@ export declare class DreamsAdComponent extends LitElement {
     private slotRenderHandler;
     private impressionViewableHandler;
     private slotVisibilityHandler;
+    private slotRequestedHandler;
+    private slotResponseHandler;
+    private slotOnloadHandler;
     private pendingBidsTimeout;
     private lastVisibilityPct;
     /**

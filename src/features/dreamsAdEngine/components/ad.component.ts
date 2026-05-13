@@ -39,6 +39,9 @@ export class DreamsAdComponent extends LitElement {
   private slotRenderHandler: ((event: any) => void) | null = null;
   private impressionViewableHandler: ((event: any) => void) | null = null;
   private slotVisibilityHandler: ((event: any) => void) | null = null;
+  private slotRequestedHandler: ((event: any) => void) | null = null;
+  private slotResponseHandler: ((event: any) => void) | null = null;
+  private slotOnloadHandler: ((event: any) => void) | null = null;
   private pendingBidsTimeout: ReturnType<typeof setTimeout> | null = null;
   private lastVisibilityPct = -1;
 
@@ -164,6 +167,24 @@ export class DreamsAdComponent extends LitElement {
         );
         this.slotVisibilityHandler = null;
       }
+      if (this.slotRequestedHandler) {
+        pubads.removeEventListener(
+          "slotRequested",
+          this.slotRequestedHandler,
+        );
+        this.slotRequestedHandler = null;
+      }
+      if (this.slotResponseHandler) {
+        pubads.removeEventListener(
+          "slotResponseReceived",
+          this.slotResponseHandler,
+        );
+        this.slotResponseHandler = null;
+      }
+      if (this.slotOnloadHandler) {
+        pubads.removeEventListener("slotOnload", this.slotOnloadHandler);
+        this.slotOnloadHandler = null;
+      }
     }
 
     // Destroy this component's slot and remove from global arrays
@@ -206,6 +227,12 @@ export class DreamsAdComponent extends LitElement {
         if (!lazyLoad) {
           window.googletag.pubads().disableInitialLoad();
         }
+
+        // Explicit SRA opt-in. Modern GPT defaults to single-request, but
+        // documenting intent guards against future default changes and
+        // matches Google's published best practice. Idempotent + must
+        // precede the first display() call (we're still pre-display here).
+        window.googletag.pubads().enableSingleRequest();
 
         window.googletag.enableServices();
       });
@@ -522,9 +549,9 @@ export class DreamsAdComponent extends LitElement {
             .defineSlot(SLOT, this.sizing, CONTAINER_ID)
             .addService(window.googletag.pubads());
 
-          // GAM's setTargeting(key, value) was deprecated in 2025. The
-          // replacement is slot.setConfig({ targeting: { ... } }), which
-          // accepts the full targeting map in one call.
+          // slot.setConfig({ targeting }) is the newer batch-style API and
+          // is preferred over chained setTargeting() calls — single
+          // invocation, fewer round-trips through the GPT queue.
           if (this.resolvedTargeting.length > 0) {
             const targeting: Record<string, string> = {};
             for (const t of this.resolvedTargeting as DreamsAdTargeting[]) {
@@ -674,6 +701,55 @@ export class DreamsAdComponent extends LitElement {
               "slotVisibilityChanged",
               this.slotVisibilityHandler,
             );
+
+          // slotRequested — ad request was sent to GAM. Useful for funnel
+          // analytics (requested → response → rendered → viewable).
+          this.slotRequestedHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+            this.dispatchEvent(
+              new CustomEvent("ad:requested", {
+                bubbles: true,
+                detail: { slotId: CONTAINER_ID, adUnit: SLOT },
+              }),
+            );
+          };
+          window.googletag
+            .pubads()
+            .addEventListener("slotRequested", this.slotRequestedHandler);
+
+          // slotResponseReceived — GAM responded (with fill or no-fill).
+          // Fires before slotRenderEnded; useful for latency measurement.
+          this.slotResponseHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+            this.dispatchEvent(
+              new CustomEvent("ad:response", {
+                bubbles: true,
+                detail: { slotId: CONTAINER_ID, adUnit: SLOT },
+              }),
+            );
+          };
+          window.googletag
+            .pubads()
+            .addEventListener(
+              "slotResponseReceived",
+              this.slotResponseHandler,
+            );
+
+          // slotOnload — creative iframe finished loading. Distinct from
+          // slotRenderEnded (which fires when the slot decision is made).
+          // Pairs well with INP/LCP attribution work.
+          this.slotOnloadHandler = (event: any) => {
+            if (event.slot.getSlotElementId() !== CONTAINER_ID) return;
+            this.dispatchEvent(
+              new CustomEvent("ad:loaded", {
+                bubbles: true,
+                detail: { slotId: CONTAINER_ID, adUnit: SLOT },
+              }),
+            );
+          };
+          window.googletag
+            .pubads()
+            .addEventListener("slotOnload", this.slotOnloadHandler);
 
           // Define responsive size mapping
           const AD_MAPPING = window.googletag.sizeMapping();
