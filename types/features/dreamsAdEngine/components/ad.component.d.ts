@@ -1,7 +1,7 @@
 import { LitElement } from "lit";
 import type { TemplateResult } from "lit/html.js";
 import "../types/interfaces";
-import { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
+import type { DreamsAdMapping, DreamsAdTargeting } from "../types/interfaces";
 import "../../skeleton/skeleton.component";
 export declare class DreamsAdComponent extends LitElement {
     #private;
@@ -17,6 +17,9 @@ export declare class DreamsAdComponent extends LitElement {
     private slotRenderHandler;
     private impressionViewableHandler;
     private slotVisibilityHandler;
+    private slotRequestedHandler;
+    private slotResponseHandler;
+    private slotOnloadHandler;
     private pendingBidsTimeout;
     private lastVisibilityPct;
     /**

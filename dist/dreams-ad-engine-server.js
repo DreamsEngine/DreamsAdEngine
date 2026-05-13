@@ -1,4 +1,4 @@
-const a = {
+const r = {
   "top-1": {
     mapping: [
       {
@@ -249,13 +249,14 @@ const a = {
       lazyLoad: t,
       centering: i.centering ?? !1,
       slots: {
-        ...a,
+        ...r,
         ...i.slots
       },
       privacy: i.privacy || null,
       interstitial: i.interstitial || null,
       anchor: i.anchor || null,
-      threadYield: i.threadYield ?? !1
+      threadYield: i.threadYield ?? !1,
+      collapseEmptyDivs: i.collapseEmptyDivs ?? "DISABLED"
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
   /** Resolves when init() has been called. Immediate if already initialized. */
@@ -265,7 +266,7 @@ const a = {
     let t;
     return this.pendingReady = Promise.race([
       this.readyPromise,
-      new Promise((r, s) => {
+      new Promise((a, s) => {
         t = setTimeout(
           () => s(
             new Error(
@@ -315,6 +316,9 @@ const a = {
   }
   static getThreadYield() {
     return this.assertInitialized(), this.instance.threadYield;
+  }
+  static getCollapseEmptyDivs() {
+    return this.assertInitialized(), this.instance.collapseEmptyDivs;
   }
   static setPrivacy(i) {
     this.assertInitialized(), this.instance.privacy = i, typeof window < "u" && window.googletag && window.googletag.cmd.push(() => {
@@ -373,6 +377,6 @@ const a = {
 e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
 let n = e;
 export {
-  a as DEFAULT_SLOTS,
+  r as DEFAULT_SLOTS,
   n as DreamsAdConfig
 };
