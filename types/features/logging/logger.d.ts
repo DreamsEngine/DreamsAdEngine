@@ -1,3 +1,4 @@
+import type { AdErrorEventDetail } from "./logger.types";
 export interface LoggerConfig {
     /** Enable logging. Default: auto (dev only) */
     enabled?: boolean | "auto";
@@ -28,7 +29,7 @@ export declare class Logger {
      */
     static error(message: string, ...args: unknown[]): void;
     /**
-     * Log verbose/debug message (only when verbose is enabled)
+     * Log verbose/debug message (only when verbose is enabled or runtime forced)
      */
     static debug(message: string, ...args: unknown[]): void;
     /**
@@ -51,6 +52,16 @@ export declare class Logger {
      * End timing
      */
     static timeEnd(label: string): void;
+    /**
+     * Dispatch a structured `ad:error` CustomEvent on the host element and
+     * mirror it to `window.dataLayer` for GTM consumers. Also logs the error
+     * via Logger.error so it surfaces in console regardless of debug mode.
+     *
+     * Consumers wire vendor-specific tracking (Sentry, Datadog, etc.) by
+     * listening for `ad:error` — the library stays vendor-agnostic.
+     */
+    static dispatchAdError(host: EventTarget, detail: AdErrorEventDetail): void;
     private static shouldLog;
+    private static isRuntimeForced;
     private static isProduction;
 }

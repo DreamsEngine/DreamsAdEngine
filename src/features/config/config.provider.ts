@@ -1,4 +1,5 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
+import { Logger } from "../logging";
 import type {
   AdConfigData,
   AdConfigInit,
@@ -16,6 +17,17 @@ const DEFAULT_LAZY_LOAD: LazyLoadConfig = {
   mobileScaling: 2.0,
 };
 
+// Parse `?dae-debug=1` once at module load. Avoids per-call URL parsing
+// and locks the URL signal at page-load time (refresh required to flip).
+const URL_DEBUG_FLAG: boolean = (() => {
+  if (typeof window === "undefined") return false;
+  try {
+    return new URLSearchParams(window.location.search).get("dae-debug") === "1";
+  } catch {
+    return false;
+  }
+})();
+
 export class DreamsAdConfig {
   private static instance: AdConfigData | null = null;
   private static readyResolve: (() => void) | null = null;
@@ -29,10 +41,14 @@ export class DreamsAdConfig {
   }
 
   static init(config: AdConfigInit): void {
+    // Resolve debug flag first so the "already initialized" warn below
+    // honors the new debug preference if a consumer re-inits to enable it.
+    DreamsAdConfig.#applyDebug(config.debug);
+
     // Prevent accidental re-initialization
     if (this.instance && !config.force) {
-      console.warn(
-        "[DreamsAdConfig] Already initialized. Use { force: true } to override.",
+      Logger.warn(
+        "Already initialized. Use { force: true } to override.",
       );
       return;
     }
@@ -67,6 +83,56 @@ export class DreamsAdConfig {
       this.readyResolve();
       this.readyResolve = null;
     }
+  }
+
+  /**
+   * Resolve the debug toggle via documented precedence and configure
+   * the Logger. Explicit `false` from the consumer overrides URL +
+   * window flag; explicit `true` overrides nothing-set.
+   */
+  static #applyDebug(consumerDebug: boolean | undefined): void {
+    // 1. Programmatic — explicit boolean wins.
+    if (consumerDebug === true || consumerDebug === false) {
+      Logger.configure({
+        enabled: consumerDebug,
+        verbose: consumerDebug,
+      });
+      return;
+    }
+    // 2. URL param (parsed once at module load).
+    if (URL_DEBUG_FLAG) {
+      Logger.configure({ enabled: true, verbose: true });
+      return;
+    }
+    // 3. window.__dreamsDebug handled inside Logger.shouldLog() at runtime.
+    // Nothing to configure — leave Logger at its default auto mode.
+  }
+
+  /**
+   * Open the GPT Console overlay for ad debugging. Safe to call even
+   * when GPT hasn't fully booted — queued onto `googletag.cmd`.
+   *
+   * https://developers.google.com/publisher-tag/reference#googletag.openConsole
+   */
+  static openConsole(slotId?: string): void {
+    if (typeof window === "undefined" || !window.googletag) {
+      Logger.warn("openConsole called but googletag is not available");
+      return;
+    }
+    const gtag = window.googletag as typeof window.googletag & {
+      openConsole?: (div?: string) => void;
+    };
+    window.googletag.cmd.push(() => {
+      try {
+        if (typeof gtag.openConsole === "function") {
+          gtag.openConsole(slotId);
+        } else {
+          Logger.warn("googletag.openConsole is not available in this build");
+        }
+      } catch (e) {
+        Logger.error("openConsole failed", e);
+      }
+    });
   }
 
   private static pendingReady: Promise<void> | null = null;

@@ -1,4 +1,114 @@
-const r = {
+var d = (s) => {
+  throw TypeError(s);
+};
+var f = (s, i, t) => i.has(s) || d("Cannot " + t);
+var c = (s, i, t) => i.has(s) ? d("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(s) : i.set(s, t);
+var p = (s, i, t) => (f(s, i, "access private method"), t);
+const u = {
+  enabled: "auto",
+  prefix: "[DreamsAdEngine]",
+  verbose: !1
+}, a = class a {
+  /**
+   * Configure the logger
+   */
+  static configure(i) {
+    this.config = { ...u, ...i };
+  }
+  /**
+   * Log info message
+   */
+  static log(i, ...t) {
+    this.shouldLog() && console.log(`${this.config.prefix} ${i}`, ...t);
+  }
+  /**
+   * Log warning message
+   */
+  static warn(i, ...t) {
+    this.shouldLog() && console.warn(`${this.config.prefix} ${i}`, ...t);
+  }
+  /**
+   * Log error message (always logs in production, but less verbose)
+   */
+  static error(i, ...t) {
+    this.isProduction() ? console.error(`${this.config.prefix} Error: ${i}`) : console.error(`${this.config.prefix} ${i}`, ...t);
+  }
+  /**
+   * Log verbose/debug message (only when verbose is enabled or runtime forced)
+   */
+  static debug(i, ...t) {
+    this.shouldLog() && (!this.config.verbose && !this.isRuntimeForced() || console.debug(`${this.config.prefix} ${i}`, ...t));
+  }
+  /**
+   * Log a table (useful for metrics)
+   */
+  static table(i) {
+    this.shouldLog() && console.table(i);
+  }
+  /**
+   * Group logs together
+   */
+  static group(i) {
+    this.shouldLog() && console.group(`${this.config.prefix} ${i}`);
+  }
+  /**
+   * End log group
+   */
+  static groupEnd() {
+    this.shouldLog() && console.groupEnd();
+  }
+  /**
+   * Time a operation
+   */
+  static time(i) {
+    this.shouldLog() && console.time(`${this.config.prefix} ${i}`);
+  }
+  /**
+   * End timing
+   */
+  static timeEnd(i) {
+    this.shouldLog() && console.timeEnd(`${this.config.prefix} ${i}`);
+  }
+  /**
+   * Dispatch a structured `ad:error` CustomEvent on the host element and
+   * mirror it to `window.dataLayer` for GTM consumers. Also logs the error
+   * via Logger.error so it surfaces in console regardless of debug mode.
+   *
+   * Consumers wire vendor-specific tracking (Sentry, Datadog, etc.) by
+   * listening for `ad:error` — the library stays vendor-agnostic.
+   */
+  static dispatchAdError(i, t) {
+    i.dispatchEvent(
+      new CustomEvent("ad:error", {
+        bubbles: !0,
+        composed: !0,
+        detail: t
+      })
+    ), typeof window < "u" && (window.dataLayer = window.dataLayer || [], window.dataLayer.push({
+      event: "dreams_ad_error",
+      phase: t.phase,
+      slotId: t.slotId,
+      adUnit: t.adUnit,
+      error_message: t.error instanceof Error ? t.error.message : String(t.error)
+    })), a.error(
+      `[${t.phase}] ${t.slotId || t.adUnit}: ${t.error instanceof Error ? t.error.message : String(t.error)}`
+    );
+  }
+  static shouldLog() {
+    return this.config.enabled === !0 ? !0 : this.config.enabled === !1 ? !1 : this.isRuntimeForced() ? !0 : !this.isProduction();
+  }
+  static isRuntimeForced() {
+    return typeof window < "u" && window.__dreamsDebug === !0;
+  }
+  static isProduction() {
+    if (typeof window > "u") return !0;
+    const i = window.location.hostname;
+    return i !== "localhost" && !i.includes(".local") && !i.includes("127.0.0.1") && !i.includes("192.168.") && !i.includes("0.0.0.0");
+  }
+};
+a.config = u;
+let n = a;
+const w = {
   "top-1": {
     mapping: [
       {
@@ -223,20 +333,30 @@ const r = {
     ],
     position: "footer"
   }
-}, o = {
+}, z = {
   fetchMarginPercent: 500,
   renderMarginPercent: 200,
   mobileScaling: 2
-}, e = class e {
+}, y = (() => {
+  if (typeof window > "u") return !1;
+  try {
+    return new URLSearchParams(window.location.search).get("dae-debug") === "1";
+  } catch {
+    return !1;
+  }
+})();
+var l, h;
+const e = class e {
   static createReadyPromise() {
     return new Promise((i) => {
       e.readyResolve = i;
     });
   }
   static init(i) {
-    if (this.instance && !i.force) {
-      console.warn(
-        "[DreamsAdConfig] Already initialized. Use { force: true } to override."
+    var o;
+    if (p(o = e, l, h).call(o, i.debug), this.instance && !i.force) {
+      n.warn(
+        "Already initialized. Use { force: true } to override."
       );
       return;
     }
@@ -249,7 +369,7 @@ const r = {
       lazyLoad: t,
       centering: i.centering ?? !1,
       slots: {
-        ...r,
+        ...w,
         ...i.slots
       },
       privacy: i.privacy || null,
@@ -259,6 +379,26 @@ const r = {
       collapseEmptyDivs: i.collapseEmptyDivs ?? "DISABLED"
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
+  /**
+   * Open the GPT Console overlay for ad debugging. Safe to call even
+   * when GPT hasn't fully booted — queued onto `googletag.cmd`.
+   *
+   * https://developers.google.com/publisher-tag/reference#googletag.openConsole
+   */
+  static openConsole(i) {
+    if (typeof window > "u" || !window.googletag) {
+      n.warn("openConsole called but googletag is not available");
+      return;
+    }
+    const t = window.googletag;
+    window.googletag.cmd.push(() => {
+      try {
+        typeof t.openConsole == "function" ? t.openConsole(i) : n.warn("googletag.openConsole is not available in this build");
+      } catch (o) {
+        n.error("openConsole failed", o);
+      }
+    });
+  }
   /** Resolves when init() has been called. Immediate if already initialized. */
   static whenReady(i = 5e3) {
     if (this.instance) return Promise.resolve();
@@ -266,9 +406,9 @@ const r = {
     let t;
     return this.pendingReady = Promise.race([
       this.readyPromise,
-      new Promise((a, s) => {
+      new Promise((o, r) => {
         t = setTimeout(
-          () => s(
+          () => r(
             new Error(
               "[DreamsAdConfig] init() not called within timeout. Ensure DreamsAdConfig.init() runs before <dreams-ad-engine> elements mount."
             )
@@ -297,7 +437,7 @@ const r = {
   }
   /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad() {
-    return this.assertInitialized(), this.instance.lazyLoad || o;
+    return this.assertInitialized(), this.instance.lazyLoad || z;
   }
   static getLazyLoad() {
     return this.assertInitialized(), this.instance.lazyLoad;
@@ -345,7 +485,7 @@ const r = {
   }
   static buildAdUnit(i) {
     this.assertInitialized();
-    const t = this.instance.sitePrefix, s = {
+    const t = this.instance.sitePrefix, r = {
       "top-1": "is-t-01",
       "top-2": "is-t-02",
       "top-3": "is-t-03",
@@ -359,7 +499,7 @@ const r = {
       footer: "is-f-01",
       interstitial: "is-i"
     }[i];
-    return s ? `${t}-${s}` : `${t}-${i}`;
+    return r ? `${t}-${r}` : `${t}-${i}`;
   }
   static registerSlot(i, t) {
     this.assertInitialized(), this.instance.slots[i] = t;
@@ -374,9 +514,21 @@ const r = {
       );
   }
 };
-e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
-let n = e;
+l = new WeakSet(), h = function(i) {
+  if (i === !0 || i === !1) {
+    n.configure({
+      enabled: i,
+      verbose: i
+    });
+    return;
+  }
+  if (y) {
+    n.configure({ enabled: !0, verbose: !0 });
+    return;
+  }
+}, c(e, l), e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
+let g = e;
 export {
-  r as DEFAULT_SLOTS,
-  n as DreamsAdConfig
+  w as DEFAULT_SLOTS,
+  g as DreamsAdConfig
 };

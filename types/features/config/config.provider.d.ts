@@ -1,11 +1,19 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
 import type { AdConfigInit, AnchorConfig, InterstitialConfig, LazyLoadConfig, PrivacyConfig, SlotConfig } from "./config.types";
 export declare class DreamsAdConfig {
+    #private;
     private static instance;
     private static readyResolve;
     private static readyPromise;
     private static createReadyPromise;
     static init(config: AdConfigInit): void;
+    /**
+     * Open the GPT Console overlay for ad debugging. Safe to call even
+     * when GPT hasn't fully booted — queued onto `googletag.cmd`.
+     *
+     * https://developers.google.com/publisher-tag/reference#googletag.openConsole
+     */
+    static openConsole(slotId?: string): void;
     private static pendingReady;
     /** Resolves when init() has been called. Immediate if already initialized. */
     static whenReady(timeout?: number): Promise<void>;
