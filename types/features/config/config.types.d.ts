@@ -58,6 +58,15 @@ export interface AdConfigInit {
      *   Lowest reserved area; highest layout-shift risk.
      */
     collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    /**
+     * Enable verbose debug logging. Precedence (high → low):
+     *   1. `init({ debug: true })` here
+     *   2. `?dae-debug=1` URL param (parsed once at init)
+     *   3. `window.__dreamsDebug = true` (runtime toggleable)
+     * Leave undefined to follow URL / window flag, or to use the default
+     * auto mode (dev-only logging).
+     */
+    debug?: boolean;
 }
 export interface AdConfigData {
     networkId: string;

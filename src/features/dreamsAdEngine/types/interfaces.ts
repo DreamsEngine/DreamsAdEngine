@@ -137,5 +137,11 @@ declare global {
     apstag: any;
     pbjs?: any;
     dataLayer?: any[];
+    /**
+     * Runtime debug toggle. Set to `true` to force-enable Logger output
+     * in production without redeploying. Lowest precedence after
+     * `DreamsAdConfig.init({ debug })` and `?dae-debug=1`.
+     */
+    __dreamsDebug?: boolean;
   }
 }

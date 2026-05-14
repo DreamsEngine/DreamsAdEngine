@@ -9,6 +9,7 @@ import type {
   PageSettingsConfig,
 } from "../types/interfaces";
 import { DreamsAdConfig } from "../../config";
+import { Logger } from "../../logging";
 import { DreamsTargetingService } from "../../targeting";
 import { ViewabilityService } from "../../viewability";
 import { RefreshManager } from "../../refresh";
@@ -317,12 +318,15 @@ export class DreamsAdComponent extends LitElement {
 
   async firstUpdated() {
     await this.#resolveConfiguration();
-    await this.#resolveTargeting();
 
+    // Generate divId early so ad:error dispatches from targeting/APS/prebid
+    // failures carry a stable slotId payload.
     const uid = typeof crypto !== "undefined" && crypto.randomUUID
       ? crypto.randomUUID()
       : Math.random().toString(36).slice(2) + Date.now().toString(36);
     this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
+
+    await this.#resolveTargeting();
 
     // Initialize APS if configured and available
     if (this.apstag && this.pubId && !DreamsAdComponent.initialized_aps) {
@@ -334,8 +338,15 @@ export class DreamsAdComponent extends LitElement {
             bidTimeout: this.bidTimeout,
           });
           DreamsAdComponent.initialized_aps = true;
-        } catch {
+        } catch (e) {
           this.apstag = false;
+          Logger.dispatchAdError(this, {
+            slotId: this.divId,
+            adUnit: this.adUnit,
+            phase: "apstag-init",
+            error: e instanceof Error ? e : String(e),
+            recoverable: true,
+          });
         }
       } else {
         this.apstag = false;
@@ -370,12 +381,25 @@ export class DreamsAdComponent extends LitElement {
                 });
               });
             } catch (e) {
-              console.warn("[DreamsAdEngine] prebid init failed", e);
+              Logger.dispatchAdError(this, {
+                slotId: this.divId,
+                adUnit: this.adUnit,
+                phase: "prebid-init",
+                error: e instanceof Error ? e : String(e),
+                recoverable: true,
+              });
             }
           });
           DreamsAdComponent.initialized_prebid = true;
-        } catch {
+        } catch (e) {
           this.prebid = false;
+          Logger.dispatchAdError(this, {
+            slotId: this.divId,
+            adUnit: this.adUnit,
+            phase: "prebid-init",
+            error: e instanceof Error ? e : String(e),
+            recoverable: true,
+          });
         }
       } else {
         this.prebid = false;
@@ -391,8 +415,8 @@ export class DreamsAdComponent extends LitElement {
 
   async #resolveConfiguration() {
     if (this.adSlot === "interstitial") {
-      console.warn(
-        '[DreamsAdEngine] <dreams-ad-engine ad-slot="interstitial"> is deprecated. ' +
+      Logger.warn(
+        '<dreams-ad-engine ad-slot="interstitial"> is deprecated. ' +
           "Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).",
       );
       return;
@@ -446,8 +470,30 @@ export class DreamsAdComponent extends LitElement {
 
   async #resolveTargeting() {
     if (this.autoTargeting) {
-      const result = await DreamsTargetingService.getTargeting();
-      this.resolvedTargeting = result.targeting;
+      try {
+        const result = await DreamsTargetingService.getTargeting();
+        this.resolvedTargeting = result.targeting;
+        // Silent timeout currently resolves with [] — surface it as
+        // ad:error (recoverable: slot can still render without targeting).
+        if (result.source === "timeout") {
+          Logger.dispatchAdError(this, {
+            slotId: this.divId,
+            adUnit: this.adUnit,
+            phase: "targeting-resolution",
+            error: "window.dfp[@context] not present after retry budget",
+            recoverable: true,
+          });
+        }
+      } catch (e) {
+        this.resolvedTargeting = [];
+        Logger.dispatchAdError(this, {
+          slotId: this.divId,
+          adUnit: this.adUnit,
+          phase: "targeting-resolution",
+          error: e instanceof Error ? e : String(e),
+          recoverable: true,
+        });
+      }
     } else if (this.targeting && this.targeting.length > 0) {
       this.resolvedTargeting = this.targeting;
     }
@@ -461,16 +507,33 @@ export class DreamsAdComponent extends LitElement {
     const sitePrefix = DreamsAdConfig.getSitePrefix();
     const adUnitBase = `/${networkId}/${sitePrefix}-is-i`;
 
+    const defineOop = (
+      unit: string,
+      format: unknown,
+    ): void => {
+      try {
+        const slot = window.googletag.defineOutOfPageSlot(unit, format);
+        if (slot) {
+          slot.addService(window.googletag.pubads());
+          window.dreamsAllSlots.push(slot);
+        }
+      } catch (e) {
+        Logger.dispatchAdError(this, {
+          slotId: "",
+          adUnit: unit,
+          phase: "out-of-page-define",
+          error: e instanceof Error ? e : String(e),
+          recoverable: false,
+        });
+      }
+    };
+
     const interstitial = DreamsAdConfig.getInterstitial();
     if (interstitial?.enabled) {
-      const slot = window.googletag.defineOutOfPageSlot(
+      defineOop(
         adUnitBase,
         window.googletag.enums.OutOfPageFormat.INTERSTITIAL,
       );
-      if (slot) {
-        slot.addService(window.googletag.pubads());
-        window.dreamsAllSlots.push(slot);
-      }
     }
 
     const anchor = DreamsAdConfig.getAnchor();
@@ -478,25 +541,14 @@ export class DreamsAdComponent extends LitElement {
       const anchorUnit = `/${networkId}/${sitePrefix}-is-a`;
 
       if (anchor.position === "top" || anchor.position === "both") {
-        const slot = window.googletag.defineOutOfPageSlot(
-          anchorUnit,
-          window.googletag.enums.OutOfPageFormat.TOP_ANCHOR,
-        );
-        if (slot) {
-          slot.addService(window.googletag.pubads());
-          window.dreamsAllSlots.push(slot);
-        }
+        defineOop(anchorUnit, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR);
       }
 
       if (anchor.position === "bottom" || anchor.position === "both") {
-        const slot = window.googletag.defineOutOfPageSlot(
+        defineOop(
           anchorUnit,
           window.googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR,
         );
-        if (slot) {
-          slot.addService(window.googletag.pubads());
-          window.dreamsAllSlots.push(slot);
-        }
       }
     }
   }
@@ -571,23 +623,42 @@ export class DreamsAdComponent extends LitElement {
     setTimeout(() => {
       try {
         if (!window.googletag?.cmd?.push) {
-          console.error(
-            "[DreamsAdEngine] googletag.cmd not available for",
-            this.adUnit,
-          );
+          Logger.dispatchAdError(this, {
+            slotId: CONTAINER_ID,
+            adUnit: SLOT,
+            phase: "slot-define",
+            error: "googletag.cmd not available",
+            recoverable: false,
+          });
           return;
         }
         window.googletag.cmd.push(() => {
           if (!document.getElementById(CONTAINER_ID)) {
-            console.warn(
-              `[DreamsAdEngine] Slot div ${CONTAINER_ID} not in DOM, aborting`,
-            );
+            Logger.dispatchAdError(this, {
+              slotId: CONTAINER_ID,
+              adUnit: SLOT,
+              phase: "slot-display",
+              error: `Slot div ${CONTAINER_ID} not in DOM, aborting`,
+              recoverable: false,
+            });
             return;
           }
 
-          const defineAdSlot = window.googletag
-            .defineSlot(SLOT, this.sizing, CONTAINER_ID)
-            .addService(window.googletag.pubads());
+          let defineAdSlot: ReturnType<typeof window.googletag.defineSlot>;
+          try {
+            defineAdSlot = window.googletag
+              .defineSlot(SLOT, this.sizing, CONTAINER_ID)
+              .addService(window.googletag.pubads());
+          } catch (e) {
+            Logger.dispatchAdError(this, {
+              slotId: CONTAINER_ID,
+              adUnit: SLOT,
+              phase: "slot-define",
+              error: e instanceof Error ? e : String(e),
+              recoverable: false,
+            });
+            return;
+          }
 
           // slot.setConfig({ targeting }) is the newer batch-style API and
           // is preferred over chained setTargeting() calls — single
@@ -597,7 +668,18 @@ export class DreamsAdComponent extends LitElement {
             for (const t of this.resolvedTargeting as DreamsAdTargeting[]) {
               targeting[t.key] = t.value;
             }
-            defineAdSlot.setConfig({ targeting });
+            try {
+              defineAdSlot.setConfig({ targeting });
+            } catch (e) {
+              // Targeting failure is recoverable — slot still renders.
+              Logger.dispatchAdError(this, {
+                slotId: CONTAINER_ID,
+                adUnit: SLOT,
+                phase: "targeting-resolution",
+                error: e instanceof Error ? e : String(e),
+                recoverable: true,
+              });
+            }
           }
 
           // slotRenderEnded — resize, collapse, dispatch ad:rendered
@@ -791,12 +873,23 @@ export class DreamsAdComponent extends LitElement {
             .pubads()
             .addEventListener("slotOnload", this.slotOnloadHandler);
 
-          // Define responsive size mapping
-          const AD_MAPPING = window.googletag.sizeMapping();
-          this.mapping.forEach((map: DreamsAdMapping) => {
-            AD_MAPPING.addSize(map.viewport, map.sizing);
-          });
-          defineAdSlot.defineSizeMapping(AD_MAPPING.build());
+          // Define responsive size mapping. Recoverable: slot still renders
+          // using its base `sizing` if the mapping build fails.
+          try {
+            const AD_MAPPING = window.googletag.sizeMapping();
+            this.mapping.forEach((map: DreamsAdMapping) => {
+              AD_MAPPING.addSize(map.viewport, map.sizing);
+            });
+            defineAdSlot.defineSizeMapping(AD_MAPPING.build());
+          } catch (e) {
+            Logger.dispatchAdError(this, {
+              slotId: CONTAINER_ID,
+              adUnit: SLOT,
+              phase: "size-mapping",
+              error: e instanceof Error ? e : String(e),
+              recoverable: true,
+            });
+          }
 
           // Store slot reference for cleanup
           this.gptSlot = defineAdSlot;
@@ -807,7 +900,18 @@ export class DreamsAdComponent extends LitElement {
           window.dreamsAllSlots.push(defineAdSlot);
 
           // Register slot with GPT
-          window.googletag.display(CONTAINER_ID);
+          try {
+            window.googletag.display(CONTAINER_ID);
+          } catch (e) {
+            Logger.dispatchAdError(this, {
+              slotId: CONTAINER_ID,
+              adUnit: SLOT,
+              phase: "slot-display",
+              error: e instanceof Error ? e : String(e),
+              recoverable: false,
+            });
+            return;
+          }
 
           // When lazy load is active, GPT manages fetch timing — skip manual refresh
           const lazyLoadActive = DreamsAdConfig.isInitialized() && !!DreamsAdConfig.getLazyLoad();
@@ -827,7 +931,17 @@ export class DreamsAdComponent extends LitElement {
               typeof window.pbjs?.requestBids === "function";
 
             if (!useAps && !usePrebid) {
-              window.googletag.pubads().refresh([defineAdSlot]);
+              try {
+                window.googletag.pubads().refresh([defineAdSlot]);
+              } catch (e) {
+                Logger.dispatchAdError(this, {
+                  slotId: CONTAINER_ID,
+                  adUnit: SLOT,
+                  phase: "slot-refresh",
+                  error: e instanceof Error ? e : String(e),
+                  recoverable: false,
+                });
+              }
             } else {
               const bidTimeout = this.bidTimeout || 2000;
               let refreshed = false;
@@ -845,23 +959,39 @@ export class DreamsAdComponent extends LitElement {
                     try {
                       window.pbjs.setTargetingForGPTAsync([CONTAINER_ID]);
                     } catch (e) {
-                      console.warn(
-                        "[DreamsAdEngine] pbjs.setTargetingForGPTAsync failed",
-                        e,
-                      );
+                      Logger.dispatchAdError(this, {
+                        slotId: CONTAINER_ID,
+                        adUnit: SLOT,
+                        phase: "prebid-init",
+                        error: e instanceof Error ? e : String(e),
+                        recoverable: true,
+                      });
                     }
                   }
                   if (useAps) {
                     try {
                       window.apstag.setDisplayBids();
                     } catch (e) {
-                      console.warn(
-                        "[DreamsAdEngine] apstag.setDisplayBids failed",
-                        e,
-                      );
+                      Logger.dispatchAdError(this, {
+                        slotId: CONTAINER_ID,
+                        adUnit: SLOT,
+                        phase: "apstag-init",
+                        error: e instanceof Error ? e : String(e),
+                        recoverable: true,
+                      });
                     }
                   }
-                  window.googletag.pubads().refresh([defineAdSlot]);
+                  try {
+                    window.googletag.pubads().refresh([defineAdSlot]);
+                  } catch (e) {
+                    Logger.dispatchAdError(this, {
+                      slotId: CONTAINER_ID,
+                      adUnit: SLOT,
+                      phase: "slot-refresh",
+                      error: e instanceof Error ? e : String(e),
+                      recoverable: false,
+                    });
+                  }
                 });
               };
 
@@ -909,10 +1039,13 @@ export class DreamsAdComponent extends LitElement {
                           bidsBackHandler: () => resolve(),
                         });
                       } catch (e) {
-                        console.warn(
-                          "[DreamsAdEngine] pbjs.requestBids failed",
-                          e,
-                        );
+                        Logger.dispatchAdError(this, {
+                          slotId: CONTAINER_ID,
+                          adUnit: SLOT,
+                          phase: "prebid-init",
+                          error: e instanceof Error ? e : String(e),
+                          recoverable: true,
+                        });
                         resolve();
                       }
                     });
@@ -925,10 +1058,15 @@ export class DreamsAdComponent extends LitElement {
           }
         });
       } catch (error) {
-        console.error(
-          `[DreamsAdEngine] Slot registration failed: ${this.adUnit}`,
-          error,
-        );
+        // Catch-all safety net for synchronous errors before the cmd.push
+        // queue drains. Granular phases are dispatched inline above.
+        Logger.dispatchAdError(this, {
+          slotId: CONTAINER_ID,
+          adUnit: SLOT,
+          phase: "slot-define",
+          error: error instanceof Error ? error : String(error),
+          recoverable: false,
+        });
       }
     }, 0); // end setTimeout
   }

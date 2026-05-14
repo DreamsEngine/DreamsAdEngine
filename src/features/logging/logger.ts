@@ -1,3 +1,5 @@
+import type { AdErrorEventDetail } from "./logger.types";
+
 export interface LoggerConfig {
   /** Enable logging. Default: auto (dev only) */
   enabled?: boolean | "auto";
@@ -54,10 +56,11 @@ export class Logger {
   }
 
   /**
-   * Log verbose/debug message (only when verbose is enabled)
+   * Log verbose/debug message (only when verbose is enabled or runtime forced)
    */
   static debug(message: string, ...args: unknown[]): void {
-    if (!this.shouldLog() || !this.config.verbose) return;
+    if (!this.shouldLog()) return;
+    if (!this.config.verbose && !this.isRuntimeForced()) return;
     console.debug(`${this.config.prefix} ${message}`, ...args);
   }
 
@@ -101,11 +104,60 @@ export class Logger {
     console.timeEnd(`${this.config.prefix} ${label}`);
   }
 
+  /**
+   * Dispatch a structured `ad:error` CustomEvent on the host element and
+   * mirror it to `window.dataLayer` for GTM consumers. Also logs the error
+   * via Logger.error so it surfaces in console regardless of debug mode.
+   *
+   * Consumers wire vendor-specific tracking (Sentry, Datadog, etc.) by
+   * listening for `ad:error` — the library stays vendor-agnostic.
+   */
+  static dispatchAdError(host: EventTarget, detail: AdErrorEventDetail): void {
+    host.dispatchEvent(
+      new CustomEvent<AdErrorEventDetail>("ad:error", {
+        bubbles: true,
+        composed: true,
+        detail,
+      }),
+    );
+
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "dreams_ad_error",
+        phase: detail.phase,
+        slotId: detail.slotId,
+        adUnit: detail.adUnit,
+        error_message:
+          detail.error instanceof Error
+            ? detail.error.message
+            : String(detail.error),
+      });
+    }
+
+    Logger.error(
+      `[${detail.phase}] ${detail.slotId || detail.adUnit}: ${
+        detail.error instanceof Error
+          ? detail.error.message
+          : String(detail.error)
+      }`,
+    );
+  }
+
   private static shouldLog(): boolean {
     if (this.config.enabled === true) return true;
     if (this.config.enabled === false) return false;
+    // Auto: window.__dreamsDebug forces logging on at runtime,
+    // useful for enabling debug output in production without redeploying.
+    if (this.isRuntimeForced()) return true;
     // Auto: log only in development
     return !this.isProduction();
+  }
+
+  private static isRuntimeForced(): boolean {
+    return (
+      typeof window !== "undefined" && window.__dreamsDebug === true
+    );
   }
 
   private static isProduction(): boolean {

@@ -14,7 +14,9 @@ A lightweight, framework-agnostic Web Component for Google Ad Manager (GPT) with
 - **SPA support** — detects client-side navigation and cleans up slots
 - **Light DOM rendering** — third-party viewability scripts (IAS, MOAT, DoubleVerify) can traverse the DOM
 - **CLS prevention** — reserves min-height from responsive mapping per viewport
-- **GPT native events** — `ad:rendered`, `ad:viewable`, `ad:visibility` CustomEvents with rich ad metadata
+- **GPT native events** — `ad:requested`, `ad:response`, `ad:rendered`, `ad:loaded`, `ad:viewable`, `ad:visibility` CustomEvents with rich ad metadata
+- **Structured error reporting** — `ad:error` CustomEvent + `window.dataLayer` bridge with typed lifecycle phases
+- **Debug toggle** — opt-in verbose logging via config, URL param, or runtime window flag
 - **Privacy/consent API** — GDPR/CCPA support via `setPrivacySettings()`
 - **Web interstitials & anchors** — via `defineOutOfPageSlot()` (config-driven)
 - **Viewability-gated refresh** — only refreshes slots confirmed viewable by GPT
@@ -63,6 +65,8 @@ DreamsAdConfig.init({
   },
   centering: true,             // Optional: center ads horizontally
   threadYield: true,           // Optional: improve INP via scheduler yield
+  collapseEmptyDivs: "DISABLED", // Optional: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH"
+  debug: false,                // Optional: verbose logging (see Diagnostics)
   privacy: {                   // Optional: GDPR/CCPA settings
     restrictDataProcessing: true,
   },
@@ -116,6 +120,11 @@ DreamsAdConfig.init({
   lazyLoad?: LazyLoadConfig | false,  // GPT lazy load config, or false to disable
   centering?: boolean,                // Center ads horizontally (default: false)
   threadYield?: boolean,              // Enable scheduler thread yield for INP (default: false)
+  collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH",
+                                      // Empty-slot collapse policy (default: "DISABLED")
+
+  // Optional — Diagnostics
+  debug?: boolean,             // Force verbose logging on/off. Overrides URL + window flag.
 
   // Optional — Privacy / Consent
   privacy?: PrivacyConfig,     // GDPR/CCPA settings (applied via pubads().setPrivacySettings)
@@ -194,12 +203,14 @@ DreamsAdConfig.getPrivacy(): PrivacyConfig | null
 DreamsAdConfig.getInterstitial(): InterstitialConfig | null
 DreamsAdConfig.getAnchor(): AnchorConfig | null
 DreamsAdConfig.getThreadYield(): boolean
+DreamsAdConfig.getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH"
 DreamsAdConfig.setPrivacy(config: PrivacyConfig): void  // Runtime update
 DreamsAdConfig.getSlot(name: string): SlotConfig | undefined
 DreamsAdConfig.getSlotMapping(name: string): DreamsAdMapping[]
 DreamsAdConfig.getSlotSizing(name: string): number[][]
 DreamsAdConfig.buildAdUnit(name: string): string
 DreamsAdConfig.registerSlot(name: string, config: SlotConfig): void
+DreamsAdConfig.openConsole(slotId?: string): void  // Open the GPT console overlay
 DreamsAdConfig.reset(): void
 ```
 
@@ -270,7 +281,33 @@ When `slotRenderEnded` fires with `isEmpty: true`, the reserve height collapses 
 
 ### Events
 
-Every `<dreams-ad-engine>` component dispatches these CustomEvents (all `bubbles: true`):
+Every `<dreams-ad-engine>` component dispatches these CustomEvents (all `bubbles: true`). The lifecycle, in firing order on a successful fill:
+
+```
+ad:requested → ad:response → ad:rendered → ad:loaded → ad:viewable
+```
+
+On no-fill, the sequence stops at `ad:rendered` (with `isEmpty: true`). On failure, `ad:error` fires with the lifecycle phase that broke.
+
+#### `ad:requested`
+
+Fired when GPT sends the ad request to GAM (`slotRequested`). Useful for funnel analytics.
+
+```typescript
+element.addEventListener("ad:requested", (e) => {
+  const { slotId, adUnit } = e.detail;
+});
+```
+
+#### `ad:response`
+
+Fired when GAM responds with a creative decision (`slotResponseReceived`). Fires before `ad:rendered`; useful for latency measurement.
+
+```typescript
+element.addEventListener("ad:response", (e) => {
+  const { slotId, adUnit } = e.detail;
+});
+```
 
 #### `ad:rendered`
 
@@ -288,6 +325,16 @@ element.addEventListener("ad:rendered", (e) => {
     slotId,        // string — DOM element ID
     adUnit,        // string — full ad unit path
   } = e.detail;
+});
+```
+
+#### `ad:loaded`
+
+Fired when the creative iframe finishes loading (`slotOnload`). Distinct from `ad:rendered` — pairs well with INP/LCP attribution work.
+
+```typescript
+element.addEventListener("ad:loaded", (e) => {
+  const { slotId, adUnit } = e.detail;
 });
 ```
 
@@ -311,6 +358,38 @@ element.addEventListener("ad:visibility", (e) => {
   // inViewPercentage dispatched at: 0, 25, 50, 75, 100
 });
 ```
+
+#### `ad:error`
+
+Fired when any step in the slot lifecycle throws or times out. Lets consumers wire vendor-specific tracking (Sentry, Datadog, Datalayer, etc.) without the library baking in any single vendor.
+
+```typescript
+element.addEventListener("ad:error", (e) => {
+  const {
+    slotId,        // string — container DOM id
+    adUnit,        // string — GAM ad unit path
+    phase,         // AdErrorPhase — see below
+    error,         // Error | string
+    recoverable,   // boolean — true if slot can still render
+  } = e.detail;
+});
+```
+
+`phase` is one of:
+
+| Phase | Recoverable | Meaning |
+|---|---|---|
+| `config-resolution` | — | Reserved for future config-load failures |
+| `targeting-resolution` | yes | `window.dfp[@context]` poll timed out or `setConfig({ targeting })` threw |
+| `slot-define` | no | `defineSlot()` / `addService()` threw or `googletag.cmd` is missing |
+| `slot-display` | no | `googletag.display()` threw or container is no longer in the DOM |
+| `slot-refresh` | no | `pubads().refresh()` threw |
+| `apstag-init` | yes | `apstag.init()` or `apstag.setDisplayBids()` threw |
+| `prebid-init` | yes | `pbjs.que.push`, `setTargetingForGPTAsync`, `requestBids`, or inner setConfig threw |
+| `out-of-page-define` | no | `defineOutOfPageSlot()` threw for interstitial or anchor |
+| `size-mapping` | yes | `sizeMapping().build()` threw — slot still renders with base `sizing` |
+
+See [Diagnostics & Debugging](#diagnostics--debugging) for the `window.dataLayer` bridge and debug toggle.
 
 ### CSS Class Names
 
@@ -612,7 +691,7 @@ RefreshManager.stop();
 
 ### Logger
 
-Production-aware logging that auto-disables on production hostnames.
+Production-aware logging that auto-disables on production hostnames. Wired internally across the slot lifecycle — every `console.warn`/`console.error` the component used to emit now goes through `Logger`, so consumers can mute or amplify it through one switch.
 
 ```typescript
 import { Logger } from "@dreamsengine/dreams-ad-engine";
@@ -626,7 +705,93 @@ Logger.configure({
 Logger.log("Slot rendered");
 Logger.warn("No targeting context");
 Logger.error("GPT not loaded");    // Always logs, even in prod
+
+// Dispatch a structured ad:error event on any EventTarget.
+// Used internally by the component; also exported for custom integrations.
+Logger.dispatchAdError(hostElement, {
+  slotId: "div-gpt-ad-...",
+  adUnit: "/270959339/mysite-is-t-01",
+  phase: "slot-define",
+  error: new Error("..."),
+  recoverable: false,
+});
 ```
+
+---
+
+## Diagnostics & Debugging
+
+Three layered tools for surfacing ad failures and inspecting GPT state. Available since **v0.7.0**.
+
+### `ad:error` CustomEvent
+
+Every component dispatches `ad:error` when any lifecycle step throws or times out — see [Events](#aderror). Listen on the component, on `document`, or on `window` (the event bubbles and is `composed: true`):
+
+```typescript
+document.addEventListener("ad:error", (e) => {
+  // Forward to Sentry, Datadog, your own bus, etc.
+  Sentry.captureMessage(`[dreams-ad-engine] ${e.detail.phase}`, {
+    extra: e.detail,
+  });
+});
+```
+
+The library stays vendor-agnostic — no Sentry/Datadog SDK ever gets pulled in.
+
+### `window.dataLayer` bridge
+
+Every `ad:error` is automatically mirrored to `window.dataLayer` for Google Tag Manager consumers:
+
+```js
+window.dataLayer.push({
+  event: "dreams_ad_error",
+  phase: "slot-define",                              // AdErrorPhase
+  slotId: "div-gpt-ad-/.../mysite-is-t-01-<uuid>",
+  adUnit: "/270959339/mysite-is-t-01",
+  error_message: "Cannot read properties of undefined ...",
+});
+```
+
+Mirrors the existing `prebid_bid_won` pattern. Zero extra wiring on the GTM side — create a trigger on the `dreams_ad_error` event and map the variables.
+
+### Debug toggle
+
+Verbose `Logger` output is gated by three signals, in precedence high → low:
+
+| Signal | Where | Behavior |
+|---|---|---|
+| `DreamsAdConfig.init({ debug })` | Programmatic | Explicit `true`/`false` wins over everything else. Use when you control the embed. |
+| `?dae-debug=1` | URL query string | Parsed once at module load. Useful for live-debugging production without redeploying. |
+| `window.__dreamsDebug = true` | Runtime window flag | Lowest precedence; only takes effect when neither of the above set an explicit value. Toggleable at any time without a reload. |
+
+```typescript
+// 1. Programmatic
+DreamsAdConfig.init({
+  networkId: "...",
+  sitePrefix: "...",
+  debug: true,        // Force verbose logs on, regardless of environment
+});
+
+// 2. URL — share with QA / partners without code changes
+//    https://example.com/article?dae-debug=1
+
+// 3. Runtime — flip in DevTools
+//    window.__dreamsDebug = true
+```
+
+### `DreamsAdConfig.openConsole()`
+
+Wraps GPT's built-in console overlay. Safe to call regardless of GPT boot state — queued onto `googletag.cmd`:
+
+```typescript
+// Open the global GPT console
+DreamsAdConfig.openConsole();
+
+// Open scoped to a single slot
+DreamsAdConfig.openConsole("div-gpt-ad-/.../mysite-is-t-01-<uuid>");
+```
+
+See Google's [Publisher Console](https://developers.google.com/publisher-tag/guides/publisher-console) docs for what it surfaces.
 
 ---
 
@@ -702,7 +867,7 @@ In Nuxt, wrap with `<ClientOnly>`:
 <!-- In header.php or via wp_enqueue_script -->
 <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 <script type="module">
-  import { DreamsAdConfig } from 'https://cdn.jsdelivr.net/npm/@dreamsengine/dreams-ad-engine@0.5/dist/dreams-ad-engine.js';
+  import { DreamsAdConfig } from 'https://cdn.jsdelivr.net/npm/@dreamsengine/dreams-ad-engine@0.7/dist/dreams-ad-engine.js';
 
   DreamsAdConfig.init({
     networkId: '270959339',
@@ -723,7 +888,7 @@ In Nuxt, wrap with `<ClientOnly>`:
 ```html
 <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 <script type="module">
-  import { DreamsAdConfig } from 'https://cdn.jsdelivr.net/npm/@dreamsengine/dreams-ad-engine@0.5/dist/dreams-ad-engine.js';
+  import { DreamsAdConfig } from 'https://cdn.jsdelivr.net/npm/@dreamsengine/dreams-ad-engine@0.7/dist/dreams-ad-engine.js';
   DreamsAdConfig.init({ networkId: '270959339', sitePrefix: 'mysite' });
 </script>
 
@@ -776,6 +941,7 @@ import type {
   SlotConfig,
   DreamsAdMapping,
   DreamsAdTargeting,
+  PageSettingsConfig,
   SlotRenderEndedEvent,
   ImpressionViewableEvent,
   SlotVisibilityChangedEvent,
@@ -784,12 +950,74 @@ import type {
   TargetingResult,
   RefreshConfig,
   RefreshEvent,
+  LoggerConfig,
+  AdErrorEventDetail,
+  AdErrorPhase,
 } from "@dreamsengine/dreams-ad-engine";
 ```
 
 ---
 
 ## Migration
+
+### From v0.6.x to v0.7.x
+
+All changes are additive. No public API removals, no renames.
+
+#### New: Structured error reporting (`ad:error`)
+
+Every lifecycle failure now dispatches `ad:error` on the component with a typed `phase`, plus a `dreams_ad_error` push to `window.dataLayer`. Zero action required to receive errors — listen on the component, `document`, or `window`. See [Events](#aderror) and [Diagnostics & Debugging](#diagnostics--debugging).
+
+#### New: Lifecycle events `ad:requested`, `ad:response`, `ad:loaded`
+
+Full GAM funnel observability: `ad:requested → ad:response → ad:rendered → ad:loaded → ad:viewable`. Additive — `ad:rendered`, `ad:viewable`, `ad:visibility` continue to work unchanged. See [Events](#events).
+
+#### New: Explicit SRA opt-in
+
+`pubads().enableSingleRequest()` is now called explicitly during init. GPT defaults to SRA, but documenting the intent guards against future default changes. No consumer action.
+
+#### New: Debug toggle
+
+Three signals control verbose logging — see [Debug toggle](#debug-toggle). Defaults preserve previous behavior (`auto`: dev-only).
+
+```typescript
+DreamsAdConfig.init({
+  networkId: "...",
+  sitePrefix: "...",
+  debug: true,  // optional, defaults to undefined → auto mode
+});
+```
+
+#### New: `DreamsAdConfig.openConsole()`
+
+```typescript
+DreamsAdConfig.openConsole();           // GPT global console
+DreamsAdConfig.openConsole(slotId);     // scoped to one slot
+```
+
+#### New: `collapseEmptyDivs` config
+
+Replaces the deprecated `pubads().collapseEmptyDivs()` via GPT's modern `setConfig({ collapseDiv })` API. Default `"DISABLED"` preserves the existing CLS-reserve behavior — opt in only if you need denser layouts.
+
+```typescript
+DreamsAdConfig.init({
+  // ...
+  collapseEmptyDivs: "AFTER_FETCH",     // or "BEFORE_FETCH" or "DISABLED" (default)
+});
+```
+
+#### Behavior change: console output now routed through `Logger`
+
+Previously, the component emitted `console.warn` / `console.error` directly at nine internal sites. These are now routed through the existing `Logger`, which auto-disables in production. Net effect for consumers:
+
+- **In development** — unchanged; warnings still appear in console.
+- **In production** — warnings are now suppressed by default. Errors still emit (Logger.error is always on). Re-enable verbose output via the debug toggle when you need it.
+
+If you previously depended on `console.warn` from the component as a signal in production logs, switch to listening for `ad:error` instead — it's more reliable, structured, and includes phase metadata.
+
+#### Behavior change: targeting timeout surfaces as `ad:error`
+
+`DreamsTargetingService.getTargeting()` still resolves with `{ targeting: [], source: "timeout" }` when `window.dfp[@context]` never appears — but the component now also dispatches `ad:error` with `phase: "targeting-resolution"`, `recoverable: true`. Slots still render with no targeting; consumers can now detect CMS setup issues without diffing analytics.
 
 ### From v0.4.x to v0.5.x
 

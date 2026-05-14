@@ -4,6 +4,119 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Combined release covering GPT modernization (PR #3) and Phase 3a
+diagnostics (PR #5). All changes are additive — no public API
+removals, no renames. Target version: `0.7.0`.
+
+### Added
+
+- **Lifecycle event coverage** — three new CustomEvents complete the
+  funnel:
+  - `ad:requested` — GPT `slotRequested` (ad request sent to GAM)
+  - `ad:response` — GPT `slotResponseReceived` (response received,
+    fires before `ad:rendered`; useful for latency measurement)
+  - `ad:loaded` — GPT `slotOnload` (creative iframe finished loading;
+    distinct from `ad:rendered`, pairs well with INP/LCP attribution)
+  - Firing order on fill: `ad:requested → ad:response → ad:rendered →
+    ad:loaded → ad:viewable`. On no-fill, stops at `ad:rendered`.
+  - Listeners are removed in `disconnectedCallback` alongside the
+    existing event teardown.
+- **`ad:error` CustomEvent** — every lifecycle failure now dispatches
+  a structured event on the host with typed payload:
+  ```ts
+  interface AdErrorEventDetail {
+    slotId: string;
+    adUnit: string;
+    phase: AdErrorPhase;
+    error: Error | string;
+    recoverable: boolean;
+  }
+  type AdErrorPhase =
+    | "config-resolution" | "targeting-resolution"
+    | "slot-define" | "slot-display" | "slot-refresh"
+    | "apstag-init" | "prebid-init"
+    | "out-of-page-define" | "size-mapping";
+  ```
+  Event bubbles and is `composed: true`, so consumers can listen on
+  the component, `document`, or `window`.
+- **`window.dataLayer` bridge** — every `ad:error` is mirrored to
+  `dataLayer` as `{ event: "dreams_ad_error", phase, slotId, adUnit,
+  error_message }`. GTM consumers get errors with no extra wiring.
+  Mirrors the existing `prebid_bid_won` pattern.
+- **Debug toggle**, with precedence high → low:
+  1. `DreamsAdConfig.init({ debug: true | false })` — programmatic;
+     explicit boolean wins over URL + window flag.
+  2. `?dae-debug=1` URL param — parsed once at module load.
+  3. `window.__dreamsDebug = true` — runtime toggleable (auto mode
+     only; consumer override via `init({ debug })` still wins).
+- **`DreamsAdConfig.openConsole(slotId?)`** — wraps
+  `googletag.openConsole()` with `cmd` queueing and a safe fallback
+  when the API is unavailable.
+- **`Logger.dispatchAdError(host, detail)`** — exported helper. Used
+  internally by the component; available for custom integrations
+  (custom elements that want to emit `ad:error` on their own slots).
+- **`collapseEmptyDivs` config option** — replaces the deprecated
+  `pubads().collapseEmptyDivs()` via GPT's modern `setConfig({
+  collapseDiv })` API. Accepts `"DISABLED"` (default, preserves
+  current CLS-reserve behavior), `"AFTER_FETCH"`, or `"BEFORE_FETCH"`.
+- **Explicit `pubads().enableSingleRequest()`** — SRA is GPT's default,
+  but documenting the intent guards against future default changes
+  and matches Google's published best practice.
+- **`PageSettingsConfig` interface** — typed replacement for the loose
+  `Record<string, unknown>` on `Googletag.setConfig`. Typed-key
+  autocomplete for known fields (`lazyLoad`, `threadYield`,
+  `collapseDiv`, `pps`) plus index signature for forward compatibility.
+- **CLS reserve fallback** — when no responsive `mapping` is configured,
+  reserve `min-height` now derives from the maximum non-tracking-pixel
+  height in the `sizing` attribute (was a flat 2px). Eliminates a
+  guaranteed layout shift on fill for consumers using only `sizing`.
+- **TypeScript exports** — `AdErrorEventDetail`, `AdErrorPhase`,
+  `LoggerConfig`, `PageSettingsConfig`.
+- **Window typing** — added `__dreamsDebug?: boolean` to the global
+  `Window` interface.
+
+### Changed
+
+- **Console output now routed through `Logger`** — nine internal
+  `console.warn` / `console.error` sites in `ad.component.ts` (8) and
+  `config.provider.ts` (1) now go through `Logger.warn` / `Logger.error`
+  / `Logger.dispatchAdError`. Production effect:
+  - In dev: unchanged; warnings still appear in console.
+  - In prod: warnings are now suppressed by default (Logger auto mode).
+    Errors still emit. Re-enable verbose output via the debug toggle
+    when you need it.
+  - Consumers that depended on `console.warn` from the component as a
+    signal in production logs should switch to `ad:error` listeners —
+    more reliable, structured, includes phase metadata.
+- **`firstUpdated` reordered** — `divId` is now assigned *before*
+  targeting resolution and APS/Prebid init, so `ad:error` dispatches
+  from those phases carry a stable `slotId` instead of an empty string.
+- **GPT calls wrapped in granular `try/catch`** — 11 previously
+  unprotected call sites now dispatch `ad:error` with a specific
+  `phase`:
+  - `defineSlot().addService()` → `slot-define` (non-recoverable)
+  - `slot.setConfig({ targeting })` → `targeting-resolution` (recoverable)
+  - `googletag.display()` → `slot-display`
+  - `pubads().refresh([slot])` (both bid-path and direct sites) →
+    `slot-refresh`
+  - All three `defineOutOfPageSlot()` calls (interstitial, top anchor,
+    bottom anchor) → `out-of-page-define`
+  - `sizeMapping().build()` → `size-mapping` (recoverable — slot
+    still renders with base `sizing`)
+  - APS `init()` + `setDisplayBids()` → `apstag-init` (recoverable)
+  - Prebid `que.push`, `setTargetingForGPTAsync`, `requestBids`,
+    inner setConfig → `prebid-init` (recoverable)
+  - Outer setTimeout catch-all → `slot-define` (non-recoverable)
+- **Targeting timeout surfaces as `ad:error`** —
+  `DreamsTargetingService.getTargeting()` still resolves with
+  `{ targeting: [], source: "timeout" }` when `window.dfp[@context]`
+  never appears, but the component now also dispatches `ad:error` with
+  `phase: "targeting-resolution"`, `recoverable: true`. Slots still
+  render with no targeting; CMS setup issues are detectable without
+  diffing analytics.
+
 ## [0.6.4] - 2026-05-12
 
 ### Changed

@@ -1,15 +1,21 @@
-const F = globalThis, it = F.ShadowRoot && (F.ShadyCSS === void 0 || F.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, Pt = /* @__PURE__ */ Symbol(), ct = /* @__PURE__ */ new WeakMap();
-let Yt = class {
+var ht = (s) => {
+  throw TypeError(s);
+};
+var Qt = (s, t, e) => t.has(s) || ht("Cannot " + e);
+var pt = (s, t, e) => t.has(s) ? ht("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(s) : t.set(s, e);
+var ut = (s, t, e) => (Qt(s, t, "access private method"), e);
+const q = globalThis, nt = q.ShadowRoot && (q.ShadyCSS === void 0 || q.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, Rt = /* @__PURE__ */ Symbol(), gt = /* @__PURE__ */ new WeakMap();
+let te = class {
   constructor(t, e, i) {
-    if (this._$cssResult$ = !0, i !== Pt) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, i !== Rt) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
   }
   get styleSheet() {
     let t = this.o;
     const e = this.t;
-    if (it && t === void 0) {
+    if (nt && t === void 0) {
       const i = e !== void 0 && e.length === 1;
-      i && (t = ct.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), i && ct.set(e, t));
+      i && (t = gt.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), i && gt.set(e, t));
     }
     return t;
   }
@@ -17,94 +23,94 @@ let Yt = class {
     return this.cssText;
   }
 };
-const Kt = (n) => new Yt(typeof n == "string" ? n : n + "", void 0, Pt), Xt = (n, t) => {
-  if (it) n.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
+const ee = (s) => new te(typeof s == "string" ? s : s + "", void 0, Rt), ie = (s, t) => {
+  if (nt) s.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const i = document.createElement("style"), s = F.litNonce;
-    s !== void 0 && i.setAttribute("nonce", s), i.textContent = e.cssText, n.appendChild(i);
+    const i = document.createElement("style"), n = q.litNonce;
+    n !== void 0 && i.setAttribute("nonce", n), i.textContent = e.cssText, s.appendChild(i);
   }
-}, ht = it ? (n) => n : (n) => n instanceof CSSStyleSheet ? ((t) => {
+}, ft = nt ? (s) => s : (s) => s instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const i of t.cssRules) e += i.cssText;
-  return Kt(e);
-})(n) : n;
-const { is: Zt, defineProperty: Qt, getOwnPropertyDescriptor: te, getOwnPropertyNames: ee, getOwnPropertySymbols: ie, getPrototypeOf: se } = Object, X = globalThis, pt = X.trustedTypes, ne = pt ? pt.emptyScript : "", oe = X.reactiveElementPolyfillSupport, U = (n, t) => n, G = { toAttribute(n, t) {
+  return ee(e);
+})(s) : s;
+const { is: se, defineProperty: ne, getOwnPropertyDescriptor: re, getOwnPropertyNames: oe, getOwnPropertySymbols: ae, getPrototypeOf: le } = Object, Q = globalThis, mt = Q.trustedTypes, de = mt ? mt.emptyScript : "", ce = Q.reactiveElementPolyfillSupport, O = (s, t) => s, G = { toAttribute(s, t) {
   switch (t) {
     case Boolean:
-      n = n ? ne : null;
+      s = s ? de : null;
       break;
     case Object:
     case Array:
-      n = n == null ? n : JSON.stringify(n);
+      s = s == null ? s : JSON.stringify(s);
   }
-  return n;
-}, fromAttribute(n, t) {
-  let e = n;
+  return s;
+}, fromAttribute(s, t) {
+  let e = s;
   switch (t) {
     case Boolean:
-      e = n !== null;
+      e = s !== null;
       break;
     case Number:
-      e = n === null ? null : Number(n);
+      e = s === null ? null : Number(s);
       break;
     case Object:
     case Array:
       try {
-        e = JSON.parse(n);
+        e = JSON.parse(s);
       } catch {
         e = null;
       }
   }
   return e;
-} }, st = (n, t) => !Zt(n, t), ut = { attribute: !0, type: String, converter: G, reflect: !1, useDefault: !1, hasChanged: st };
-Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), X.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-let z = class extends HTMLElement {
+} }, rt = (s, t) => !se(s, t), wt = { attribute: !0, type: String, converter: G, reflect: !1, useDefault: !1, hasChanged: rt };
+Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), Q.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+let x = class extends HTMLElement {
   static addInitializer(t) {
     this._$Ei(), (this.l ??= []).push(t);
   }
   static get observedAttributes() {
     return this.finalize(), this._$Eh && [...this._$Eh.keys()];
   }
-  static createProperty(t, e = ut) {
+  static createProperty(t, e = wt) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
-      const i = /* @__PURE__ */ Symbol(), s = this.getPropertyDescriptor(t, i, e);
-      s !== void 0 && Qt(this.prototype, t, s);
+      const i = /* @__PURE__ */ Symbol(), n = this.getPropertyDescriptor(t, i, e);
+      n !== void 0 && ne(this.prototype, t, n);
     }
   }
   static getPropertyDescriptor(t, e, i) {
-    const { get: s, set: o } = te(this.prototype, t) ?? { get() {
+    const { get: n, set: r } = re(this.prototype, t) ?? { get() {
       return this[e];
-    }, set(r) {
-      this[e] = r;
+    }, set(a) {
+      this[e] = a;
     } };
-    return { get: s, set(r) {
-      const d = s?.call(this);
-      o?.call(this, r), this.requestUpdate(t, d, i);
+    return { get: n, set(a) {
+      const o = n?.call(this);
+      r?.call(this, a), this.requestUpdate(t, o, i);
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(t) {
-    return this.elementProperties.get(t) ?? ut;
+    return this.elementProperties.get(t) ?? wt;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(U("elementProperties"))) return;
-    const t = se(this);
+    if (this.hasOwnProperty(O("elementProperties"))) return;
+    const t = le(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(U("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(U("properties"))) {
-      const e = this.properties, i = [...ee(e), ...ie(e)];
-      for (const s of i) this.createProperty(s, e[s]);
+    if (this.hasOwnProperty(O("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(O("properties"))) {
+      const e = this.properties, i = [...oe(e), ...ae(e)];
+      for (const n of i) this.createProperty(n, e[n]);
     }
     const t = this[Symbol.metadata];
     if (t !== null) {
       const e = litPropertyMetadata.get(t);
-      if (e !== void 0) for (const [i, s] of e) this.elementProperties.set(i, s);
+      if (e !== void 0) for (const [i, n] of e) this.elementProperties.set(i, n);
     }
     this._$Eh = /* @__PURE__ */ new Map();
     for (const [e, i] of this.elementProperties) {
-      const s = this._$Eu(e, i);
-      s !== void 0 && this._$Eh.set(s, e);
+      const n = this._$Eu(e, i);
+      n !== void 0 && this._$Eh.set(n, e);
     }
     this.elementStyles = this.finalizeStyles(this.styles);
   }
@@ -112,8 +118,8 @@ let z = class extends HTMLElement {
     const e = [];
     if (Array.isArray(t)) {
       const i = new Set(t.flat(1 / 0).reverse());
-      for (const s of i) e.unshift(ht(s));
-    } else t !== void 0 && e.push(ht(t));
+      for (const n of i) e.unshift(ft(n));
+    } else t !== void 0 && e.push(ft(t));
     return e;
   }
   static _$Eu(t, e) {
@@ -139,7 +145,7 @@ let z = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return Xt(t, this.constructor.elementStyles), t;
+    return ie(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t) => t.hostConnected?.());
@@ -153,31 +159,31 @@ let z = class extends HTMLElement {
     this._$AK(t, i);
   }
   _$ET(t, e) {
-    const i = this.constructor.elementProperties.get(t), s = this.constructor._$Eu(t, i);
-    if (s !== void 0 && i.reflect === !0) {
-      const o = (i.converter?.toAttribute !== void 0 ? i.converter : G).toAttribute(e, i.type);
-      this._$Em = t, o == null ? this.removeAttribute(s) : this.setAttribute(s, o), this._$Em = null;
+    const i = this.constructor.elementProperties.get(t), n = this.constructor._$Eu(t, i);
+    if (n !== void 0 && i.reflect === !0) {
+      const r = (i.converter?.toAttribute !== void 0 ? i.converter : G).toAttribute(e, i.type);
+      this._$Em = t, r == null ? this.removeAttribute(n) : this.setAttribute(n, r), this._$Em = null;
     }
   }
   _$AK(t, e) {
-    const i = this.constructor, s = i._$Eh.get(t);
-    if (s !== void 0 && this._$Em !== s) {
-      const o = i.getPropertyOptions(s), r = typeof o.converter == "function" ? { fromAttribute: o.converter } : o.converter?.fromAttribute !== void 0 ? o.converter : G;
-      this._$Em = s;
-      const d = r.fromAttribute(e, o.type);
-      this[s] = d ?? this._$Ej?.get(s) ?? d, this._$Em = null;
+    const i = this.constructor, n = i._$Eh.get(t);
+    if (n !== void 0 && this._$Em !== n) {
+      const r = i.getPropertyOptions(n), a = typeof r.converter == "function" ? { fromAttribute: r.converter } : r.converter?.fromAttribute !== void 0 ? r.converter : G;
+      this._$Em = n;
+      const o = a.fromAttribute(e, r.type);
+      this[n] = o ?? this._$Ej?.get(n) ?? o, this._$Em = null;
     }
   }
-  requestUpdate(t, e, i, s = !1, o) {
+  requestUpdate(t, e, i, n = !1, r) {
     if (t !== void 0) {
-      const r = this.constructor;
-      if (s === !1 && (o = this[t]), i ??= r.getPropertyOptions(t), !((i.hasChanged ?? st)(o, e) || i.useDefault && i.reflect && o === this._$Ej?.get(t) && !this.hasAttribute(r._$Eu(t, i)))) return;
+      const a = this.constructor;
+      if (n === !1 && (r = this[t]), i ??= a.getPropertyOptions(t), !((i.hasChanged ?? rt)(r, e) || i.useDefault && i.reflect && r === this._$Ej?.get(t) && !this.hasAttribute(a._$Eu(t, i)))) return;
       this.C(t, e, i);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
   }
-  C(t, e, { useDefault: i, reflect: s, wrapped: o }, r) {
-    i && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t) && (this._$Ej.set(t, r ?? e ?? this[t]), o !== !0 || r !== void 0) || (this._$AL.has(t) || (this.hasUpdated || i || (e = void 0), this._$AL.set(t, e)), s === !0 && this._$Em !== t && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t));
+  C(t, e, { useDefault: i, reflect: n, wrapped: r }, a) {
+    i && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t) && (this._$Ej.set(t, a ?? e ?? this[t]), r !== !0 || a !== void 0) || (this._$AL.has(t) || (this.hasUpdated || i || (e = void 0), this._$AL.set(t, e)), n === !0 && this._$Em !== t && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t));
   }
   async _$EP() {
     this.isUpdatePending = !0;
@@ -196,13 +202,13 @@ let z = class extends HTMLElement {
     if (!this.isUpdatePending) return;
     if (!this.hasUpdated) {
       if (this.renderRoot ??= this.createRenderRoot(), this._$Ep) {
-        for (const [s, o] of this._$Ep) this[s] = o;
+        for (const [n, r] of this._$Ep) this[n] = r;
         this._$Ep = void 0;
       }
       const i = this.constructor.elementProperties;
-      if (i.size > 0) for (const [s, o] of i) {
-        const { wrapped: r } = o, d = this[s];
-        r !== !0 || this._$AL.has(s) || d === void 0 || this.C(s, void 0, o, d);
+      if (i.size > 0) for (const [n, r] of i) {
+        const { wrapped: a } = r, o = this[n];
+        a !== !0 || this._$AL.has(n) || o === void 0 || this.C(n, void 0, r, o);
       }
     }
     let t = !1;
@@ -239,70 +245,70 @@ let z = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-z.elementStyles = [], z.shadowRootOptions = { mode: "open" }, z[U("elementProperties")] = /* @__PURE__ */ new Map(), z[U("finalized")] = /* @__PURE__ */ new Map(), oe?.({ ReactiveElement: z }), (X.reactiveElementVersions ??= []).push("2.1.2");
-const nt = globalThis, gt = (n) => n, W = nt.trustedTypes, ft = W ? W.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Lt = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, Ot = "?" + S, re = `<${Ot}>`, x = document, V = () => x.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", ot = Array.isArray, ae = (n) => ot(n) || typeof n?.[Symbol.iterator] == "function", Q = `[ 	
-\f\r]`, R = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, wt = />/g, E = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, bt = /"/g, Rt = /^(?:script|style|textarea|title)$/i, le = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), T = le(1), P = /* @__PURE__ */ Symbol.for("lit-noChange"), y = /* @__PURE__ */ Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), C = x.createTreeWalker(x, 129);
-function Ut(n, t) {
-  if (!ot(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return ft !== void 0 ? ft.createHTML(t) : t;
+x.elementStyles = [], x.shadowRootOptions = { mode: "open" }, x[O("elementProperties")] = /* @__PURE__ */ new Map(), x[O("finalized")] = /* @__PURE__ */ new Map(), ce?.({ ReactiveElement: x }), (Q.reactiveElementVersions ??= []).push("2.1.2");
+const ot = globalThis, yt = (s) => s, W = ot.trustedTypes, bt = W ? W.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, Ot = "$lit$", E = `lit$${Math.random().toFixed(9).slice(2)}$`, Ht = "?" + E, he = `<${Ht}>`, C = document, V = () => C.createComment(""), M = (s) => s === null || typeof s != "object" && typeof s != "function", at = Array.isArray, pe = (s) => at(s) || typeof s?.[Symbol.iterator] == "function", et = `[ 	
+\f\r]`, R = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, vt = /-->/g, $t = />/g, _ = RegExp(`>|${et}(?:([^\\s"'>=/]+)(${et}*=${et}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, At = /"/g, Dt = /^(?:script|style|textarea|title)$/i, ue = (s) => (t, ...e) => ({ _$litType$: s, strings: t, values: e }), k = ue(1), P = /* @__PURE__ */ Symbol.for("lit-noChange"), b = /* @__PURE__ */ Symbol.for("lit-nothing"), Et = /* @__PURE__ */ new WeakMap(), I = C.createTreeWalker(C, 129);
+function Nt(s, t) {
+  if (!at(s) || !s.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return bt !== void 0 ? bt.createHTML(t) : t;
 }
-const de = (n, t) => {
-  const e = n.length - 1, i = [];
-  let s, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = R;
-  for (let d = 0; d < e; d++) {
-    const a = n[d];
-    let c, p, h = -1, b = 0;
-    for (; b < a.length && (r.lastIndex = b, p = r.exec(a), p !== null); ) b = r.lastIndex, r === R ? p[1] === "!--" ? r = mt : p[1] !== void 0 ? r = wt : p[2] !== void 0 ? (Rt.test(p[2]) && (s = RegExp("</" + p[2], "g")), r = E) : p[3] !== void 0 && (r = E) : r === E ? p[0] === ">" ? (r = s ?? R, h = -1) : p[1] === void 0 ? h = -2 : (h = r.lastIndex - p[2].length, c = p[1], r = p[3] === void 0 ? E : p[3] === '"' ? bt : yt) : r === bt || r === yt ? r = E : r === mt || r === wt ? r = R : (r = E, s = void 0);
-    const u = r === E && n[d + 1].startsWith("/>") ? " " : "";
-    o += r === R ? a + re : h >= 0 ? (i.push(c), a.slice(0, h) + Lt + a.slice(h) + S + u) : a + S + (h === -2 ? d : u);
+const ge = (s, t) => {
+  const e = s.length - 1, i = [];
+  let n, r = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", a = R;
+  for (let o = 0; o < e; o++) {
+    const l = s[o];
+    let c, h, u = -1, f = 0;
+    for (; f < l.length && (a.lastIndex = f, h = a.exec(l), h !== null); ) f = a.lastIndex, a === R ? h[1] === "!--" ? a = vt : h[1] !== void 0 ? a = $t : h[2] !== void 0 ? (Dt.test(h[2]) && (n = RegExp("</" + h[2], "g")), a = _) : h[3] !== void 0 && (a = _) : a === _ ? h[0] === ">" ? (a = n ?? R, u = -1) : h[1] === void 0 ? u = -2 : (u = a.lastIndex - h[2].length, c = h[1], a = h[3] === void 0 ? _ : h[3] === '"' ? At : St) : a === At || a === St ? a = _ : a === vt || a === $t ? a = R : (a = _, n = void 0);
+    const p = a === _ && s[o + 1].startsWith("/>") ? " " : "";
+    r += a === R ? l + he : u >= 0 ? (i.push(c), l.slice(0, u) + Ot + l.slice(u) + E + p) : l + E + (u === -2 ? o : p);
   }
-  return [Ut(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
+  return [Nt(s, r + (s[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
 class B {
   constructor({ strings: t, _$litType$: e }, i) {
-    let s;
+    let n;
     this.parts = [];
-    let o = 0, r = 0;
-    const d = t.length - 1, a = this.parts, [c, p] = de(t, e);
-    if (this.el = B.createElement(c, i), C.currentNode = this.el.content, e === 2 || e === 3) {
-      const h = this.el.content.firstChild;
-      h.replaceWith(...h.childNodes);
+    let r = 0, a = 0;
+    const o = t.length - 1, l = this.parts, [c, h] = ge(t, e);
+    if (this.el = B.createElement(c, i), I.currentNode = this.el.content, e === 2 || e === 3) {
+      const u = this.el.content.firstChild;
+      u.replaceWith(...u.childNodes);
     }
-    for (; (s = C.nextNode()) !== null && a.length < d; ) {
-      if (s.nodeType === 1) {
-        if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(Lt)) {
-          const b = p[r++], u = s.getAttribute(h).split(S), w = /([.?@])?(.*)/.exec(b);
-          a.push({ type: 1, index: o, name: w[2], strings: u, ctor: w[1] === "." ? he : w[1] === "?" ? pe : w[1] === "@" ? ue : Z }), s.removeAttribute(h);
-        } else h.startsWith(S) && (a.push({ type: 6, index: o }), s.removeAttribute(h));
-        if (Rt.test(s.tagName)) {
-          const h = s.textContent.split(S), b = h.length - 1;
-          if (b > 0) {
-            s.textContent = W ? W.emptyScript : "";
-            for (let u = 0; u < b; u++) s.append(h[u], V()), C.nextNode(), a.push({ type: 2, index: ++o });
-            s.append(h[b], V());
+    for (; (n = I.nextNode()) !== null && l.length < o; ) {
+      if (n.nodeType === 1) {
+        if (n.hasAttributes()) for (const u of n.getAttributeNames()) if (u.endsWith(Ot)) {
+          const f = h[a++], p = n.getAttribute(u).split(E), v = /([.?@])?(.*)/.exec(f);
+          l.push({ type: 1, index: r, name: v[2], strings: p, ctor: v[1] === "." ? me : v[1] === "?" ? we : v[1] === "@" ? ye : tt }), n.removeAttribute(u);
+        } else u.startsWith(E) && (l.push({ type: 6, index: r }), n.removeAttribute(u));
+        if (Dt.test(n.tagName)) {
+          const u = n.textContent.split(E), f = u.length - 1;
+          if (f > 0) {
+            n.textContent = W ? W.emptyScript : "";
+            for (let p = 0; p < f; p++) n.append(u[p], V()), I.nextNode(), l.push({ type: 2, index: ++r });
+            n.append(u[f], V());
           }
         }
-      } else if (s.nodeType === 8) if (s.data === Ot) a.push({ type: 2, index: o });
+      } else if (n.nodeType === 8) if (n.data === Ht) l.push({ type: 2, index: r });
       else {
-        let h = -1;
-        for (; (h = s.data.indexOf(S, h + 1)) !== -1; ) a.push({ type: 7, index: o }), h += S.length - 1;
+        let u = -1;
+        for (; (u = n.data.indexOf(E, u + 1)) !== -1; ) l.push({ type: 7, index: r }), u += E.length - 1;
       }
-      o++;
+      r++;
     }
   }
   static createElement(t, e) {
-    const i = x.createElement("template");
+    const i = C.createElement("template");
     return i.innerHTML = t, i;
   }
 }
-function L(n, t, e = n, i) {
+function U(s, t, e = s, i) {
   if (t === P) return t;
-  let s = i !== void 0 ? e._$Co?.[i] : e._$Cl;
-  const o = M(t) ? void 0 : t._$litDirective$;
-  return s?.constructor !== o && (s?._$AO?.(!1), o === void 0 ? s = void 0 : (s = new o(n), s._$AT(n, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = s : e._$Cl = s), s !== void 0 && (t = L(n, s._$AS(n, t.values), s, i)), t;
+  let n = i !== void 0 ? e._$Co?.[i] : e._$Cl;
+  const r = M(t) ? void 0 : t._$litDirective$;
+  return n?.constructor !== r && (n?._$AO?.(!1), r === void 0 ? n = void 0 : (n = new r(s), n._$AT(s, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = n : e._$Cl = n), n !== void 0 && (t = U(s, n._$AS(s, t.values), n, i)), t;
 }
-class ce {
+class fe {
   constructor(t, e) {
     this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = e;
   }
@@ -313,17 +319,17 @@ class ce {
     return this._$AM._$AU;
   }
   u(t) {
-    const { el: { content: e }, parts: i } = this._$AD, s = (t?.creationScope ?? x).importNode(e, !0);
-    C.currentNode = s;
-    let o = C.nextNode(), r = 0, d = 0, a = i[0];
-    for (; a !== void 0; ) {
-      if (r === a.index) {
+    const { el: { content: e }, parts: i } = this._$AD, n = (t?.creationScope ?? C).importNode(e, !0);
+    I.currentNode = n;
+    let r = I.nextNode(), a = 0, o = 0, l = i[0];
+    for (; l !== void 0; ) {
+      if (a === l.index) {
         let c;
-        a.type === 2 ? c = new j(o, o.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (c = new ge(o, this, t)), this._$AV.push(c), a = i[++d];
+        l.type === 2 ? c = new j(r, r.nextSibling, this, t) : l.type === 1 ? c = new l.ctor(r, l.name, l.strings, this, t) : l.type === 6 && (c = new be(r, this, t)), this._$AV.push(c), l = i[++o];
       }
-      r !== a?.index && (o = C.nextNode(), r++);
+      a !== l?.index && (r = I.nextNode(), a++);
     }
-    return C.currentNode = x, s;
+    return I.currentNode = C, n;
   }
   p(t) {
     let e = 0;
@@ -334,8 +340,8 @@ class j {
   get _$AU() {
     return this._$AM?._$AU ?? this._$Cv;
   }
-  constructor(t, e, i, s) {
-    this.type = 2, this._$AH = y, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = i, this.options = s, this._$Cv = s?.isConnected ?? !0;
+  constructor(t, e, i, n) {
+    this.type = 2, this._$AH = b, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = i, this.options = n, this._$Cv = n?.isConnected ?? !0;
   }
   get parentNode() {
     let t = this._$AA.parentNode;
@@ -349,7 +355,7 @@ class j {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = L(this, t, e), M(t) ? t === y || t == null || t === "" ? (this._$AH !== y && this._$AR(), this._$AH = y) : t !== this._$AH && t !== P && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ae(t) ? this.k(t) : this._(t);
+    t = U(this, t, e), M(t) ? t === b || t == null || t === "" ? (this._$AH !== b && this._$AR(), this._$AH = b) : t !== this._$AH && t !== P && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : pe(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -358,92 +364,92 @@ class j {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== y && M(this._$AH) ? this._$AA.nextSibling.data = t : this.T(x.createTextNode(t)), this._$AH = t;
+    this._$AH !== b && M(this._$AH) ? this._$AA.nextSibling.data = t : this.T(C.createTextNode(t)), this._$AH = t;
   }
   $(t) {
-    const { values: e, _$litType$: i } = t, s = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = B.createElement(Ut(i.h, i.h[0]), this.options)), i);
-    if (this._$AH?._$AD === s) this._$AH.p(e);
+    const { values: e, _$litType$: i } = t, n = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = B.createElement(Nt(i.h, i.h[0]), this.options)), i);
+    if (this._$AH?._$AD === n) this._$AH.p(e);
     else {
-      const o = new ce(s, this), r = o.u(this.options);
-      o.p(e), this.T(r), this._$AH = o;
+      const r = new fe(n, this), a = r.u(this.options);
+      r.p(e), this.T(a), this._$AH = r;
     }
   }
   _$AC(t) {
-    let e = vt.get(t.strings);
-    return e === void 0 && vt.set(t.strings, e = new B(t)), e;
+    let e = Et.get(t.strings);
+    return e === void 0 && Et.set(t.strings, e = new B(t)), e;
   }
   k(t) {
-    ot(this._$AH) || (this._$AH = [], this._$AR());
+    at(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
-    let i, s = 0;
-    for (const o of t) s === e.length ? e.push(i = new j(this.O(V()), this.O(V()), this, this.options)) : i = e[s], i._$AI(o), s++;
-    s < e.length && (this._$AR(i && i._$AB.nextSibling, s), e.length = s);
+    let i, n = 0;
+    for (const r of t) n === e.length ? e.push(i = new j(this.O(V()), this.O(V()), this, this.options)) : i = e[n], i._$AI(r), n++;
+    n < e.length && (this._$AR(i && i._$AB.nextSibling, n), e.length = n);
   }
   _$AR(t = this._$AA.nextSibling, e) {
     for (this._$AP?.(!1, !0, e); t !== this._$AB; ) {
-      const i = gt(t).nextSibling;
-      gt(t).remove(), t = i;
+      const i = yt(t).nextSibling;
+      yt(t).remove(), t = i;
     }
   }
   setConnected(t) {
     this._$AM === void 0 && (this._$Cv = t, this._$AP?.(t));
   }
 }
-class Z {
+class tt {
   get tagName() {
     return this.element.tagName;
   }
   get _$AU() {
     return this._$AM._$AU;
   }
-  constructor(t, e, i, s, o) {
-    this.type = 1, this._$AH = y, this._$AN = void 0, this.element = t, this.name = e, this._$AM = s, this.options = o, i.length > 2 || i[0] !== "" || i[1] !== "" ? (this._$AH = Array(i.length - 1).fill(new String()), this.strings = i) : this._$AH = y;
+  constructor(t, e, i, n, r) {
+    this.type = 1, this._$AH = b, this._$AN = void 0, this.element = t, this.name = e, this._$AM = n, this.options = r, i.length > 2 || i[0] !== "" || i[1] !== "" ? (this._$AH = Array(i.length - 1).fill(new String()), this.strings = i) : this._$AH = b;
   }
-  _$AI(t, e = this, i, s) {
-    const o = this.strings;
-    let r = !1;
-    if (o === void 0) t = L(this, t, e, 0), r = !M(t) || t !== this._$AH && t !== P, r && (this._$AH = t);
+  _$AI(t, e = this, i, n) {
+    const r = this.strings;
+    let a = !1;
+    if (r === void 0) t = U(this, t, e, 0), a = !M(t) || t !== this._$AH && t !== P, a && (this._$AH = t);
     else {
-      const d = t;
-      let a, c;
-      for (t = o[0], a = 0; a < o.length - 1; a++) c = L(this, d[i + a], e, a), c === P && (c = this._$AH[a]), r ||= !M(c) || c !== this._$AH[a], c === y ? t = y : t !== y && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
+      const o = t;
+      let l, c;
+      for (t = r[0], l = 0; l < r.length - 1; l++) c = U(this, o[i + l], e, l), c === P && (c = this._$AH[l]), a ||= !M(c) || c !== this._$AH[l], c === b ? t = b : t !== b && (t += (c ?? "") + r[l + 1]), this._$AH[l] = c;
     }
-    r && !s && this.j(t);
+    a && !n && this.j(t);
   }
   j(t) {
-    t === y ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+    t === b ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
-class he extends Z {
+class me extends tt {
   constructor() {
     super(...arguments), this.type = 3;
   }
   j(t) {
-    this.element[this.name] = t === y ? void 0 : t;
+    this.element[this.name] = t === b ? void 0 : t;
   }
 }
-class pe extends Z {
+class we extends tt {
   constructor() {
     super(...arguments), this.type = 4;
   }
   j(t) {
-    this.element.toggleAttribute(this.name, !!t && t !== y);
+    this.element.toggleAttribute(this.name, !!t && t !== b);
   }
 }
-class ue extends Z {
-  constructor(t, e, i, s, o) {
-    super(t, e, i, s, o), this.type = 5;
+class ye extends tt {
+  constructor(t, e, i, n, r) {
+    super(t, e, i, n, r), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = L(this, t, e, 0) ?? y) === P) return;
-    const i = this._$AH, s = t === y && i !== y || t.capture !== i.capture || t.once !== i.once || t.passive !== i.passive, o = t !== y && (i === y || s);
-    s && this.element.removeEventListener(this.name, this, i), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    if ((t = U(this, t, e, 0) ?? b) === P) return;
+    const i = this._$AH, n = t === b && i !== b || t.capture !== i.capture || t.once !== i.once || t.passive !== i.passive, r = t !== b && (i === b || n);
+    n && this.element.removeEventListener(this.name, this, i), r && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
   handleEvent(t) {
     typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
   }
 }
-class ge {
+class be {
   constructor(t, e, i) {
     this.element = t, this.type = 6, this._$AN = void 0, this._$AM = e, this.options = i;
   }
@@ -451,22 +457,22 @@ class ge {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    L(this, t);
+    U(this, t);
   }
 }
-const fe = nt.litHtmlPolyfillSupport;
-fe?.(B, j), (nt.litHtmlVersions ??= []).push("3.3.2");
-const me = (n, t, e) => {
+const ve = ot.litHtmlPolyfillSupport;
+ve?.(B, j), (ot.litHtmlVersions ??= []).push("3.3.2");
+const $e = (s, t, e) => {
   const i = e?.renderBefore ?? t;
-  let s = i._$litPart$;
-  if (s === void 0) {
-    const o = e?.renderBefore ?? null;
-    i._$litPart$ = s = new j(t.insertBefore(V(), o), o, void 0, e ?? {});
+  let n = i._$litPart$;
+  if (n === void 0) {
+    const r = e?.renderBefore ?? null;
+    i._$litPart$ = n = new j(t.insertBefore(V(), r), r, void 0, e ?? {});
   }
-  return s._$AI(n), s;
+  return n._$AI(s), n;
 };
-const rt = globalThis;
-class I extends z {
+const lt = globalThis;
+class z extends x {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -476,7 +482,7 @@ class I extends z {
   }
   update(t) {
     const e = this.render();
-    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = me(e, this.renderRoot, this.renderOptions);
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = $e(e, this.renderRoot, this.renderOptions);
   }
   connectedCallback() {
     super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -488,46 +494,46 @@ class I extends z {
     return P;
   }
 }
-I._$litElement$ = !0, I.finalized = !0, rt.litElementHydrateSupport?.({ LitElement: I });
-const we = rt.litElementPolyfillSupport;
-we?.({ LitElement: I });
-(rt.litElementVersions ??= []).push("4.2.2");
-const Ht = (n) => (t, e) => {
+z._$litElement$ = !0, z.finalized = !0, lt.litElementHydrateSupport?.({ LitElement: z });
+const Se = lt.litElementPolyfillSupport;
+Se?.({ LitElement: z });
+(lt.litElementVersions ??= []).push("4.2.2");
+const Vt = (s) => (t, e) => {
   e !== void 0 ? e.addInitializer(() => {
-    customElements.define(n, t);
-  }) : customElements.define(n, t);
+    customElements.define(s, t);
+  }) : customElements.define(s, t);
 };
-const ye = { attribute: !0, type: String, converter: G, reflect: !1, hasChanged: st }, be = (n = ye, t, e) => {
-  const { kind: i, metadata: s } = e;
-  let o = globalThis.litPropertyMetadata.get(s);
-  if (o === void 0 && globalThis.litPropertyMetadata.set(s, o = /* @__PURE__ */ new Map()), i === "setter" && ((n = Object.create(n)).wrapped = !0), o.set(e.name, n), i === "accessor") {
-    const { name: r } = e;
-    return { set(d) {
-      const a = t.get.call(this);
-      t.set.call(this, d), this.requestUpdate(r, a, n, !0, d);
-    }, init(d) {
-      return d !== void 0 && this.C(r, void 0, n, d), d;
+const Ae = { attribute: !0, type: String, converter: G, reflect: !1, hasChanged: rt }, Ee = (s = Ae, t, e) => {
+  const { kind: i, metadata: n } = e;
+  let r = globalThis.litPropertyMetadata.get(n);
+  if (r === void 0 && globalThis.litPropertyMetadata.set(n, r = /* @__PURE__ */ new Map()), i === "setter" && ((s = Object.create(s)).wrapped = !0), r.set(e.name, s), i === "accessor") {
+    const { name: a } = e;
+    return { set(o) {
+      const l = t.get.call(this);
+      t.set.call(this, o), this.requestUpdate(a, l, s, !0, o);
+    }, init(o) {
+      return o !== void 0 && this.C(a, void 0, s, o), o;
     } };
   }
   if (i === "setter") {
-    const { name: r } = e;
-    return function(d) {
-      const a = this[r];
-      t.call(this, d), this.requestUpdate(r, a, n, !0, d);
+    const { name: a } = e;
+    return function(o) {
+      const l = this[a];
+      t.call(this, o), this.requestUpdate(a, l, s, !0, o);
     };
   }
   throw Error("Unsupported decorator location: " + i);
 };
-function g(n) {
-  return (t, e) => typeof e == "object" ? be(n, t, e) : ((i, s, o) => {
-    const r = s.hasOwnProperty(o);
-    return s.constructor.createProperty(o, i), r ? Object.getOwnPropertyDescriptor(s, o) : void 0;
-  })(n, t, e);
+function m(s) {
+  return (t, e) => typeof e == "object" ? Ee(s, t, e) : ((i, n, r) => {
+    const a = n.hasOwnProperty(r);
+    return n.constructor.createProperty(r, i), a ? Object.getOwnPropertyDescriptor(n, r) : void 0;
+  })(s, t, e);
 }
-function Dt(n) {
-  return g({ ...n, state: !0, attribute: !1 });
+function Mt(s) {
+  return m({ ...s, state: !0, attribute: !1 });
 }
-const ve = `dreams-ad-engine {
+const _e = `dreams-ad-engine {
   display: var(--dae-display, block);
   contain: var(--dae-contain, layout style);
   min-height: var(--dae-min-height, 100px);
@@ -631,7 +637,111 @@ dreams-ad-engine > .dae-slot {
     animation: none;
   }
 }
-`, $e = {
+`, _t = {
+  enabled: "auto",
+  prefix: "[DreamsAdEngine]",
+  verbose: !1
+}, K = class K {
+  /**
+   * Configure the logger
+   */
+  static configure(t) {
+    this.config = { ..._t, ...t };
+  }
+  /**
+   * Log info message
+   */
+  static log(t, ...e) {
+    this.shouldLog() && console.log(`${this.config.prefix} ${t}`, ...e);
+  }
+  /**
+   * Log warning message
+   */
+  static warn(t, ...e) {
+    this.shouldLog() && console.warn(`${this.config.prefix} ${t}`, ...e);
+  }
+  /**
+   * Log error message (always logs in production, but less verbose)
+   */
+  static error(t, ...e) {
+    this.isProduction() ? console.error(`${this.config.prefix} Error: ${t}`) : console.error(`${this.config.prefix} ${t}`, ...e);
+  }
+  /**
+   * Log verbose/debug message (only when verbose is enabled or runtime forced)
+   */
+  static debug(t, ...e) {
+    this.shouldLog() && (!this.config.verbose && !this.isRuntimeForced() || console.debug(`${this.config.prefix} ${t}`, ...e));
+  }
+  /**
+   * Log a table (useful for metrics)
+   */
+  static table(t) {
+    this.shouldLog() && console.table(t);
+  }
+  /**
+   * Group logs together
+   */
+  static group(t) {
+    this.shouldLog() && console.group(`${this.config.prefix} ${t}`);
+  }
+  /**
+   * End log group
+   */
+  static groupEnd() {
+    this.shouldLog() && console.groupEnd();
+  }
+  /**
+   * Time a operation
+   */
+  static time(t) {
+    this.shouldLog() && console.time(`${this.config.prefix} ${t}`);
+  }
+  /**
+   * End timing
+   */
+  static timeEnd(t) {
+    this.shouldLog() && console.timeEnd(`${this.config.prefix} ${t}`);
+  }
+  /**
+   * Dispatch a structured `ad:error` CustomEvent on the host element and
+   * mirror it to `window.dataLayer` for GTM consumers. Also logs the error
+   * via Logger.error so it surfaces in console regardless of debug mode.
+   *
+   * Consumers wire vendor-specific tracking (Sentry, Datadog, etc.) by
+   * listening for `ad:error` — the library stays vendor-agnostic.
+   */
+  static dispatchAdError(t, e) {
+    t.dispatchEvent(
+      new CustomEvent("ad:error", {
+        bubbles: !0,
+        composed: !0,
+        detail: e
+      })
+    ), typeof window < "u" && (window.dataLayer = window.dataLayer || [], window.dataLayer.push({
+      event: "dreams_ad_error",
+      phase: e.phase,
+      slotId: e.slotId,
+      adUnit: e.adUnit,
+      error_message: e.error instanceof Error ? e.error.message : String(e.error)
+    })), K.error(
+      `[${e.phase}] ${e.slotId || e.adUnit}: ${e.error instanceof Error ? e.error.message : String(e.error)}`
+    );
+  }
+  static shouldLog() {
+    return this.config.enabled === !0 ? !0 : this.config.enabled === !1 ? !1 : this.isRuntimeForced() ? !0 : !this.isProduction();
+  }
+  static isRuntimeForced() {
+    return typeof window < "u" && window.__dreamsDebug === !0;
+  }
+  static isProduction() {
+    if (typeof window > "u") return !0;
+    const t = window.location.hostname;
+    return t !== "localhost" && !t.includes(".local") && !t.includes("127.0.0.1") && !t.includes("192.168.") && !t.includes("0.0.0.0");
+  }
+};
+K.config = _t;
+let g = K;
+const ke = {
   "top-1": {
     mapping: [
       {
@@ -856,20 +966,30 @@ dreams-ad-engine > .dae-slot {
     ],
     position: "footer"
   }
-}, Ae = {
+}, Te = {
   fetchMarginPercent: 500,
   renderMarginPercent: 200,
   mobileScaling: 2
-}, $ = class $ {
+}, Ie = (() => {
+  if (typeof window > "u") return !1;
+  try {
+    return new URLSearchParams(window.location.search).get("dae-debug") === "1";
+  } catch {
+    return !1;
+  }
+})();
+var X, Bt;
+const $ = class $ {
   static createReadyPromise() {
     return new Promise((t) => {
       $.readyResolve = t;
     });
   }
   static init(t) {
-    if (this.instance && !t.force) {
-      console.warn(
-        "[DreamsAdConfig] Already initialized. Use { force: true } to override."
+    var i;
+    if (ut(i = $, X, Bt).call(i, t.debug), this.instance && !t.force) {
+      g.warn(
+        "Already initialized. Use { force: true } to override."
       );
       return;
     }
@@ -882,7 +1002,7 @@ dreams-ad-engine > .dae-slot {
       lazyLoad: e,
       centering: t.centering ?? !1,
       slots: {
-        ...$e,
+        ...ke,
         ...t.slots
       },
       privacy: t.privacy || null,
@@ -892,6 +1012,26 @@ dreams-ad-engine > .dae-slot {
       collapseEmptyDivs: t.collapseEmptyDivs ?? "DISABLED"
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
+  /**
+   * Open the GPT Console overlay for ad debugging. Safe to call even
+   * when GPT hasn't fully booted — queued onto `googletag.cmd`.
+   *
+   * https://developers.google.com/publisher-tag/reference#googletag.openConsole
+   */
+  static openConsole(t) {
+    if (typeof window > "u" || !window.googletag) {
+      g.warn("openConsole called but googletag is not available");
+      return;
+    }
+    const e = window.googletag;
+    window.googletag.cmd.push(() => {
+      try {
+        typeof e.openConsole == "function" ? e.openConsole(t) : g.warn("googletag.openConsole is not available in this build");
+      } catch (i) {
+        g.error("openConsole failed", i);
+      }
+    });
+  }
   /** Resolves when init() has been called. Immediate if already initialized. */
   static whenReady(t = 5e3) {
     if (this.instance) return Promise.resolve();
@@ -899,9 +1039,9 @@ dreams-ad-engine > .dae-slot {
     let e;
     return this.pendingReady = Promise.race([
       this.readyPromise,
-      new Promise((i, s) => {
+      new Promise((i, n) => {
         e = setTimeout(
-          () => s(
+          () => n(
             new Error(
               "[DreamsAdConfig] init() not called within timeout. Ensure DreamsAdConfig.init() runs before <dreams-ad-engine> elements mount."
             )
@@ -930,7 +1070,7 @@ dreams-ad-engine > .dae-slot {
   }
   /** @deprecated Use `getLazyLoad()` instead */
   static getDefaultLazyLoad() {
-    return this.assertInitialized(), this.instance.lazyLoad || Ae;
+    return this.assertInitialized(), this.instance.lazyLoad || Te;
   }
   static getLazyLoad() {
     return this.assertInitialized(), this.instance.lazyLoad;
@@ -978,7 +1118,7 @@ dreams-ad-engine > .dae-slot {
   }
   static buildAdUnit(t) {
     this.assertInitialized();
-    const e = this.instance.sitePrefix, s = {
+    const e = this.instance.sitePrefix, n = {
       "top-1": "is-t-01",
       "top-2": "is-t-02",
       "top-3": "is-t-03",
@@ -992,7 +1132,7 @@ dreams-ad-engine > .dae-slot {
       footer: "is-f-01",
       interstitial: "is-i"
     }[t];
-    return s ? `${e}-${s}` : `${e}-${t}`;
+    return n ? `${e}-${n}` : `${e}-${t}`;
   }
   static registerSlot(t, e) {
     this.assertInitialized(), this.instance.slots[t] = e;
@@ -1007,9 +1147,21 @@ dreams-ad-engine > .dae-slot {
       );
   }
 };
-$.instance = null, $.readyResolve = null, $.readyPromise = $.createReadyPromise(), $.pendingReady = null;
-let f = $;
-const $t = {
+X = new WeakSet(), Bt = function(t) {
+  if (t === !0 || t === !1) {
+    g.configure({
+      enabled: t,
+      verbose: t
+    });
+    return;
+  }
+  if (Ie) {
+    g.configure({ enabled: !0, verbose: !0 });
+    return;
+  }
+}, pt($, X), $.instance = null, $.readyResolve = null, $.readyPromise = $.createReadyPromise(), $.pendingReady = null;
+let w = $;
+const kt = {
   contextKey: "@context",
   maxRetries: 20,
   retryInterval: 100,
@@ -1017,7 +1169,7 @@ const $t = {
   customSegmentFn: "_rl_gen_sg"
 }, H = class H {
   static async getTargeting(t) {
-    const e = { ...$t, ...t }, i = typeof window < "u" ? window.location.href : "";
+    const e = { ...kt, ...t }, i = typeof window < "u" ? window.location.href : "";
     if (this.cache && this.cacheUrl === i)
       return { targeting: this.cache, source: "cache" };
     if (this.pendingPromise)
@@ -1029,44 +1181,44 @@ const $t = {
     }
   }
   static pollForContext(t, e) {
-    return new Promise((i, s) => {
-      let o = 0, r = null;
-      const d = () => {
+    return new Promise((i, n) => {
+      let r = 0, a = null;
+      const o = () => {
         if (typeof window > "u") return null;
         const c = window.dfp;
         if (!c?.[t.contextKey]) return null;
         try {
-          const p = c[t.contextKey], h = this.buildFromContext(p, t);
-          return this.cache = h, this.cacheUrl = e, { targeting: h, source: "context" };
-        } catch (p) {
-          return s(p), null;
+          const h = c[t.contextKey], u = this.buildFromContext(h, t);
+          return this.cache = u, this.cacheUrl = e, { targeting: u, source: "context" };
+        } catch (h) {
+          return n(h), null;
         }
-      }, a = d();
-      if (a) {
-        i(a);
+      }, l = o();
+      if (l) {
+        i(l);
         return;
       }
-      r = setInterval(() => {
-        o++;
-        const c = d();
+      a = setInterval(() => {
+        r++;
+        const c = o();
         if (c) {
-          r && clearInterval(r), i(c);
+          a && clearInterval(a), i(c);
           return;
         }
-        o >= t.maxRetries && (r && clearInterval(r), i({ targeting: [], source: "timeout" }));
+        r >= t.maxRetries && (a && clearInterval(a), i({ targeting: [], source: "timeout" }));
       }, t.retryInterval);
     });
   }
   static buildFromContext(t, e) {
-    const i = { ...$t, ...e }, s = [];
-    if (i.includeUrl && typeof window < "u" && s.push({ key: "url", value: window.location.pathname }), t.dataSection?.catName && s.push({ key: "catName", value: t.dataSection.catName }), t.postId && s.push({ key: "postId", value: t.postId }), t.catId && s.push({ key: "catId", value: t.catId }), t.tagId && s.push({ key: "tag", value: t.tagId }), t.typeId && s.push({ key: "type", value: t.typeId }), t.taxId && s.push({ key: "taxId", value: t.taxId }), t.dataSection?.author && s.push({ key: "author", value: t.dataSection.author }), typeof window < "u" && i.customSegmentFn) {
-      const o = window[i.customSegmentFn];
-      if (typeof o == "function") {
-        const r = o();
-        r && s.push({ key: "_rl", value: r });
+    const i = { ...kt, ...e }, n = [];
+    if (i.includeUrl && typeof window < "u" && n.push({ key: "url", value: window.location.pathname }), t.dataSection?.catName && n.push({ key: "catName", value: t.dataSection.catName }), t.postId && n.push({ key: "postId", value: t.postId }), t.catId && n.push({ key: "catId", value: t.catId }), t.tagId && n.push({ key: "tag", value: t.tagId }), t.typeId && n.push({ key: "type", value: t.typeId }), t.taxId && n.push({ key: "taxId", value: t.taxId }), t.dataSection?.author && n.push({ key: "author", value: t.dataSection.author }), typeof window < "u" && i.customSegmentFn) {
+      const r = window[i.customSegmentFn];
+      if (typeof r == "function") {
+        const a = r();
+        a && n.push({ key: "_rl", value: a });
       }
     }
-    return s;
+    return n;
   }
   static clearCache() {
     this.cache = null, this.cacheUrl = "", this.pendingPromise = null;
@@ -1078,18 +1230,18 @@ const $t = {
 };
 H.cache = null, H.cacheUrl = "", H.pendingPromise = null;
 let J = H;
-const At = {
+const Tt = {
   threshold: 0.5,
   // IAB: 50% visible
   duration: 2e3,
   // IAB: 2 seconds
   debug: !1
-}, K = class K {
+}, Z = class Z {
   /**
    * Configure the viewability service
    */
   static configure(t) {
-    this.config = { ...At, ...t };
+    this.config = { ...Tt, ...t };
   }
   /**
    * Start tracking an ad element for viewability
@@ -1098,29 +1250,29 @@ const At = {
   static track(t, e, i) {
     if (this.trackedAds.has(e))
       return;
-    const s = {
+    const n = {
       adId: e,
       position: i,
       isViewable: !1,
       viewableTime: 0,
       totalTime: 0,
       viewabilityRate: 0
-    }, o = new IntersectionObserver(
-      (d) => this.handleIntersection(d, e),
+    }, r = new IntersectionObserver(
+      (o) => this.handleIntersection(o, e),
       {
         threshold: [0, 0.25, 0.5, 0.75, 1],
         rootMargin: "0px"
       }
-    ), r = {
+    ), a = {
       element: t,
-      metrics: s,
-      observer: o,
+      metrics: n,
+      observer: r,
       viewabilityTimer: null,
       trackingInterval: null,
       startTime: Date.now(),
       isCurrentlyVisible: !1
     };
-    this.trackedAds.set(e, r), o.observe(t), this.dispatchEvent("impression", e, s), this.config.debug && console.log(`[Viewability] Tracking started: ${e}`);
+    this.trackedAds.set(e, a), r.observe(t), this.dispatchEvent("impression", e, n), this.config.debug && console.log(`[Viewability] Tracking started: ${e}`);
   }
   /**
    * Stop tracking an ad element
@@ -1172,9 +1324,9 @@ const At = {
   static handleIntersection(t, e) {
     const i = this.trackedAds.get(e);
     if (i)
-      for (const s of t) {
-        const o = s.intersectionRatio >= this.config.threshold;
-        o && !i.isCurrentlyVisible ? (i.isCurrentlyVisible = !0, this.startViewabilityTimer(e)) : !o && i.isCurrentlyVisible && (i.isCurrentlyVisible = !1, this.stopViewabilityTimer(e), this.dispatchEvent("hidden", e, i.metrics));
+      for (const n of t) {
+        const r = n.intersectionRatio >= this.config.threshold;
+        r && !i.isCurrentlyVisible ? (i.isCurrentlyVisible = !0, this.startViewabilityTimer(e)) : !r && i.isCurrentlyVisible && (i.isCurrentlyVisible = !1, this.stopViewabilityTimer(e), this.dispatchEvent("hidden", e, i.metrics));
       }
   }
   static startViewabilityTimer(t) {
@@ -1196,7 +1348,7 @@ const At = {
     e.metrics.totalTime = i - e.startTime, e.isCurrentlyVisible && (e.metrics.viewableTime += 500), e.metrics.totalTime > 0 && (e.metrics.viewabilityRate = e.metrics.viewableTime / e.metrics.totalTime * 100);
   }
   static dispatchEvent(t, e, i) {
-    const s = new CustomEvent("ad:viewability", {
+    const n = new CustomEvent("ad:viewability", {
       detail: {
         type: t,
         adId: e,
@@ -1204,24 +1356,24 @@ const At = {
         timestamp: Date.now()
       }
     });
-    window.dispatchEvent(s);
+    window.dispatchEvent(n);
   }
 };
-K.config = At, K.trackedAds = /* @__PURE__ */ new Map();
-let Y = K;
-const tt = 3e4, St = {
+Z.config = Tt, Z.trackedAds = /* @__PURE__ */ new Map();
+let Y = Z;
+const it = 3e4, It = {
   enabled: !1,
   interval: 6e4,
   checkVisibility: !0,
   disableOnSinglePost: !0,
   singlePostSelector: "body.single",
   viewabilityGated: !0
-}, k = class k {
+}, T = class T {
   /**
    * Configure the refresh manager
    */
   static configure(t) {
-    this.config = { ...St, ...t }, this.config.interval < tt && (this.config.interval = tt);
+    this.config = { ...It, ...t }, this.config.interval < it && (this.config.interval = it);
   }
   /**
    * Start auto-refresh loop
@@ -1290,30 +1442,30 @@ const tt = 3e4, St = {
     if (!window.googletag?.pubads)
       return !1;
     const e = Date.now(), i = window.lastAdRefresh || 0;
-    if (e - i < tt)
+    if (e - i < it)
       return !1;
     window.lastAdRefresh = e;
-    let o = t || window.dreamsSlotsToUpdate || [];
-    this.config.viewabilityGated && !t && (o = o.filter((d) => {
+    let r = t || window.dreamsSlotsToUpdate || [];
+    this.config.viewabilityGated && !t && (r = r.filter((o) => {
       try {
-        return this.viewableSlots.has(d.getSlotElementId());
+        return this.viewableSlots.has(o.getSlotElementId());
       } catch {
         return !1;
       }
     }));
-    const r = o.length;
-    if (r === 0)
+    const a = r.length;
+    if (a === 0)
       return !1;
-    for (const d of o)
+    for (const o of r)
       try {
-        const a = d.getSlotElementId(), c = (this.refreshCounts.get(a) || 0) + 1;
-        this.refreshCounts.set(a, c), d.setConfig({ targeting: { refresh_count: String(c) } });
+        const l = o.getSlotElementId(), c = (this.refreshCounts.get(l) || 0) + 1;
+        this.refreshCounts.set(l, c), o.setConfig({ targeting: { refresh_count: String(c) } });
       } catch {
       }
     try {
-      return window.googletag.pubads().refresh(o, {
+      return window.googletag.pubads().refresh(r, {
         changeCorrelator: !1
-      }), this.dispatchEvent("refresh", void 0, r), !0;
+      }), this.dispatchEvent("refresh", void 0, a), !0;
     } catch {
       return !1;
     }
@@ -1331,27 +1483,27 @@ const tt = 3e4, St = {
     );
   }
 };
-k.config = St, k.refreshTimer = null, k.running = !1, k.viewableSlots = /* @__PURE__ */ new Set(), k.refreshCounts = /* @__PURE__ */ new Map();
-let et = k;
-var Se = Object.defineProperty, _e = Object.getOwnPropertyDescriptor, q = (n, t, e, i) => {
-  for (var s = i > 1 ? void 0 : i ? _e(t, e) : t, o = n.length - 1, r; o >= 0; o--)
-    (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
-  return i && s && Se(t, e, s), s;
+T.config = It, T.refreshTimer = null, T.running = !1, T.viewableSlots = /* @__PURE__ */ new Set(), T.refreshCounts = /* @__PURE__ */ new Map();
+let st = T;
+var Ce = Object.defineProperty, xe = Object.getOwnPropertyDescriptor, F = (s, t, e, i) => {
+  for (var n = i > 1 ? void 0 : i ? xe(t, e) : t, r = s.length - 1, a; r >= 0; r--)
+    (a = s[r]) && (n = (i ? a(t, e, n) : a(n)) || n);
+  return i && n && Ce(t, e, n), n;
 };
-const Ee = `
+const ze = `
 dreams-ad-skeleton { display: block; }
 .dae-skeleton { position: relative; overflow: hidden; background: var(--dreams-skeleton-bg, #f0f0f0); border-radius: var(--dreams-skeleton-radius, 4px); max-width: 100%; }
 .dae-skeleton::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent 0%, var(--dreams-skeleton-shine, rgba(255,255,255,0.6)) 50%, transparent 100%); animation: dae-shimmer 1.5s infinite; }
 @keyframes dae-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 .dae-skeleton-label { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--dreams-skeleton-label-color, #999); font-family: system-ui, -apple-system, sans-serif; }
 `;
-let _t = !1;
-function Te() {
-  if (_t || typeof document > "u") return;
-  const n = document.createElement("style");
-  n.textContent = Ee, document.head.appendChild(n), _t = !0;
+let Ct = !1;
+function Pe() {
+  if (Ct || typeof document > "u") return;
+  const s = document.createElement("style");
+  s.textContent = ze, document.head.appendChild(s), Ct = !0;
 }
-let O = class extends I {
+let L = class extends z {
   constructor() {
     super(...arguments), this.width = 300, this.height = 250, this.showLabel = !1, this.label = "Ad";
   }
@@ -1359,37 +1511,37 @@ let O = class extends I {
     return this;
   }
   connectedCallback() {
-    super.connectedCallback(), Te();
+    super.connectedCallback(), Pe();
   }
   render() {
-    return T`
+    return k`
       <div
         class="dae-skeleton"
         style="width: ${this.width}px; height: ${this.height}px;"
       >
-        ${this.showLabel ? T`<span class="dae-skeleton-label">${this.label}</span>` : ""}
+        ${this.showLabel ? k`<span class="dae-skeleton-label">${this.label}</span>` : ""}
       </div>
     `;
   }
 };
-q([
-  g({ type: Number })
-], O.prototype, "width", 2);
-q([
-  g({ type: Number })
-], O.prototype, "height", 2);
-q([
-  g({ type: Boolean })
-], O.prototype, "showLabel", 2);
-q([
-  g({ type: String })
-], O.prototype, "label", 2);
-O = q([
-  Ht("dreams-ad-skeleton")
-], O);
-function Oe(n, t) {
+F([
+  m({ type: Number })
+], L.prototype, "width", 2);
+F([
+  m({ type: Number })
+], L.prototype, "height", 2);
+F([
+  m({ type: Boolean })
+], L.prototype, "showLabel", 2);
+F([
+  m({ type: String })
+], L.prototype, "label", 2);
+L = F([
+  Vt("dreams-ad-skeleton")
+], L);
+function Me(s, t) {
   const e = t >= 1280, i = t >= 728;
-  switch (n) {
+  switch (s) {
     case "top-1":
       return e ? { width: 970, height: 250 } : i ? { width: 728, height: 90 } : { width: 320, height: 100 };
     case "top-2":
@@ -1409,22 +1561,22 @@ function Oe(n, t) {
       return { width: 300, height: 250 };
   }
 }
-var ke = Object.defineProperty, Ce = Object.getOwnPropertyDescriptor, Nt = (n) => {
-  throw TypeError(n);
-}, m = (n, t, e, i) => {
-  for (var s = i > 1 ? void 0 : i ? Ce(t, e) : t, o = n.length - 1, r; o >= 0; o--)
-    (r = n[o]) && (s = (i ? r(t, e, s) : r(s)) || s);
-  return i && s && ke(t, e, s), s;
-}, xe = (n, t, e) => t.has(n) || Nt("Cannot " + e), ze = (n, t, e) => t.has(n) ? Nt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(n) : t.set(n, e), A = (n, t, e) => (xe(n, t, "access private method"), e), v, Vt, Mt, Bt, jt, at, qt, Ft, Gt;
-let Et = !1;
-function Ie() {
-  if (Et || typeof document > "u") return;
-  const n = document.createElement("style");
-  n.textContent = ve, document.head.appendChild(n), Et = !0;
+var Ue = Object.defineProperty, Le = Object.getOwnPropertyDescriptor, jt = (s) => {
+  throw TypeError(s);
+}, y = (s, t, e, i) => {
+  for (var n = i > 1 ? void 0 : i ? Le(t, e) : t, r = s.length - 1, a; r >= 0; r--)
+    (a = s[r]) && (n = (i ? a(t, e, n) : a(n)) || n);
+  return i && n && Ue(t, e, n), n;
+}, Re = (s, t, e) => t.has(s) || jt("Cannot " + e), Oe = (s, t, e) => t.has(s) ? jt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(s) : t.set(s, e), A = (s, t, e) => (Re(s, t, "access private method"), e), S, Ft, qt, Gt, Wt, dt, Jt, Yt, Kt;
+let xt = !1;
+function He() {
+  if (xt || typeof document > "u") return;
+  const s = document.createElement("style");
+  s.textContent = _e, document.head.appendChild(s), xt = !0;
 }
-let l = class extends I {
+let d = class extends z {
   constructor() {
-    super(...arguments), ze(this, v), this.gptSlot = null, this.slotRenderHandler = null, this.impressionViewableHandler = null, this.slotVisibilityHandler = null, this.slotRequestedHandler = null, this.slotResponseHandler = null, this.slotOnloadHandler = null, this.pendingBidsTimeout = null, this.lastVisibilityPct = -1, this.networkId = "", this.adUnit = "", this.divId = "", this.adSlot = "", this.mapping = [], this.sizing = [], this.targeting = [], this.autoTargeting = !1, this.resolvedTargeting = [], this.refresh = !1, this.enableTitle = !1, this.apstag = !1, this.pubId = "", this.bidTimeout = 2e3, this.prebid = !1, this.prebidConfig = "", this.bidders = [], this.title = "Publicidad", this.trackViewability = !1, this.showSkeleton = !1, this.ready = !1;
+    super(...arguments), Oe(this, S), this.gptSlot = null, this.slotRenderHandler = null, this.impressionViewableHandler = null, this.slotVisibilityHandler = null, this.slotRequestedHandler = null, this.slotResponseHandler = null, this.slotOnloadHandler = null, this.pendingBidsTimeout = null, this.lastVisibilityPct = -1, this.networkId = "", this.adUnit = "", this.divId = "", this.adSlot = "", this.mapping = [], this.sizing = [], this.targeting = [], this.autoTargeting = !1, this.resolvedTargeting = [], this.refresh = !1, this.enableTitle = !1, this.apstag = !1, this.pubId = "", this.bidTimeout = 2e3, this.prebid = !1, this.prebidConfig = "", this.bidders = [], this.title = "Publicidad", this.trackViewability = !1, this.showSkeleton = !1, this.ready = !1;
   }
   createRenderRoot() {
     return this;
@@ -1433,64 +1585,70 @@ let l = class extends I {
    * Set up global navigation listeners for SPA support
    */
   static _setupNavigationListeners() {
-    if (l.navigationListenersAttached || typeof window > "u") return;
-    window.addEventListener("popstate", l._handleNavigation), window.addEventListener("hashchange", l._handleNavigation);
-    const n = history.pushState.bind(history), t = history.replaceState.bind(history);
+    if (d.navigationListenersAttached || typeof window > "u") return;
+    window.addEventListener("popstate", d._handleNavigation), window.addEventListener("hashchange", d._handleNavigation);
+    const s = history.pushState.bind(history), t = history.replaceState.bind(history);
     history.pushState = (...e) => {
-      n(...e), l._handleNavigation();
+      s(...e), d._handleNavigation();
     }, history.replaceState = (...e) => {
-      t(...e), l._handleNavigation();
-    }, l.navigationListenersAttached = !0;
+      t(...e), d._handleNavigation();
+    }, d.navigationListenersAttached = !0;
   }
   connectedCallback() {
-    super.connectedCallback(), Ie(), l.initialized ? l._handleNavigation() : (A(this, v, Vt).call(this), l.initialized = !0, l.old_url = location.href);
+    super.connectedCallback(), He(), d.initialized ? d._handleNavigation() : (A(this, S, Ft).call(this), d.initialized = !0, d.old_url = location.href);
   }
   disconnectedCallback() {
     if (super.disconnectedCallback(), this.trackViewability && this.divId && Y.untrack(this.divId), this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag?.pubads) {
-      const n = window.googletag.pubads();
-      this.slotRenderHandler && (n.removeEventListener("slotRenderEnded", this.slotRenderHandler), this.slotRenderHandler = null), this.impressionViewableHandler && (n.removeEventListener(
+      const s = window.googletag.pubads();
+      this.slotRenderHandler && (s.removeEventListener("slotRenderEnded", this.slotRenderHandler), this.slotRenderHandler = null), this.impressionViewableHandler && (s.removeEventListener(
         "impressionViewable",
         this.impressionViewableHandler
-      ), this.impressionViewableHandler = null), this.slotVisibilityHandler && (n.removeEventListener(
+      ), this.impressionViewableHandler = null), this.slotVisibilityHandler && (s.removeEventListener(
         "slotVisibilityChanged",
         this.slotVisibilityHandler
-      ), this.slotVisibilityHandler = null), this.slotRequestedHandler && (n.removeEventListener(
+      ), this.slotVisibilityHandler = null), this.slotRequestedHandler && (s.removeEventListener(
         "slotRequested",
         this.slotRequestedHandler
-      ), this.slotRequestedHandler = null), this.slotResponseHandler && (n.removeEventListener(
+      ), this.slotRequestedHandler = null), this.slotResponseHandler && (s.removeEventListener(
         "slotResponseReceived",
         this.slotResponseHandler
-      ), this.slotResponseHandler = null), this.slotOnloadHandler && (n.removeEventListener("slotOnload", this.slotOnloadHandler), this.slotOnloadHandler = null);
+      ), this.slotResponseHandler = null), this.slotOnloadHandler && (s.removeEventListener("slotOnload", this.slotOnloadHandler), this.slotOnloadHandler = null);
     }
     if (this.gptSlot) {
       if (window.dreamsAllSlots) {
-        const n = window.dreamsAllSlots.indexOf(this.gptSlot);
-        n > -1 && window.dreamsAllSlots.splice(n, 1);
+        const s = window.dreamsAllSlots.indexOf(this.gptSlot);
+        s > -1 && window.dreamsAllSlots.splice(s, 1);
       }
       if (window.dreamsSlotsToUpdate) {
-        const n = window.dreamsSlotsToUpdate.indexOf(this.gptSlot);
-        n > -1 && window.dreamsSlotsToUpdate.splice(n, 1);
+        const s = window.dreamsSlotsToUpdate.indexOf(this.gptSlot);
+        s > -1 && window.dreamsSlotsToUpdate.splice(s, 1);
       }
       window.googletag?.destroySlots && window.googletag.destroySlots([this.gptSlot]), this.gptSlot = null;
     }
   }
   async firstUpdated() {
-    await A(this, v, Mt).call(this), await A(this, v, Bt).call(this);
-    const n = typeof crypto < "u" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    if (this.divId = `div-gpt-ad-${this.adUnit}-${n}`, this.apstag && this.pubId && !l.initialized_aps)
+    await A(this, S, qt).call(this);
+    const s = typeof crypto < "u" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    if (this.divId = `div-gpt-ad-${this.adUnit}-${s}`, await A(this, S, Gt).call(this), this.apstag && this.pubId && !d.initialized_aps)
       if (typeof window.apstag?.init == "function")
         try {
           window.apstag.init({
             pubID: this.pubId,
             adServer: "googletag",
             bidTimeout: this.bidTimeout
-          }), l.initialized_aps = !0;
-        } catch {
-          this.apstag = !1;
+          }), d.initialized_aps = !0;
+        } catch (t) {
+          this.apstag = !1, g.dispatchAdError(this, {
+            slotId: this.divId,
+            adUnit: this.adUnit,
+            phase: "apstag-init",
+            error: t instanceof Error ? t : String(t),
+            recoverable: !0
+          });
         }
       else
         this.apstag = !1;
-    if (this.prebid && !l.initialized_prebid)
+    if (this.prebid && !d.initialized_prebid)
       if (typeof window.pbjs?.que?.push == "function")
         try {
           window.pbjs.que.push(() => {
@@ -1510,24 +1668,36 @@ let l = class extends I {
                 });
               });
             } catch (t) {
-              console.warn("[DreamsAdEngine] prebid init failed", t);
+              g.dispatchAdError(this, {
+                slotId: this.divId,
+                adUnit: this.adUnit,
+                phase: "prebid-init",
+                error: t instanceof Error ? t : String(t),
+                recoverable: !0
+              });
             }
-          }), l.initialized_prebid = !0;
-        } catch {
-          this.prebid = !1;
+          }), d.initialized_prebid = !0;
+        } catch (t) {
+          this.prebid = !1, g.dispatchAdError(this, {
+            slotId: this.divId,
+            adUnit: this.adUnit,
+            phase: "prebid-init",
+            error: t instanceof Error ? t : String(t),
+            recoverable: !0
+          });
         }
       else
         this.prebid = !1;
-    this.ready = !0, await this.updateComplete, A(this, v, qt).call(this);
+    this.ready = !0, await this.updateComplete, A(this, S, Jt).call(this);
   }
   render() {
-    return this.ready ? T`
+    return this.ready ? k`
 			<div class="dae-container">
-				${this.enableTitle ? T`<span class="dae-label">${this.title}</span>` : ""}
-				${this.showSkeleton ? T`<dreams-ad-skeleton
-              width="${A(this, v, Ft).call(this)}"
-              height="${A(this, v, Gt).call(this)}"
-            ></dreams-ad-skeleton>` : T`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
+				${this.enableTitle ? k`<span class="dae-label">${this.title}</span>` : ""}
+				${this.showSkeleton ? k`<dreams-ad-skeleton
+              width="${A(this, S, Yt).call(this)}"
+              height="${A(this, S, Kt).call(this)}"
+            ></dreams-ad-skeleton>` : k`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
 				<div
 					class="dae-serving"
 					data-post-id="${this.divId}"
@@ -1536,41 +1706,41 @@ let l = class extends I {
 				>
 				</div>
 			</div>
-		` : T``;
+		` : k``;
   }
 };
-v = /* @__PURE__ */ new WeakSet();
-Vt = function() {
+S = /* @__PURE__ */ new WeakSet();
+Ft = function() {
   window.googletag = window.googletag || { cmd: [] };
-  const n = () => {
+  const s = () => {
     window.googletag.cmd.push(() => {
       if (window.dreamsAllSlots = window.dreamsAllSlots || [], window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [], window.googletag.pubadsReady === !0) return;
-      f.isInitialized() && f.getLazyLoad() || window.googletag.pubads().disableInitialLoad(), window.googletag.pubads().enableSingleRequest(), window.googletag.enableServices();
+      w.isInitialized() && w.getLazyLoad() || window.googletag.pubads().disableInitialLoad(), window.googletag.pubads().enableSingleRequest(), window.googletag.enableServices();
     });
   }, t = () => {
-    f.isInitialized() && (l.configApplied || (l.configApplied = !0, window.googletag.cmd.push(() => {
-      const e = {}, i = f.getLazyLoad();
-      i && (e.lazyLoad = i), f.getThreadYield() && (e.threadYield = "ENABLED_ALL_SLOTS");
-      const s = f.getCollapseEmptyDivs();
-      s !== "DISABLED" && (e.collapseDiv = s), Object.keys(e).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(e) : i && window.googletag.pubads().enableLazyLoad(i)), f.getCentering() && window.googletag.pubads().setCentering(!0);
-      const o = f.getPrivacy();
-      o && window.googletag.pubads().setPrivacySettings(o), A(this, v, jt).call(this);
+    w.isInitialized() && (d.configApplied || (d.configApplied = !0, window.googletag.cmd.push(() => {
+      const e = {}, i = w.getLazyLoad();
+      i && (e.lazyLoad = i), w.getThreadYield() && (e.threadYield = "ENABLED_ALL_SLOTS");
+      const n = w.getCollapseEmptyDivs();
+      n !== "DISABLED" && (e.collapseDiv = n), Object.keys(e).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(e) : i && window.googletag.pubads().enableLazyLoad(i)), w.getCentering() && window.googletag.pubads().setCentering(!0);
+      const r = w.getPrivacy();
+      r && window.googletag.pubads().setPrivacySettings(r), A(this, S, Wt).call(this);
     })));
   };
-  n(), f.isInitialized() ? t() : f.whenReady().then(t).catch(() => {
-  }), l._setupNavigationListeners();
+  s(), w.isInitialized() ? t() : w.whenReady().then(t).catch(() => {
+  }), d._setupNavigationListeners();
 };
-Mt = async function() {
+qt = async function() {
   if (this.adSlot === "interstitial") {
-    console.warn(
-      '[DreamsAdEngine] <dreams-ad-engine ad-slot="interstitial"> is deprecated. Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).'
+    g.warn(
+      '<dreams-ad-engine ad-slot="interstitial"> is deprecated. Configure interstitials via DreamsAdConfig.init({ interstitial: { enabled: true } }).'
     );
     return;
   }
   if (this.adSlot) {
-    await f.whenReady();
-    const n = f.getSlot(this.adSlot);
-    n && (this.networkId || (this.networkId = f.getNetworkId()), this.adUnit || (this.adUnit = f.buildAdUnit(this.adSlot)), (!this.mapping || this.mapping.length === 0) && (this.mapping = n.mapping), (!this.sizing || this.sizing.length === 0) && (this.sizing = n.sizing), this.pubId || (this.pubId = f.getPubId() || ""), this.pubId && (this.apstag = !0));
+    await w.whenReady();
+    const s = w.getSlot(this.adSlot);
+    s && (this.networkId || (this.networkId = w.getNetworkId()), this.adUnit || (this.adUnit = w.buildAdUnit(this.adSlot)), (!this.mapping || this.mapping.length === 0) && (this.mapping = s.mapping), (!this.sizing || this.sizing.length === 0) && (this.sizing = s.sizing), this.pubId || (this.pubId = w.getPubId() || ""), this.pubId && (this.apstag = !0));
   }
   if (typeof this.mapping == "string")
     try {
@@ -1597,48 +1767,64 @@ Mt = async function() {
       this.bidders = [];
     }
 };
-Bt = async function() {
-  if (this.autoTargeting) {
-    const n = await J.getTargeting();
-    this.resolvedTargeting = n.targeting;
-  } else this.targeting && this.targeting.length > 0 && (this.resolvedTargeting = this.targeting);
+Gt = async function() {
+  if (this.autoTargeting)
+    try {
+      const s = await J.getTargeting();
+      this.resolvedTargeting = s.targeting, s.source === "timeout" && g.dispatchAdError(this, {
+        slotId: this.divId,
+        adUnit: this.adUnit,
+        phase: "targeting-resolution",
+        error: "window.dfp[@context] not present after retry budget",
+        recoverable: !0
+      });
+    } catch (s) {
+      this.resolvedTargeting = [], g.dispatchAdError(this, {
+        slotId: this.divId,
+        adUnit: this.adUnit,
+        phase: "targeting-resolution",
+        error: s instanceof Error ? s : String(s),
+        recoverable: !0
+      });
+    }
+  else this.targeting && this.targeting.length > 0 && (this.resolvedTargeting = this.targeting);
 };
-jt = function() {
-  if (l.outOfPageRegistered) return;
-  l.outOfPageRegistered = !0;
-  const n = f.getNetworkId(), t = f.getSitePrefix(), e = `/${n}/${t}-is-i`;
-  if (f.getInterstitial()?.enabled) {
-    const o = window.googletag.defineOutOfPageSlot(
-      e,
-      window.googletag.enums.OutOfPageFormat.INTERSTITIAL
+Wt = function() {
+  if (d.outOfPageRegistered) return;
+  d.outOfPageRegistered = !0;
+  const s = w.getNetworkId(), t = w.getSitePrefix(), e = `/${s}/${t}-is-i`, i = (a, o) => {
+    try {
+      const l = window.googletag.defineOutOfPageSlot(a, o);
+      l && (l.addService(window.googletag.pubads()), window.dreamsAllSlots.push(l));
+    } catch (l) {
+      g.dispatchAdError(this, {
+        slotId: "",
+        adUnit: a,
+        phase: "out-of-page-define",
+        error: l instanceof Error ? l : String(l),
+        recoverable: !1
+      });
+    }
+  };
+  w.getInterstitial()?.enabled && i(
+    e,
+    window.googletag.enums.OutOfPageFormat.INTERSTITIAL
+  );
+  const r = w.getAnchor();
+  if (r?.enabled) {
+    const a = `/${s}/${t}-is-a`;
+    (r.position === "top" || r.position === "both") && i(a, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR), (r.position === "bottom" || r.position === "both") && i(
+      a,
+      window.googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR
     );
-    o && (o.addService(window.googletag.pubads()), window.dreamsAllSlots.push(o));
-  }
-  const s = f.getAnchor();
-  if (s?.enabled) {
-    const o = `/${n}/${t}-is-a`;
-    if (s.position === "top" || s.position === "both") {
-      const r = window.googletag.defineOutOfPageSlot(
-        o,
-        window.googletag.enums.OutOfPageFormat.TOP_ANCHOR
-      );
-      r && (r.addService(window.googletag.pubads()), window.dreamsAllSlots.push(r));
-    }
-    if (s.position === "bottom" || s.position === "both") {
-      const r = window.googletag.defineOutOfPageSlot(
-        o,
-        window.googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR
-      );
-      r && (r.addService(window.googletag.pubads()), window.dreamsAllSlots.push(r));
-    }
   }
 };
-at = function() {
-  const n = (t) => {
+dt = function() {
+  const s = (t) => {
     let e = 0;
     for (const i of t) {
-      const s = i[1];
-      typeof s == "number" && s > 1 && (e = Math.max(e, s));
+      const n = i[1];
+      typeof n == "number" && n > 1 && (e = Math.max(e, n));
     }
     return e;
   };
@@ -1648,73 +1834,102 @@ at = function() {
     for (const i of this.mapping)
       i.viewport[0] <= t && (!e || i.viewport[0] > e.viewport[0]) && (e = i);
     if (e) {
-      const i = n(e.sizing);
+      const i = s(e.sizing);
       if (i > 0) return i;
     }
   }
   if (this.sizing && this.sizing.length > 0) {
-    const t = n(this.sizing);
+    const t = s(this.sizing);
     if (t > 0) return t;
   }
   return 2;
 };
-qt = function() {
-  const n = `/${this.networkId}/${this.adUnit}`, t = this.divId, e = document.createElement("div");
+Jt = function() {
+  const s = `/${this.networkId}/${this.adUnit}`, t = this.divId, e = document.createElement("div");
   e.id = t, e.setAttribute("data-ad", this.divId), e.setAttribute("role", "complementary"), e.setAttribute("aria-label", "Advertisement"), e.classList.add("dae-slot"), e.style.cssText = "width:100%";
-  const i = A(this, v, at).call(this), s = this.querySelector(".dae-serving");
-  s instanceof HTMLElement ? (s.style.minHeight = `${i}px`, s.appendChild(e)) : this.appendChild(e), setTimeout(() => {
+  const i = A(this, S, dt).call(this), n = this.querySelector(".dae-serving");
+  n instanceof HTMLElement ? (n.style.minHeight = `${i}px`, n.appendChild(e)) : this.appendChild(e), setTimeout(() => {
     try {
       if (!window.googletag?.cmd?.push) {
-        console.error(
-          "[DreamsAdEngine] googletag.cmd not available for",
-          this.adUnit
-        );
+        g.dispatchAdError(this, {
+          slotId: t,
+          adUnit: s,
+          phase: "slot-define",
+          error: "googletag.cmd not available",
+          recoverable: !1
+        });
         return;
       }
       window.googletag.cmd.push(() => {
         if (!document.getElementById(t)) {
-          console.warn(
-            `[DreamsAdEngine] Slot div ${t} not in DOM, aborting`
-          );
+          g.dispatchAdError(this, {
+            slotId: t,
+            adUnit: s,
+            phase: "slot-display",
+            error: `Slot div ${t} not in DOM, aborting`,
+            recoverable: !1
+          });
           return;
         }
-        const o = window.googletag.defineSlot(n, this.sizing, t).addService(window.googletag.pubads());
-        if (this.resolvedTargeting.length > 0) {
-          const a = {};
-          for (const c of this.resolvedTargeting)
-            a[c.key] = c.value;
-          o.setConfig({ targeting: a });
+        let r;
+        try {
+          r = window.googletag.defineSlot(s, this.sizing, t).addService(window.googletag.pubads());
+        } catch (o) {
+          g.dispatchAdError(this, {
+            slotId: t,
+            adUnit: s,
+            phase: "slot-define",
+            error: o instanceof Error ? o : String(o),
+            recoverable: !1
+          });
+          return;
         }
-        this.slotRenderHandler = (a) => {
-          if (a.slot.getSlotElementId() !== t) return;
-          const c = this.querySelector(".dae-loader");
+        if (this.resolvedTargeting.length > 0) {
+          const o = {};
+          for (const l of this.resolvedTargeting)
+            o[l.key] = l.value;
+          try {
+            r.setConfig({ targeting: o });
+          } catch (l) {
+            g.dispatchAdError(this, {
+              slotId: t,
+              adUnit: s,
+              phase: "targeting-resolution",
+              error: l instanceof Error ? l : String(l),
+              recoverable: !0
+            });
+          }
+        }
+        this.slotRenderHandler = (o) => {
+          if (o.slot.getSlotElementId() !== t) return;
+          const l = this.querySelector(".dae-loader");
+          l instanceof HTMLElement && (l.style.display = "none");
+          const c = this.querySelector("dreams-ad-skeleton");
           c instanceof HTMLElement && (c.style.display = "none");
-          const p = this.querySelector("dreams-ad-skeleton");
-          p instanceof HTMLElement && (p.style.display = "none");
-          const h = document.getElementById(t), b = a.size?.length === 2 && a.size[0] <= 1 && a.size[1] <= 1;
-          if (a.isEmpty || b) {
+          const h = document.getElementById(t), u = o.size?.length === 2 && o.size[0] <= 1 && o.size[1] <= 1;
+          if (o.isEmpty || u) {
             h instanceof HTMLElement && (h.style.minHeight = "0");
-            const u = this.querySelector(".dae-serving");
-            u instanceof HTMLElement && (u.style.minHeight = "0");
+            const f = this.querySelector(".dae-serving");
+            f instanceof HTMLElement && (f.style.minHeight = "0");
           } else if (h instanceof HTMLElement) {
-            if (a.size?.length === 2) {
-              const [u, w] = a.size;
-              if (u > 1 && w > 1) {
-                h.style.minHeight = `${w}px`;
-                const _ = h.querySelector("iframe");
-                _ && (_.style.width = `${u}px`, _.style.height = `${w}px`);
+            if (o.size?.length === 2) {
+              const [f, p] = o.size;
+              if (f > 1 && p > 1) {
+                h.style.minHeight = `${p}px`;
+                const v = h.querySelector("iframe");
+                v && (v.style.width = `${f}px`, v.style.height = `${p}px`);
               }
             }
             typeof ResizeObserver < "u" && requestAnimationFrame(() => {
-              const u = h.querySelector("iframe");
-              if (u) {
-                const w = new ResizeObserver((_) => {
-                  for (const Wt of _) {
-                    const { width: Jt, height: dt } = Wt.contentRect;
-                    Jt > 1 && dt > 1 && (h.style.minHeight = `${dt}px`, w.disconnect());
+              const f = h.querySelector("iframe");
+              if (f) {
+                const p = new ResizeObserver((v) => {
+                  for (const Xt of v) {
+                    const { width: Zt, height: ct } = Xt.contentRect;
+                    Zt > 1 && ct > 1 && (h.style.minHeight = `${ct}px`, p.disconnect());
                   }
                 });
-                w.observe(u), setTimeout(() => w.disconnect(), 1e4);
+                p.observe(f), setTimeout(() => p.disconnect(), 1e4);
               }
             });
           }
@@ -1722,130 +1937,180 @@ qt = function() {
             new CustomEvent("ad:rendered", {
               bubbles: !0,
               detail: {
-                isEmpty: a.isEmpty,
-                size: a.size ?? null,
-                advertiserId: a.advertiserId ?? null,
-                creativeId: a.creativeId ?? null,
-                lineItemId: a.lineItemId ?? null,
-                isBackfill: a.isBackfill ?? !1,
+                isEmpty: o.isEmpty,
+                size: o.size ?? null,
+                advertiserId: o.advertiserId ?? null,
+                creativeId: o.creativeId ?? null,
+                lineItemId: o.lineItemId ?? null,
+                isBackfill: o.isBackfill ?? !1,
                 slotId: t,
-                adUnit: n
+                adUnit: s
               }
             })
-          ), this.trackViewability && !a.isEmpty) {
-            const u = document.getElementById(t);
-            u instanceof HTMLElement && Y.track(
-              u,
+          ), this.trackViewability && !o.isEmpty) {
+            const f = document.getElementById(t);
+            f instanceof HTMLElement && Y.track(
+              f,
               t,
               this.adSlot || this.adUnit
             );
           }
-        }, window.googletag.pubads().addEventListener("slotRenderEnded", this.slotRenderHandler), this.impressionViewableHandler = (a) => {
-          a.slot.getSlotElementId() === t && (et.markViewable(t), this.dispatchEvent(
+        }, window.googletag.pubads().addEventListener("slotRenderEnded", this.slotRenderHandler), this.impressionViewableHandler = (o) => {
+          o.slot.getSlotElementId() === t && (st.markViewable(t), this.dispatchEvent(
             new CustomEvent("ad:viewable", {
               bubbles: !0,
-              detail: { slotId: t, adUnit: n }
+              detail: { slotId: t, adUnit: s }
             })
           ));
         }, window.googletag.pubads().addEventListener(
           "impressionViewable",
           this.impressionViewableHandler
-        ), this.slotVisibilityHandler = (a) => {
-          if (a.slot.getSlotElementId() !== t) return;
-          const c = a.inViewPercentage, p = Math.floor(c / 25) * 25, h = Math.floor(this.lastVisibilityPct / 25) * 25;
-          p === h && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = c, this.dispatchEvent(
+        ), this.slotVisibilityHandler = (o) => {
+          if (o.slot.getSlotElementId() !== t) return;
+          const l = o.inViewPercentage, c = Math.floor(l / 25) * 25, h = Math.floor(this.lastVisibilityPct / 25) * 25;
+          c === h && this.lastVisibilityPct >= 0 || (this.lastVisibilityPct = l, this.dispatchEvent(
             new CustomEvent("ad:visibility", {
               bubbles: !0,
               detail: {
                 slotId: t,
-                adUnit: n,
-                inViewPercentage: c
+                adUnit: s,
+                inViewPercentage: l
               }
             })
           ));
         }, window.googletag.pubads().addEventListener(
           "slotVisibilityChanged",
           this.slotVisibilityHandler
-        ), this.slotRequestedHandler = (a) => {
-          a.slot.getSlotElementId() === t && this.dispatchEvent(
+        ), this.slotRequestedHandler = (o) => {
+          o.slot.getSlotElementId() === t && this.dispatchEvent(
             new CustomEvent("ad:requested", {
               bubbles: !0,
-              detail: { slotId: t, adUnit: n }
+              detail: { slotId: t, adUnit: s }
             })
           );
-        }, window.googletag.pubads().addEventListener("slotRequested", this.slotRequestedHandler), this.slotResponseHandler = (a) => {
-          a.slot.getSlotElementId() === t && this.dispatchEvent(
+        }, window.googletag.pubads().addEventListener("slotRequested", this.slotRequestedHandler), this.slotResponseHandler = (o) => {
+          o.slot.getSlotElementId() === t && this.dispatchEvent(
             new CustomEvent("ad:response", {
               bubbles: !0,
-              detail: { slotId: t, adUnit: n }
+              detail: { slotId: t, adUnit: s }
             })
           );
         }, window.googletag.pubads().addEventListener(
           "slotResponseReceived",
           this.slotResponseHandler
-        ), this.slotOnloadHandler = (a) => {
-          a.slot.getSlotElementId() === t && this.dispatchEvent(
+        ), this.slotOnloadHandler = (o) => {
+          o.slot.getSlotElementId() === t && this.dispatchEvent(
             new CustomEvent("ad:loaded", {
               bubbles: !0,
-              detail: { slotId: t, adUnit: n }
+              detail: { slotId: t, adUnit: s }
             })
           );
         }, window.googletag.pubads().addEventListener("slotOnload", this.slotOnloadHandler);
-        const r = window.googletag.sizeMapping();
-        if (this.mapping.forEach((a) => {
-          r.addSize(a.viewport, a.sizing);
-        }), o.defineSizeMapping(r.build()), this.gptSlot = o, this.refresh && window.dreamsSlotsToUpdate.push(o), window.dreamsAllSlots.push(o), window.googletag.display(t), !(f.isInitialized() && !!f.getLazyLoad())) {
-          const a = this.apstag && this.pubId && typeof window.apstag?.fetchBids == "function", c = this.prebid && Array.isArray(this.bidders) && this.bidders.length > 0 && typeof window.pbjs?.requestBids == "function";
-          if (!a && !c)
-            window.googletag.pubads().refresh([o]);
+        try {
+          const o = window.googletag.sizeMapping();
+          this.mapping.forEach((l) => {
+            o.addSize(l.viewport, l.sizing);
+          }), r.defineSizeMapping(o.build());
+        } catch (o) {
+          g.dispatchAdError(this, {
+            slotId: t,
+            adUnit: s,
+            phase: "size-mapping",
+            error: o instanceof Error ? o : String(o),
+            recoverable: !0
+          });
+        }
+        this.gptSlot = r, this.refresh && window.dreamsSlotsToUpdate.push(r), window.dreamsAllSlots.push(r);
+        try {
+          window.googletag.display(t);
+        } catch (o) {
+          g.dispatchAdError(this, {
+            slotId: t,
+            adUnit: s,
+            phase: "slot-display",
+            error: o instanceof Error ? o : String(o),
+            recoverable: !1
+          });
+          return;
+        }
+        if (!(w.isInitialized() && !!w.getLazyLoad())) {
+          const o = this.apstag && this.pubId && typeof window.apstag?.fetchBids == "function", l = this.prebid && Array.isArray(this.bidders) && this.bidders.length > 0 && typeof window.pbjs?.requestBids == "function";
+          if (!o && !l)
+            try {
+              window.googletag.pubads().refresh([r]);
+            } catch (c) {
+              g.dispatchAdError(this, {
+                slotId: t,
+                adUnit: s,
+                phase: "slot-refresh",
+                error: c instanceof Error ? c : String(c),
+                recoverable: !1
+              });
+            }
           else {
-            const p = this.bidTimeout || 2e3;
+            const c = this.bidTimeout || 2e3;
             let h = !1;
-            const b = () => {
+            const u = () => {
               h || (h = !0, this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag.cmd.push(() => {
-                if (c)
+                if (l)
                   try {
                     window.pbjs.setTargetingForGPTAsync([t]);
-                  } catch (w) {
-                    console.warn(
-                      "[DreamsAdEngine] pbjs.setTargetingForGPTAsync failed",
-                      w
-                    );
+                  } catch (p) {
+                    g.dispatchAdError(this, {
+                      slotId: t,
+                      adUnit: s,
+                      phase: "prebid-init",
+                      error: p instanceof Error ? p : String(p),
+                      recoverable: !0
+                    });
                   }
-                if (a)
+                if (o)
                   try {
                     window.apstag.setDisplayBids();
-                  } catch (w) {
-                    console.warn(
-                      "[DreamsAdEngine] apstag.setDisplayBids failed",
-                      w
-                    );
+                  } catch (p) {
+                    g.dispatchAdError(this, {
+                      slotId: t,
+                      adUnit: s,
+                      phase: "apstag-init",
+                      error: p instanceof Error ? p : String(p),
+                      recoverable: !0
+                    });
                   }
-                window.googletag.pubads().refresh([o]);
+                try {
+                  window.googletag.pubads().refresh([r]);
+                } catch (p) {
+                  g.dispatchAdError(this, {
+                    slotId: t,
+                    adUnit: s,
+                    phase: "slot-refresh",
+                    error: p instanceof Error ? p : String(p),
+                    recoverable: !1
+                  });
+                }
               }));
             };
             this.pendingBidsTimeout = setTimeout(
-              b,
-              p + 500
+              u,
+              c + 500
             );
-            const u = [];
-            a && u.push(
-              new Promise((w) => {
+            const f = [];
+            o && f.push(
+              new Promise((p) => {
                 window.apstag.fetchBids(
                   {
                     slots: [
                       {
                         slotID: t,
-                        slotName: n,
+                        slotName: s,
                         sizes: this.sizing
                       }
                     ]
                   },
-                  () => w()
+                  () => p()
                 );
               })
-            ), c && u.push(
-              new Promise((w) => {
+            ), l && f.push(
+              new Promise((p) => {
                 window.pbjs.que.push(() => {
                   try {
                     window.pbjs.addAdUnits([
@@ -1856,113 +2121,119 @@ qt = function() {
                       }
                     ]), window.pbjs.requestBids({
                       adUnitCodes: [t],
-                      bidsBackHandler: () => w()
+                      bidsBackHandler: () => p()
                     });
-                  } catch (_) {
-                    console.warn(
-                      "[DreamsAdEngine] pbjs.requestBids failed",
-                      _
-                    ), w();
+                  } catch (v) {
+                    g.dispatchAdError(this, {
+                      slotId: t,
+                      adUnit: s,
+                      phase: "prebid-init",
+                      error: v instanceof Error ? v : String(v),
+                      recoverable: !0
+                    }), p();
                   }
                 });
               })
-            ), Promise.all(u).then(b);
+            ), Promise.all(f).then(u);
           }
         }
       });
-    } catch (o) {
-      console.error(
-        `[DreamsAdEngine] Slot registration failed: ${this.adUnit}`,
-        o
-      );
+    } catch (r) {
+      g.dispatchAdError(this, {
+        slotId: t,
+        adUnit: s,
+        phase: "slot-define",
+        error: r instanceof Error ? r : String(r),
+        recoverable: !1
+      });
     }
   }, 0);
 };
-Ft = function() {
-  const n = typeof window < "u" ? window.innerWidth : 320;
-  return n >= 1280 ? 970 : n >= 728 ? 728 : 320;
+Yt = function() {
+  const s = typeof window < "u" ? window.innerWidth : 320;
+  return s >= 1280 ? 970 : s >= 728 ? 728 : 320;
 };
-Gt = function() {
-  return A(this, v, at).call(this);
+Kt = function() {
+  return A(this, S, dt).call(this);
 };
-l.initialized = !1;
-l.old_url = "";
-l.initialized_aps = !1;
-l.initialized_prebid = !1;
-l.configApplied = !1;
-l.navigationListenersAttached = !1;
-l.outOfPageRegistered = !1;
-l._handleNavigation = () => {
-  const n = location.href;
-  l.old_url !== n && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && (window.googletag.destroySlots(window.dreamsAllSlots), window.googletag.pubads().updateCorrelator()), l.old_url = n, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], J.clearCache());
+d.initialized = !1;
+d.old_url = "";
+d.initialized_aps = !1;
+d.initialized_prebid = !1;
+d.configApplied = !1;
+d.navigationListenersAttached = !1;
+d.outOfPageRegistered = !1;
+d._handleNavigation = () => {
+  const s = location.href;
+  d.old_url !== s && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && (window.googletag.destroySlots(window.dreamsAllSlots), window.googletag.pubads().updateCorrelator()), d.old_url = s, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], J.clearCache());
 };
-m([
-  g({ type: String })
-], l.prototype, "networkId", 2);
-m([
-  g({ type: String })
-], l.prototype, "adUnit", 2);
-m([
-  g({ type: String })
-], l.prototype, "divId", 2);
-m([
-  g({ type: String, attribute: "ad-slot" })
-], l.prototype, "adSlot", 2);
-m([
-  g({ type: Array })
-], l.prototype, "mapping", 2);
-m([
-  g({ type: Array })
-], l.prototype, "sizing", 2);
-m([
-  g({ type: Array })
-], l.prototype, "targeting", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "autoTargeting", 2);
-m([
-  Dt()
-], l.prototype, "resolvedTargeting", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "refresh", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "enableTitle", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "apstag", 2);
-m([
-  g({ type: String })
-], l.prototype, "pubId", 2);
-m([
-  g({ type: Number })
-], l.prototype, "bidTimeout", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "prebid", 2);
-m([
-  g({ type: String })
-], l.prototype, "prebidConfig", 2);
-m([
-  g({ type: Array })
-], l.prototype, "bidders", 2);
-m([
-  g({ type: String })
-], l.prototype, "title", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "trackViewability", 2);
-m([
-  g({ type: Boolean, reflect: !0 })
-], l.prototype, "showSkeleton", 2);
-m([
-  Dt()
-], l.prototype, "ready", 2);
-l = m([
-  Ht("dreams-ad-engine")
-], l);
-const Tt = {
+y([
+  m({ type: String })
+], d.prototype, "networkId", 2);
+y([
+  m({ type: String })
+], d.prototype, "adUnit", 2);
+y([
+  m({ type: String })
+], d.prototype, "divId", 2);
+y([
+  m({ type: String, attribute: "ad-slot" })
+], d.prototype, "adSlot", 2);
+y([
+  m({ type: Array })
+], d.prototype, "mapping", 2);
+y([
+  m({ type: Array })
+], d.prototype, "sizing", 2);
+y([
+  m({ type: Array })
+], d.prototype, "targeting", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "autoTargeting", 2);
+y([
+  Mt()
+], d.prototype, "resolvedTargeting", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "refresh", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "enableTitle", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "apstag", 2);
+y([
+  m({ type: String })
+], d.prototype, "pubId", 2);
+y([
+  m({ type: Number })
+], d.prototype, "bidTimeout", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "prebid", 2);
+y([
+  m({ type: String })
+], d.prototype, "prebidConfig", 2);
+y([
+  m({ type: Array })
+], d.prototype, "bidders", 2);
+y([
+  m({ type: String })
+], d.prototype, "title", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "trackViewability", 2);
+y([
+  m({ type: Boolean, reflect: !0 })
+], d.prototype, "showSkeleton", 2);
+y([
+  Mt()
+], d.prototype, "ready", 2);
+d = y([
+  Vt("dreams-ad-engine")
+], d);
+const zt = {
   enabled: !0,
   addBodyClass: !0,
   bodyClass: "ad-blocker-detected",
@@ -1972,7 +2243,7 @@ const Tt = {
    * Configure the ad block detector
    */
   static configure(t) {
-    this.config = { ...Tt, ...t };
+    this.config = { ...zt, ...t };
   }
   /**
    * Check if ad blocker is detected (cached result)
@@ -2074,85 +2345,9 @@ const Tt = {
     });
   }
 };
-D.config = Tt, D.detected = null, D.detecting = null;
-let kt = D;
-const Ct = {
-  enabled: "auto",
-  prefix: "[DreamsAdEngine]",
-  verbose: !1
-}, lt = class lt {
-  /**
-   * Configure the logger
-   */
-  static configure(t) {
-    this.config = { ...Ct, ...t };
-  }
-  /**
-   * Log info message
-   */
-  static log(t, ...e) {
-    this.shouldLog() && console.log(`${this.config.prefix} ${t}`, ...e);
-  }
-  /**
-   * Log warning message
-   */
-  static warn(t, ...e) {
-    this.shouldLog() && console.warn(`${this.config.prefix} ${t}`, ...e);
-  }
-  /**
-   * Log error message (always logs in production, but less verbose)
-   */
-  static error(t, ...e) {
-    this.isProduction() ? console.error(`${this.config.prefix} Error: ${t}`) : console.error(`${this.config.prefix} ${t}`, ...e);
-  }
-  /**
-   * Log verbose/debug message (only when verbose is enabled)
-   */
-  static debug(t, ...e) {
-    !this.shouldLog() || !this.config.verbose || console.debug(`${this.config.prefix} ${t}`, ...e);
-  }
-  /**
-   * Log a table (useful for metrics)
-   */
-  static table(t) {
-    this.shouldLog() && console.table(t);
-  }
-  /**
-   * Group logs together
-   */
-  static group(t) {
-    this.shouldLog() && console.group(`${this.config.prefix} ${t}`);
-  }
-  /**
-   * End log group
-   */
-  static groupEnd() {
-    this.shouldLog() && console.groupEnd();
-  }
-  /**
-   * Time a operation
-   */
-  static time(t) {
-    this.shouldLog() && console.time(`${this.config.prefix} ${t}`);
-  }
-  /**
-   * End timing
-   */
-  static timeEnd(t) {
-    this.shouldLog() && console.timeEnd(`${this.config.prefix} ${t}`);
-  }
-  static shouldLog() {
-    return this.config.enabled === !0 ? !0 : this.config.enabled === !1 ? !1 : !this.isProduction();
-  }
-  static isProduction() {
-    if (typeof window > "u") return !0;
-    const t = window.location.hostname;
-    return t !== "localhost" && !t.includes(".local") && !t.includes("127.0.0.1") && !t.includes("192.168.") && !t.includes("0.0.0.0");
-  }
-};
-lt.config = Ct;
-let xt = lt;
-const zt = {
+D.config = zt, D.detected = null, D.detecting = null;
+let Pt = D;
+const Ut = {
   enabled: !1,
   positions: [],
   minViewportHeight: 768,
@@ -2165,7 +2360,7 @@ const zt = {
    * Configure the sticky manager
    */
   static configure(t) {
-    this.config = { ...zt, ...t };
+    this.config = { ...Ut, ...t };
   }
   /**
    * Check if a position supports sticky
@@ -2179,27 +2374,27 @@ const zt = {
   static enable(t, e, i) {
     if (!this.config.enabled || !this.isStickyPosition(i) || this.stickyAds.has(e) || window.innerHeight < this.config.minViewportHeight)
       return !1;
-    const s = t.querySelector(
+    const n = t.querySelector(
       '[class*="ad-serving"]'
     );
-    if (!s) return !1;
-    const o = this.getTopOffset();
-    this.config.smoothTransition && (s.style.transition = `top ${this.config.transitionDuration}ms ease-out`), s.style.position = "sticky", s.style.top = `${o}px`, s.style.alignSelf = "flex-start", s.style.zIndex = "10";
-    const r = {
+    if (!n) return !1;
+    const r = this.getTopOffset();
+    this.config.smoothTransition && (n.style.transition = `top ${this.config.transitionDuration}ms ease-out`), n.style.position = "sticky", n.style.top = `${r}px`, n.style.alignSelf = "flex-start", n.style.zIndex = "10";
+    const a = {
       adId: e,
       position: i,
       stickyTime: 0,
       totalTime: 0,
       isCurrentlySticky: !1
-    }, d = () => this.handleScroll(e, o), a = {
-      element: s,
+    }, o = () => this.handleScroll(e, r), l = {
+      element: n,
       container: t,
-      metrics: r,
+      metrics: a,
       startTime: Date.now(),
       stickyStartTime: null,
-      scrollHandler: d
+      scrollHandler: o
     };
-    return this.stickyAds.set(e, a), window.addEventListener("scroll", d, { passive: !0 }), !0;
+    return this.stickyAds.set(e, l), window.addEventListener("scroll", o, { passive: !0 }), !0;
   }
   /**
    * Disable sticky behavior for an ad
@@ -2245,8 +2440,8 @@ const zt = {
   static checkSticky(t, e) {
     const i = this.stickyAds.get(t);
     if (!i) return;
-    const o = i.element.getBoundingClientRect().top <= e + 5;
-    o && !i.stickyStartTime ? (i.stickyStartTime = Date.now(), i.metrics.isCurrentlySticky = !0, this.dispatchEvent("sticky:start", t, i.metrics)) : !o && i.stickyStartTime && (i.metrics.stickyTime += Date.now() - i.stickyStartTime, i.stickyStartTime = null, i.metrics.isCurrentlySticky = !1, this.dispatchEvent("sticky:end", t, i.metrics));
+    const r = i.element.getBoundingClientRect().top <= e + 5;
+    r && !i.stickyStartTime ? (i.stickyStartTime = Date.now(), i.metrics.isCurrentlySticky = !0, this.dispatchEvent("sticky:start", t, i.metrics)) : !r && i.stickyStartTime && (i.metrics.stickyTime += Date.now() - i.stickyStartTime, i.stickyStartTime = null, i.metrics.isCurrentlySticky = !1, this.dispatchEvent("sticky:end", t, i.metrics));
   }
   static dispatchEvent(t, e, i) {
     window.dispatchEvent(
@@ -2260,18 +2455,18 @@ const zt = {
     );
   }
 };
-N.config = zt, N.stickyAds = /* @__PURE__ */ new Map(), N.lastScrollTime = 0;
-let It = N;
+N.config = Ut, N.stickyAds = /* @__PURE__ */ new Map(), N.lastScrollTime = 0;
+let Lt = N;
 export {
-  kt as AdBlockDetector,
-  $e as DEFAULT_SLOTS,
-  l as DreamsAdComponent,
-  f as DreamsAdConfig,
-  O as DreamsAdSkeleton,
+  Pt as AdBlockDetector,
+  ke as DEFAULT_SLOTS,
+  d as DreamsAdComponent,
+  w as DreamsAdConfig,
+  L as DreamsAdSkeleton,
   J as DreamsTargetingService,
-  xt as Logger,
-  et as RefreshManager,
-  It as StickyManager,
+  g as Logger,
+  st as RefreshManager,
+  Lt as StickyManager,
   Y as ViewabilityService,
-  Oe as getSkeletonDimensions
+  Me as getSkeletonDimensions
 };
