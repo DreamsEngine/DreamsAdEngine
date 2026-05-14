@@ -11,6 +11,12 @@ node_modules
 dist-ssr
 *.local
 
+# Foreign lockfiles — this project uses pnpm exclusively.
+# A stray npm install would regenerate package-lock.json and resurrect
+# stale-tree vulnerability alerts. Block it at the gitignore level.
+package-lock.json
+yarn.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
