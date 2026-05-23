@@ -179,9 +179,9 @@ export class RefreshManager {
       return false;
     }
 
-    // Set refresh_count targeting on each slot. setTargeting was deprecated
-    // by GAM in 2025; setConfig({ targeting }) is the replacement and merges
-    // with the slot's existing targeting rather than replacing it.
+    // Set refresh_count targeting on each slot. setConfig({ targeting })
+    // merges with the slot's existing targeting rather than replacing it,
+    // which is what we want — refresh_count is additive, not destructive.
     for (const s of slotsToRefresh) {
       try {
         const id = s.getSlotElementId();

@@ -22,6 +22,7 @@ export declare class DreamsAdConfig {
     static getInterstitial(): InterstitialConfig | null;
     static getAnchor(): AnchorConfig | null;
     static getThreadYield(): boolean;
+    static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
     static setPrivacy(config: PrivacyConfig): void;
     static getSlot(slotName: string): SlotConfig | undefined;
     static getSlotMapping(slotName: string): DreamsAdMapping[];

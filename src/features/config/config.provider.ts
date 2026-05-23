@@ -60,6 +60,7 @@ export class DreamsAdConfig {
       interstitial: config.interstitial || null,
       anchor: config.anchor || null,
       threadYield: config.threadYield ?? false,
+      collapseEmptyDivs: config.collapseEmptyDivs ?? "DISABLED",
     };
 
     if (this.readyResolve) {
@@ -157,6 +158,11 @@ export class DreamsAdConfig {
   static getThreadYield(): boolean {
     this.assertInitialized();
     return this.instance!.threadYield;
+  }
+
+  static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH" {
+    this.assertInitialized();
+    return this.instance!.collapseEmptyDivs;
   }
 
   static setPrivacy(config: PrivacyConfig): void {

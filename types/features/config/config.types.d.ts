@@ -45,6 +45,19 @@ export interface AdConfigInit {
     anchor?: AnchorConfig;
     /** Enable scheduler thread yield for INP improvement */
     threadYield?: boolean;
+    /**
+     * Control empty-slot collapsing via GPT's modern `setConfig({ collapseDiv })`
+     * API — the documented replacement for the deprecated
+     * `pubads().collapseEmptyDivs()` call.
+     *
+     * - `"DISABLED"` (default): slots keep their reserved height even when
+     *   empty. Best for CLS; matches the library's prior behavior.
+     * - `"AFTER_FETCH"`: collapse after a no-fill response. Denser layout
+     *   when fill rate is low, but causes a measurable shift on no-fill.
+     * - `"BEFORE_FETCH"`: collapse before fetching; expand only on fill.
+     *   Lowest reserved area; highest layout-shift risk.
+     */
+    collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
 }
 export interface AdConfigData {
     networkId: string;
@@ -58,4 +71,5 @@ export interface AdConfigData {
     interstitial: InterstitialConfig | null;
     anchor: AnchorConfig | null;
     threadYield: boolean;
+    collapseEmptyDivs: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
 }
