@@ -76,6 +76,29 @@ removals, no renames. Target version: `0.7.0`.
   `LoggerConfig`, `PageSettingsConfig`.
 - **Window typing** — added `__dreamsDebug?: boolean` to the global
   `Window` interface.
+- **Consumer-provided `divId`**: when the `divId` property or attribute
+  is set, the component keeps it as the GPT container id instead of
+  generating `div-gpt-ad-${adUnit}-${uuid}`. Unset keeps the generated
+  id. The id must be unique on the page.
+- **Out-of-page `adUnit`**: optional `adUnit` on `InterstitialConfig`
+  and `AnchorConfig` (unit code without the network). When set, the
+  slot path is `/${networkId}/${adUnit}`; defaults stay
+  `${sitePrefix}-is-i` and `${sitePrefix}-is-a`.
+- **Page-level targeting**: `targeting?: Record<string, string |
+  string[]>` on `AdConfigInit`, applied with `googletag.setConfig({
+  targeting })` in the existing config-apply batch. New
+  `DreamsAdConfig.setPageTargeting(map)` updates it at runtime through
+  `googletag.cmd` (SPA route changes) and `DreamsAdConfig.getTargeting()`
+  reads it. `PageSettingsConfig` gains a typed `targeting` key.
+- **Refresh policy options** on `RefreshConfig`, all off by default:
+  - `maxRefreshes`: per-slot cap per pageview, reset on SPA navigation
+    (0 or unset: no cap).
+  - `backfillOnly`: refresh a slot only if its last `slotRenderEnded`
+    had `isBackfill === true`.
+  - `pauseWhenHidden`: skip refresh cycles while `document.hidden`.
+  - New `RefreshManager.markRendered(slotId, isBackfill)` and
+    `RefreshManager.resetPageview()`, called by the component from
+    `slotRenderEnded` and the SPA navigation teardown.
 
 ### Changed
 
