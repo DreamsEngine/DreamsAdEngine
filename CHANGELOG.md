@@ -99,6 +99,8 @@ removals, no renames. Target version: `0.7.0`.
   - New `RefreshManager.markRendered(slotId, isBackfill)` and
     `RefreshManager.resetPageview()`, called by the component from
     `slotRenderEnded` and the SPA navigation teardown.
+    `resetPageview()` also clears the viewability gate, so a reused
+    `divId` must be viewable again on the new page before it refreshes.
 
 ### Changed
 

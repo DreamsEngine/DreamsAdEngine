@@ -1436,10 +1436,11 @@ const st = 3e4, It = {
     this.lastRenderBackfill.set(t, e);
   }
   /**
-   * Reset per-pageview state (called on SPA navigation)
+   * Reset per-pageview state: refresh counts, backfill flags and the
+   * viewability gate (called on SPA navigation)
    */
   static resetPageview() {
-    this.refreshCounts.clear(), this.lastRenderBackfill.clear();
+    this.refreshCounts.clear(), this.lastRenderBackfill.clear(), this.viewableSlots.clear();
   }
   /**
    * Check if refresh is currently blocked

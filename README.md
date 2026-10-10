@@ -848,7 +848,7 @@ The component automatically detects client-side navigation by intercepting `push
 2. Correlator is updated for new pageview tracking
 3. Global slot arrays are cleared
 4. Targeting cache is invalidated
-5. Per-pageview refresh counters reset (`maxRefreshes`, `backfillOnly`)
+5. Per-pageview refresh state resets (`maxRefreshes` counts, `backfillOnly` flags, viewability gate)
 6. New components re-initialize their slots
 
 No configuration needed. Works with Next.js, React Router, Vue Router, and hash-based routing.

@@ -70,7 +70,7 @@ export class DreamsAdComponent extends LitElement {
     // Clear targeting cache for new page context
     DreamsTargetingService.clearCache();
 
-    // Reset per-pageview refresh counters (maxRefreshes, backfillOnly)
+    // Reset per-pageview refresh state (counts, backfill, viewability)
     RefreshManager.resetPageview();
   };
 

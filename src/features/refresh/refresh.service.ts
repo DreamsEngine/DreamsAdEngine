@@ -111,11 +111,13 @@ export class RefreshManager {
   }
 
   /**
-   * Reset per-pageview state (called on SPA navigation)
+   * Reset per-pageview state: refresh counts, backfill flags and the
+   * viewability gate (called on SPA navigation)
    */
   static resetPageview(): void {
     this.refreshCounts.clear();
     this.lastRenderBackfill.clear();
+    this.viewableSlots.clear();
   }
 
   /**

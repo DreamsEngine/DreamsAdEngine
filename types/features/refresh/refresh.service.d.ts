@@ -47,7 +47,8 @@ export declare class RefreshManager {
      */
     static markRendered(slotId: string, isBackfill: boolean): void;
     /**
-     * Reset per-pageview state (called on SPA navigation)
+     * Reset per-pageview state: refresh counts, backfill flags and the
+     * viewability gate (called on SPA navigation)
      */
     static resetPageview(): void;
     /**
