@@ -3,8 +3,8 @@ var d = (s) => {
 };
 var f = (s, i, t) => i.has(s) || d("Cannot " + t);
 var c = (s, i, t) => i.has(s) ? d("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(s) : i.set(s, t);
-var p = (s, i, t) => (f(s, i, "access private method"), t);
-const u = {
+var g = (s, i, t) => (f(s, i, "access private method"), t);
+const p = {
   enabled: "auto",
   prefix: "[DreamsAdEngine]",
   verbose: !1
@@ -13,7 +13,7 @@ const u = {
    * Configure the logger
    */
   static configure(i) {
-    this.config = { ...u, ...i };
+    this.config = { ...p, ...i };
   }
   /**
    * Log info message
@@ -106,7 +106,7 @@ const u = {
     return i !== "localhost" && !i.includes(".local") && !i.includes("127.0.0.1") && !i.includes("192.168.") && !i.includes("0.0.0.0");
   }
 };
-a.config = u;
+a.config = p;
 let n = a;
 const w = {
   "top-1": {
@@ -354,7 +354,7 @@ const e = class e {
   }
   static init(i) {
     var o;
-    if (p(o = e, l, h).call(o, i.debug), this.instance && !i.force) {
+    if (g(o = e, l, h).call(o, i.debug), this.instance && !i.force) {
       n.warn(
         "Already initialized. Use { force: true } to override."
       );
@@ -376,7 +376,8 @@ const e = class e {
       interstitial: i.interstitial || null,
       anchor: i.anchor || null,
       threadYield: i.threadYield ?? !1,
-      collapseEmptyDivs: i.collapseEmptyDivs ?? "DISABLED"
+      collapseEmptyDivs: i.collapseEmptyDivs ?? "DISABLED",
+      targeting: i.targeting || null
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
   /**
@@ -460,6 +461,19 @@ const e = class e {
   static getCollapseEmptyDivs() {
     return this.assertInitialized(), this.instance.collapseEmptyDivs;
   }
+  static getTargeting() {
+    return this.assertInitialized(), this.instance.targeting;
+  }
+  /**
+   * Update page-level targeting at runtime (e.g. on SPA route changes).
+   * Keys merge with the existing page targeting; keys not passed keep
+   * their previous value.
+   */
+  static setPageTargeting(i) {
+    this.assertInitialized(), this.instance.targeting = { ...this.instance.targeting, ...i }, typeof window < "u" && window.googletag && window.googletag.cmd.push(() => {
+      window.googletag.setConfig({ targeting: i });
+    });
+  }
   static setPrivacy(i) {
     this.assertInitialized(), this.instance.privacy = i, typeof window < "u" && window.googletag && window.googletag.cmd.push(() => {
       window.googletag.pubads().setPrivacySettings(i);
@@ -527,8 +541,8 @@ l = new WeakSet(), h = function(i) {
     return;
   }
 }, c(e, l), e.instance = null, e.readyResolve = null, e.readyPromise = e.createReadyPromise(), e.pendingReady = null;
-let g = e;
+let u = e;
 export {
   w as DEFAULT_SLOTS,
-  g as DreamsAdConfig
+  u as DreamsAdConfig
 };

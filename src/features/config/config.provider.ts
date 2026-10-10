@@ -77,6 +77,7 @@ export class DreamsAdConfig {
       anchor: config.anchor || null,
       threadYield: config.threadYield ?? false,
       collapseEmptyDivs: config.collapseEmptyDivs ?? "DISABLED",
+      targeting: config.targeting || null,
     };
 
     if (this.readyResolve) {
@@ -229,6 +230,28 @@ export class DreamsAdConfig {
   static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH" {
     this.assertInitialized();
     return this.instance!.collapseEmptyDivs;
+  }
+
+  static getTargeting(): Record<string, string | string[]> | null {
+    this.assertInitialized();
+    return this.instance!.targeting;
+  }
+
+  /**
+   * Update page-level targeting at runtime (e.g. on SPA route changes).
+   * Keys merge with the existing page targeting; keys not passed keep
+   * their previous value.
+   */
+  static setPageTargeting(
+    targeting: Record<string, string | string[]>,
+  ): void {
+    this.assertInitialized();
+    this.instance!.targeting = { ...this.instance!.targeting, ...targeting };
+    if (typeof window !== "undefined" && window.googletag) {
+      window.googletag.cmd.push(() => {
+        window.googletag.setConfig({ targeting });
+      });
+    }
   }
 
   static setPrivacy(config: PrivacyConfig): void {

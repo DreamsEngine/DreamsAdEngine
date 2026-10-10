@@ -75,6 +75,12 @@ export interface AdConfigInit {
    */
   collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
   /**
+   * Page-level key-value targeting, applied once via
+   * `googletag.setConfig({ targeting })` when GPT config is applied.
+   * Update it on SPA route changes with `DreamsAdConfig.setPageTargeting()`.
+   */
+  targeting?: Record<string, string | string[]>;
+  /**
    * Enable verbose debug logging. Precedence (high → low):
    *   1. `init({ debug: true })` here
    *   2. `?dae-debug=1` URL param (parsed once at init)
@@ -98,4 +104,5 @@ export interface AdConfigData {
   anchor: AnchorConfig | null;
   threadYield: boolean;
   collapseEmptyDivs: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+  targeting: Record<string, string | string[]> | null;
 }

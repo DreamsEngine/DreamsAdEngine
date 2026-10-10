@@ -276,6 +276,11 @@ export class DreamsAdComponent extends LitElement {
           setConfigPayload.collapseDiv = collapseDiv;
         }
 
+        const targeting = DreamsAdConfig.getTargeting();
+        if (targeting) {
+          setConfigPayload.targeting = targeting;
+        }
+
         if (Object.keys(setConfigPayload).length > 0) {
           if (typeof window.googletag.setConfig === "function") {
             window.googletag.setConfig(setConfigPayload);

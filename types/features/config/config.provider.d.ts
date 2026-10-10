@@ -31,6 +31,13 @@ export declare class DreamsAdConfig {
     static getAnchor(): AnchorConfig | null;
     static getThreadYield(): boolean;
     static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    static getTargeting(): Record<string, string | string[]> | null;
+    /**
+     * Update page-level targeting at runtime (e.g. on SPA route changes).
+     * Keys merge with the existing page targeting; keys not passed keep
+     * their previous value.
+     */
+    static setPageTargeting(targeting: Record<string, string | string[]>): void;
     static setPrivacy(config: PrivacyConfig): void;
     static getSlot(slotName: string): SlotConfig | undefined;
     static getSlotMapping(slotName: string): DreamsAdMapping[];

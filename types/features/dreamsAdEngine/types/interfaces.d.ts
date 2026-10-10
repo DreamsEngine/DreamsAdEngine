@@ -23,6 +23,8 @@ export interface PageSettingsConfig {
     pps?: Record<string, {
         values: string[];
     }>;
+    /** Page-level key-value targeting. Keys merge across calls. */
+    targeting?: Record<string, string | string[]>;
     /** Forward-compat escape hatch — unknown keys pass through to GPT. */
     [key: string]: unknown;
 }
