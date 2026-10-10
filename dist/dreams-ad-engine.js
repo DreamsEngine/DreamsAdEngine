@@ -1627,9 +1627,11 @@ let d = class extends z {
     }
   }
   async firstUpdated() {
-    await A(this, S, qt).call(this);
-    const s = typeof crypto < "u" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    if (this.divId = `div-gpt-ad-${this.adUnit}-${s}`, await A(this, S, Gt).call(this), this.apstag && this.pubId && !d.initialized_aps)
+    if (await A(this, S, qt).call(this), !this.divId) {
+      const s = typeof crypto < "u" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      this.divId = `div-gpt-ad-${this.adUnit}-${s}`;
+    }
+    if (await A(this, S, Gt).call(this), this.apstag && this.pubId && !d.initialized_aps)
       if (typeof window.apstag?.init == "function")
         try {
           window.apstag.init({
@@ -1637,12 +1639,12 @@ let d = class extends z {
             adServer: "googletag",
             bidTimeout: this.bidTimeout
           }), d.initialized_aps = !0;
-        } catch (t) {
+        } catch (s) {
           this.apstag = !1, g.dispatchAdError(this, {
             slotId: this.divId,
             adUnit: this.adUnit,
             phase: "apstag-init",
-            error: t instanceof Error ? t : String(t),
+            error: s instanceof Error ? s : String(s),
             recoverable: !0
           });
         }
@@ -1654,35 +1656,35 @@ let d = class extends z {
           window.pbjs.que.push(() => {
             try {
               if (this.prebidConfig) {
-                const t = typeof this.prebidConfig == "string" ? JSON.parse(this.prebidConfig) : this.prebidConfig;
-                window.pbjs.setConfig(t);
+                const s = typeof this.prebidConfig == "string" ? JSON.parse(this.prebidConfig) : this.prebidConfig;
+                window.pbjs.setConfig(s);
               }
-              window.pbjs.onEvent("bidWon", (t) => {
+              window.pbjs.onEvent("bidWon", (s) => {
                 (window.dataLayer = window.dataLayer || []).push({
                   event: "prebid_bid_won",
-                  bidder: t.bidderCode,
-                  cpm: t.cpm,
-                  currency: t.currency,
-                  ad_unit: t.adUnitCode,
-                  size: t.size
+                  bidder: s.bidderCode,
+                  cpm: s.cpm,
+                  currency: s.currency,
+                  ad_unit: s.adUnitCode,
+                  size: s.size
                 });
               });
-            } catch (t) {
+            } catch (s) {
               g.dispatchAdError(this, {
                 slotId: this.divId,
                 adUnit: this.adUnit,
                 phase: "prebid-init",
-                error: t instanceof Error ? t : String(t),
+                error: s instanceof Error ? s : String(s),
                 recoverable: !0
               });
             }
           }), d.initialized_prebid = !0;
-        } catch (t) {
+        } catch (s) {
           this.prebid = !1, g.dispatchAdError(this, {
             slotId: this.divId,
             adUnit: this.adUnit,
             phase: "prebid-init",
-            error: t instanceof Error ? t : String(t),
+            error: s instanceof Error ? s : String(s),
             recoverable: !0
           });
         }

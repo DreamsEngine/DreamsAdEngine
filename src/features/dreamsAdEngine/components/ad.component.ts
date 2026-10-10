@@ -320,11 +320,14 @@ export class DreamsAdComponent extends LitElement {
     await this.#resolveConfiguration();
 
     // Generate divId early so ad:error dispatches from targeting/APS/prebid
-    // failures carry a stable slotId payload.
-    const uid = typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
+    // failures carry a stable slotId payload. A consumer-provided divId is
+    // kept as the GPT container id; it must be unique on the page.
+    if (!this.divId) {
+      const uid = typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
+    }
 
     await this.#resolveTargeting();
 
