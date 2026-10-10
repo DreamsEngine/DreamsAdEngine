@@ -534,14 +534,18 @@ export class DreamsAdComponent extends LitElement {
     const interstitial = DreamsAdConfig.getInterstitial();
     if (interstitial?.enabled) {
       defineOop(
-        adUnitBase,
+        interstitial.adUnit
+          ? `/${networkId}/${interstitial.adUnit}`
+          : adUnitBase,
         window.googletag.enums.OutOfPageFormat.INTERSTITIAL,
       );
     }
 
     const anchor = DreamsAdConfig.getAnchor();
     if (anchor?.enabled) {
-      const anchorUnit = `/${networkId}/${sitePrefix}-is-a`;
+      const anchorUnit = anchor.adUnit
+        ? `/${networkId}/${anchor.adUnit}`
+        : `/${networkId}/${sitePrefix}-is-a`;
 
       if (anchor.position === "top" || anchor.position === "both") {
         defineOop(anchorUnit, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR);

@@ -1807,14 +1807,14 @@ Wt = function() {
         recoverable: !1
       });
     }
-  };
-  w.getInterstitial()?.enabled && i(
-    e,
+  }, n = w.getInterstitial();
+  n?.enabled && i(
+    n.adUnit ? `/${s}/${n.adUnit}` : e,
     window.googletag.enums.OutOfPageFormat.INTERSTITIAL
   );
   const r = w.getAnchor();
   if (r?.enabled) {
-    const a = `/${s}/${t}-is-a`;
+    const a = r.adUnit ? `/${s}/${r.adUnit}` : `/${s}/${t}-is-a`;
     (r.position === "top" || r.position === "both") && i(a, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR), (r.position === "bottom" || r.position === "both") && i(
       a,
       window.googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR

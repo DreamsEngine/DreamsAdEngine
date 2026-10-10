@@ -16,11 +16,21 @@ export interface PrivacyConfig {
 export interface InterstitialConfig {
   enabled: boolean;
   triggers?: string[];
+  /**
+   * Ad unit code without the network (e.g. `"mysite-is-interstitial"`).
+   * Default: `${sitePrefix}-is-i`.
+   */
+  adUnit?: string;
 }
 
 export interface AnchorConfig {
   enabled: boolean;
   position: "top" | "bottom" | "both";
+  /**
+   * Ad unit code without the network (e.g. `"mysite-is-anchor"`).
+   * Default: `${sitePrefix}-is-a`.
+   */
+  adUnit?: string;
 }
 
 export interface SlotConfig {
