@@ -69,6 +69,9 @@ export class DreamsAdComponent extends LitElement {
 
     // Clear targeting cache for new page context
     DreamsTargetingService.clearCache();
+
+    // Reset per-pageview refresh counters (maxRefreshes, backfillOnly)
+    RefreshManager.resetPageview();
   };
 
   /**
@@ -753,6 +756,11 @@ export class DreamsAdComponent extends LitElement {
                 });
               }
             }
+
+            RefreshManager.markRendered(
+              CONTAINER_ID,
+              event.isBackfill === true,
+            );
 
             // Dispatch rich ad:rendered event
             this.dispatchEvent(

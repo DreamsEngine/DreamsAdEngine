@@ -11,6 +11,19 @@ export interface RefreshConfig {
     singlePostSelector?: string;
     /** Only refresh slots that have been viewable (GPT impressionViewable). Default: true */
     viewabilityGated?: boolean;
+    /**
+     * Max refreshes per slot per pageview. Counts reset on SPA navigation.
+     * 0 or unset: no cap. Default: 0
+     */
+    maxRefreshes?: number;
+    /**
+     * Only refresh slots whose last render was backfill
+     * (`slotRenderEnded.isBackfill === true`), so direct-sold creatives are
+     * never refreshed. Default: false
+     */
+    backfillOnly?: boolean;
+    /** Skip refresh cycles while `document.hidden` is true. Default: false */
+    pauseWhenHidden?: boolean;
 }
 export interface RefreshEvent {
     type: "refresh" | "skipped";

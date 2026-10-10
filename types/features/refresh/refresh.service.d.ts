@@ -12,6 +12,7 @@ export declare class RefreshManager {
     private static running;
     private static viewableSlots;
     private static refreshCounts;
+    private static lastRenderBackfill;
     /**
      * Configure the refresh manager
      */
@@ -40,6 +41,15 @@ export declare class RefreshManager {
      * Mark a slot as viewable (called from GPT impressionViewable handler)
      */
     static markViewable(slotId: string): void;
+    /**
+     * Record whether a slot's last render was backfill (called from GPT
+     * slotRenderEnded handler)
+     */
+    static markRendered(slotId: string, isBackfill: boolean): void;
+    /**
+     * Reset per-pageview state (called on SPA navigation)
+     */
+    static resetPageview(): void;
     /**
      * Check if refresh is currently blocked
      */
