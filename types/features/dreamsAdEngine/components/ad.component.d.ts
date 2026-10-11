@@ -23,6 +23,12 @@ export declare class DreamsAdComponent extends LitElement {
     private pendingBidsTimeout;
     private lastVisibilityPct;
     /**
+     * The part of the current URL that identifies a pageview, per the
+     * `navigationScope` config. Google's vignette hash is dropped, because
+     * GPT adds it while the vignette covers the page, not on navigation.
+     */
+    private static _navigationKey;
+    /**
      * Handle SPA navigation - destroys all slots and clears targeting cache
      */
     private static _handleNavigation;

@@ -1,4 +1,6 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
+/** URL part that marks a new pageview; see `AdConfigInit.navigationScope`. */
+export type NavigationScope = "href" | "path+search" | "path";
 export interface LazyLoadConfig {
     fetchMarginPercent: number;
     renderMarginPercent: number;
@@ -75,6 +77,18 @@ export interface AdConfigInit {
      */
     keepEmptyReserve?: boolean;
     /**
+     * Which part of the URL starts a new pageview on SPA navigation, when
+     * the engine destroys every slot and resets targeting and refresh state.
+     *
+     * - `"href"` (default): any URL change, including query and hash.
+     * - `"path+search"`: ignore hash-only changes.
+     * - `"path"`: ignore query- and hash-only changes, e.g. a "load more"
+     *   control that writes `?page=2` with `history.replaceState`.
+     *
+     * Google's `#google_vignette` hash is never treated as navigation.
+     */
+    navigationScope?: NavigationScope;
+    /**
      * Page-level key-value targeting, applied once via
      * `googletag.setConfig({ targeting })` when GPT config is applied.
      * Update it on SPA route changes with `DreamsAdConfig.setPageTargeting()`.
@@ -104,5 +118,6 @@ export interface AdConfigData {
     threadYield: boolean;
     collapseEmptyDivs: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
     keepEmptyReserve: boolean;
+    navigationScope: NavigationScope;
     targeting: Record<string, string | string[]> | null;
 }

@@ -378,6 +378,7 @@ const e = class e {
       threadYield: i.threadYield ?? !1,
       collapseEmptyDivs: i.collapseEmptyDivs ?? "DISABLED",
       keepEmptyReserve: i.keepEmptyReserve ?? !1,
+      navigationScope: i.navigationScope ?? "href",
       targeting: i.targeting || null
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
@@ -464,6 +465,9 @@ const e = class e {
   }
   static getKeepEmptyReserve() {
     return this.assertInitialized(), this.instance.keepEmptyReserve;
+  }
+  static getNavigationScope() {
+    return this.assertInitialized(), this.instance.navigationScope;
   }
   static getTargeting() {
     return this.assertInitialized(), this.instance.targeting;

@@ -107,6 +107,13 @@ removals, no renames. Target version: `0.7.0`.
   The default keeps today's collapse. `collapseEmptyDivs` JSDoc and the
   README "CLS Prevention" section now state that `"DISABLED"` only
   stops GPT collapsing the div. New `DreamsAdConfig.getKeepEmptyReserve()`.
+- **`navigationScope` config option** (default `"href"`): which part of
+  the URL starts a new pageview on SPA navigation. `"path+search"`
+  ignores hash-only changes; `"path"` also ignores query-only changes,
+  such as a "load more" control that writes `?page=2` with
+  `history.replaceState`. The default keeps today's behaviour. New
+  `DreamsAdConfig.getNavigationScope()` and exported `NavigationScope`
+  type.
 
 ### Changed
 
@@ -147,6 +154,15 @@ removals, no renames. Target version: `0.7.0`.
   `phase: "targeting-resolution"`, `recoverable: true`. Slots still
   render with no targeting; CMS setup issues are detectable without
   diffing analytics.
+
+### Fixed
+
+- **Google vignette no longer tears down every slot.** GPT adds
+  `#google_vignette` to the URL while an AdX vignette covers the page.
+  The SPA navigation handler took that hash change as a new pageview and
+  destroyed every slot under the vignette. The engine now ignores that
+  hash under every `navigationScope`, so closing the vignette also
+  leaves the slots alone.
 
 ## [0.6.4] - 2026-05-12
 

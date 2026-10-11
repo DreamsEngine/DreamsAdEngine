@@ -6,6 +6,7 @@ import type {
   AnchorConfig,
   InterstitialConfig,
   LazyLoadConfig,
+  NavigationScope,
   PrivacyConfig,
   SlotConfig,
 } from "./config.types";
@@ -78,6 +79,7 @@ export class DreamsAdConfig {
       threadYield: config.threadYield ?? false,
       collapseEmptyDivs: config.collapseEmptyDivs ?? "DISABLED",
       keepEmptyReserve: config.keepEmptyReserve ?? false,
+      navigationScope: config.navigationScope ?? "href",
       targeting: config.targeting || null,
     };
 
@@ -236,6 +238,11 @@ export class DreamsAdConfig {
   static getKeepEmptyReserve(): boolean {
     this.assertInitialized();
     return this.instance!.keepEmptyReserve;
+  }
+
+  static getNavigationScope(): NavigationScope {
+    this.assertInitialized();
+    return this.instance!.navigationScope;
   }
 
   static getTargeting(): Record<string, string | string[]> | null {

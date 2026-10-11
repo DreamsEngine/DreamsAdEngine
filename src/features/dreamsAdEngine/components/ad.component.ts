@@ -17,6 +17,8 @@ import "../../skeleton/skeleton.component";
 
 let adStylesInjected = false;
 
+const GOOGLE_VIGNETTE_HASH = "#google_vignette";
+
 function injectAdStyles() {
   if (adStylesInjected || typeof document === "undefined") return;
   const el = document.createElement("style");
@@ -51,10 +53,26 @@ export class DreamsAdComponent extends LitElement {
   private lastVisibilityPct = -1;
 
   /**
+   * The part of the current URL that identifies a pageview, per the
+   * `navigationScope` config. Google's vignette hash is dropped, because
+   * GPT adds it while the vignette covers the page, not on navigation.
+   */
+  private static _navigationKey(): string {
+    const scope = DreamsAdConfig.isInitialized()
+      ? DreamsAdConfig.getNavigationScope()
+      : "href";
+    const path = location.origin + location.pathname;
+    if (scope === "path") return path;
+    if (scope === "path+search") return path + location.search;
+    const hash = location.hash === GOOGLE_VIGNETTE_HASH ? "" : location.hash;
+    return path + location.search + hash;
+  }
+
+  /**
    * Handle SPA navigation - destroys all slots and clears targeting cache
    */
   private static _handleNavigation = () => {
-    const currentUrl = location.href;
+    const currentUrl = DreamsAdComponent._navigationKey();
     if (DreamsAdComponent.old_url === currentUrl) return;
 
     // Destroy all existing slots and start new pageview
@@ -134,7 +152,7 @@ export class DreamsAdComponent extends LitElement {
     if (!DreamsAdComponent.initialized) {
       this.#initGoogleTag();
       DreamsAdComponent.initialized = true;
-      DreamsAdComponent.old_url = location.href;
+      DreamsAdComponent.old_url = DreamsAdComponent._navigationKey();
     } else {
       DreamsAdComponent._handleNavigation();
     }

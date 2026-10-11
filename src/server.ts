@@ -9,6 +9,7 @@ export type {
   AnchorConfig,
   InterstitialConfig,
   LazyLoadConfig,
+  NavigationScope,
   PrivacyConfig,
   SlotConfig,
 } from "./features/config/config.types";

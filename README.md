@@ -123,6 +123,8 @@ DreamsAdConfig.init({
   collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH",
                                       // Empty-slot collapse policy (default: "DISABLED")
   keepEmptyReserve?: boolean,         // Keep reserved min-height on empty slots (default: false)
+  navigationScope?: "href" | "path+search" | "path",
+                                      // URL part that starts a new pageview on SPA navigation (default: "href")
   targeting?: Record<string, string | string[]>,
                                       // Page-level targeting via setConfig({ targeting })
 
@@ -854,6 +856,21 @@ The component automatically detects client-side navigation by intercepting `push
 6. New components re-initialize their slots
 
 No configuration needed. Works with Next.js, React Router, Vue Router, and hash-based routing.
+
+By default any URL change counts as navigation. To keep slots when only part of the URL changes, set `navigationScope`:
+
+| Value | A new pageview when |
+|---|---|
+| `"href"` (default) | the path, query or hash changes |
+| `"path+search"` | the path or query changes |
+| `"path"` | the path changes |
+
+```ts
+// "Load more" writes ?page=2 with replaceState; keep the slots
+DreamsAdConfig.init({ networkId: "270959339", sitePrefix: "mysite", navigationScope: "path" });
+```
+
+Google's `#google_vignette` hash never counts as navigation: GPT adds it while an AdX vignette covers the page.
 
 ---
 
