@@ -716,10 +716,16 @@ export class DreamsAdComponent extends LitElement {
               event.size[0] <= 1 &&
               event.size[1] <= 1;
             if (event.isEmpty || isTrackingPixel) {
-              if (container instanceof HTMLElement)
-                container.style.minHeight = "0";
-              const s = this.querySelector(".dae-serving");
-              if (s instanceof HTMLElement) s.style.minHeight = "0";
+              // keepEmptyReserve opts out of the collapse to avoid CLS
+              const keepReserve =
+                DreamsAdConfig.isInitialized() &&
+                DreamsAdConfig.getKeepEmptyReserve();
+              if (!keepReserve) {
+                if (container instanceof HTMLElement)
+                  container.style.minHeight = "0";
+                const s = this.querySelector(".dae-serving");
+                if (s instanceof HTMLElement) s.style.minHeight = "0";
+              }
             } else if (container instanceof HTMLElement) {
               // Use event.size as single source of truth
               if (event.size?.length === 2) {

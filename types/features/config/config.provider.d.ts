@@ -31,6 +31,7 @@ export declare class DreamsAdConfig {
     static getAnchor(): AnchorConfig | null;
     static getThreadYield(): boolean;
     static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    static getKeepEmptyReserve(): boolean;
     static getTargeting(): Record<string, string | string[]> | null;
     /**
      * Update page-level targeting at runtime (e.g. on SPA route changes).

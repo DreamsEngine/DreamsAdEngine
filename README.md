@@ -122,6 +122,7 @@ DreamsAdConfig.init({
   threadYield?: boolean,              // Enable scheduler thread yield for INP (default: false)
   collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH",
                                       // Empty-slot collapse policy (default: "DISABLED")
+  keepEmptyReserve?: boolean,         // Keep reserved min-height on empty slots (default: false)
   targeting?: Record<string, string | string[]>,
                                       // Page-level targeting via setConfig({ targeting })
 
@@ -235,6 +236,7 @@ DreamsAdConfig.getInterstitial(): InterstitialConfig | null
 DreamsAdConfig.getAnchor(): AnchorConfig | null
 DreamsAdConfig.getThreadYield(): boolean
 DreamsAdConfig.getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH"
+DreamsAdConfig.getKeepEmptyReserve(): boolean
 DreamsAdConfig.setPrivacy(config: PrivacyConfig): void  // Runtime update
 DreamsAdConfig.getTargeting(): Record<string, string | string[]> | null
 DreamsAdConfig.setPageTargeting(targeting: Record<string, string | string[]>): void  // Runtime update
@@ -311,7 +313,7 @@ The component computes a reserve `min-height` from the responsive size mapping f
 2. Takes the maximum height from that entry's sizes (excluding 1x1)
 3. Applies as `min-height` on the ad container
 
-When `slotRenderEnded` fires with `isEmpty: true`, the reserve height collapses to 0.
+When `slotRenderEnded` fires with `isEmpty: true` (or a 1x1 tracking pixel), the engine collapses its reserve to 0 on the slot container and `.dae-serving`. This is separate from `collapseEmptyDivs`: its default `"DISABLED"` only stops GPT from collapsing the div. To keep the reserved height on empty slots, opt in with `DreamsAdConfig.init({ keepEmptyReserve: true })`.
 
 ### Events
 

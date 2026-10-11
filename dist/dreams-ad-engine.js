@@ -258,8 +258,8 @@ const ge = (s, t) => {
   let n, r = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", a = L;
   for (let o = 0; o < e; o++) {
     const l = s[o];
-    let c, h, u = -1, f = 0;
-    for (; f < l.length && (a.lastIndex = f, h = a.exec(l), h !== null); ) f = a.lastIndex, a === L ? h[1] === "!--" ? a = vt : h[1] !== void 0 ? a = $t : h[2] !== void 0 ? (Dt.test(h[2]) && (n = RegExp("</" + h[2], "g")), a = k) : h[3] !== void 0 && (a = k) : a === k ? h[0] === ">" ? (a = n ?? L, u = -1) : h[1] === void 0 ? u = -2 : (u = a.lastIndex - h[2].length, c = h[1], a = h[3] === void 0 ? k : h[3] === '"' ? At : St) : a === At || a === St ? a = k : a === vt || a === $t ? a = L : (a = k, n = void 0);
+    let c, h, u = -1, w = 0;
+    for (; w < l.length && (a.lastIndex = w, h = a.exec(l), h !== null); ) w = a.lastIndex, a === L ? h[1] === "!--" ? a = vt : h[1] !== void 0 ? a = $t : h[2] !== void 0 ? (Dt.test(h[2]) && (n = RegExp("</" + h[2], "g")), a = k) : h[3] !== void 0 && (a = k) : a === k ? h[0] === ">" ? (a = n ?? L, u = -1) : h[1] === void 0 ? u = -2 : (u = a.lastIndex - h[2].length, c = h[1], a = h[3] === void 0 ? k : h[3] === '"' ? At : St) : a === At || a === St ? a = k : a === vt || a === $t ? a = L : (a = k, n = void 0);
     const p = a === k && s[o + 1].startsWith("/>") ? " " : "";
     r += a === L ? l + he : u >= 0 ? (i.push(c), l.slice(0, u) + Ot + l.slice(u) + _ + p) : l + _ + (u === -2 ? o : p);
   }
@@ -278,15 +278,15 @@ class M {
     for (; (n = I.nextNode()) !== null && l.length < o; ) {
       if (n.nodeType === 1) {
         if (n.hasAttributes()) for (const u of n.getAttributeNames()) if (u.endsWith(Ot)) {
-          const f = h[a++], p = n.getAttribute(u).split(_), v = /([.?@])?(.*)/.exec(f);
+          const w = h[a++], p = n.getAttribute(u).split(_), v = /([.?@])?(.*)/.exec(w);
           l.push({ type: 1, index: r, name: v[2], strings: p, ctor: v[1] === "." ? me : v[1] === "?" ? we : v[1] === "@" ? ye : et }), n.removeAttribute(u);
         } else u.startsWith(_) && (l.push({ type: 6, index: r }), n.removeAttribute(u));
         if (Dt.test(n.tagName)) {
-          const u = n.textContent.split(_), f = u.length - 1;
-          if (f > 0) {
+          const u = n.textContent.split(_), w = u.length - 1;
+          if (w > 0) {
             n.textContent = J ? J.emptyScript : "";
-            for (let p = 0; p < f; p++) n.append(u[p], B()), I.nextNode(), l.push({ type: 2, index: ++r });
-            n.append(u[f], B());
+            for (let p = 0; p < w; p++) n.append(u[p], B()), I.nextNode(), l.push({ type: 2, index: ++r });
+            n.append(u[w], B());
           }
         }
       } else if (n.nodeType === 8) if (n.data === Ht) l.push({ type: 2, index: r });
@@ -524,14 +524,14 @@ const Ae = { attribute: !0, type: String, converter: W, reflect: !1, hasChanged:
   }
   throw Error("Unsupported decorator location: " + i);
 };
-function w(s) {
+function m(s) {
   return (t, e) => typeof e == "object" ? Ee(s, t, e) : ((i, n, r) => {
     const a = n.hasOwnProperty(r);
     return n.constructor.createProperty(r, i), a ? Object.getOwnPropertyDescriptor(n, r) : void 0;
   })(s, t, e);
 }
 function Vt(s) {
-  return w({ ...s, state: !0, attribute: !1 });
+  return m({ ...s, state: !0, attribute: !1 });
 }
 const _e = `dreams-ad-engine {
   display: var(--dae-display, block);
@@ -1010,6 +1010,7 @@ const $ = class $ {
       anchor: t.anchor || null,
       threadYield: t.threadYield ?? !1,
       collapseEmptyDivs: t.collapseEmptyDivs ?? "DISABLED",
+      keepEmptyReserve: t.keepEmptyReserve ?? !1,
       targeting: t.targeting || null
     }, this.readyResolve && (this.readyResolve(), this.readyResolve = null);
   }
@@ -1094,6 +1095,9 @@ const $ = class $ {
   static getCollapseEmptyDivs() {
     return this.assertInitialized(), this.instance.collapseEmptyDivs;
   }
+  static getKeepEmptyReserve() {
+    return this.assertInitialized(), this.instance.keepEmptyReserve;
+  }
   static getTargeting() {
     return this.assertInitialized(), this.instance.targeting;
   }
@@ -1174,7 +1178,7 @@ Z = new WeakSet(), Mt = function(t) {
     return;
   }
 }, pt($, Z), $.instance = null, $.readyResolve = null, $.readyPromise = $.createReadyPromise(), $.pendingReady = null;
-let m = $;
+let f = $;
 const kt = {
   contextKey: "@context",
   maxRetries: 20,
@@ -1243,7 +1247,7 @@ const kt = {
   }
 };
 H.cache = null, H.cacheUrl = "", H.pendingPromise = null;
-let Y = H;
+let K = H;
 const Tt = {
   threshold: 0.5,
   // IAB: 50% visible
@@ -1374,7 +1378,7 @@ const Tt = {
   }
 };
 Q.config = Tt, Q.trackedAds = /* @__PURE__ */ new Map();
-let K = Q;
+let Y = Q;
 const st = 3e4, It = {
   enabled: !1,
   interval: 6e4,
@@ -1575,16 +1579,16 @@ let R = class extends z {
   }
 };
 q([
-  w({ type: Number })
+  m({ type: Number })
 ], R.prototype, "width", 2);
 q([
-  w({ type: Number })
+  m({ type: Number })
 ], R.prototype, "height", 2);
 q([
-  w({ type: Boolean })
+  m({ type: Boolean })
 ], R.prototype, "showLabel", 2);
 q([
-  w({ type: String })
+  m({ type: String })
 ], R.prototype, "label", 2);
 R = q([
   Bt("dreams-ad-skeleton")
@@ -1617,7 +1621,7 @@ var Ue = Object.defineProperty, Re = Object.getOwnPropertyDescriptor, jt = (s) =
   for (var n = i > 1 ? void 0 : i ? Re(t, e) : t, r = s.length - 1, a; r >= 0; r--)
     (a = s[r]) && (n = (i ? a(t, e, n) : a(n)) || n);
   return i && n && Ue(t, e, n), n;
-}, Le = (s, t, e) => t.has(s) || jt("Cannot " + e), Oe = (s, t, e) => t.has(s) ? jt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(s) : t.set(s, e), A = (s, t, e) => (Le(s, t, "access private method"), e), S, Ft, qt, Gt, Wt, dt, Jt, Yt, Kt;
+}, Le = (s, t, e) => t.has(s) || jt("Cannot " + e), Oe = (s, t, e) => t.has(s) ? jt("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(s) : t.set(s, e), A = (s, t, e) => (Le(s, t, "access private method"), e), S, Ft, qt, Gt, Wt, dt, Jt, Kt, Yt;
 let xt = !1;
 function He() {
   if (xt || typeof document > "u") return;
@@ -1648,7 +1652,7 @@ let d = class extends z {
     super.connectedCallback(), He(), d.initialized ? d._handleNavigation() : (A(this, S, Ft).call(this), d.initialized = !0, d.old_url = location.href);
   }
   disconnectedCallback() {
-    if (super.disconnectedCallback(), this.trackViewability && this.divId && K.untrack(this.divId), this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag?.pubads) {
+    if (super.disconnectedCallback(), this.trackViewability && this.divId && Y.untrack(this.divId), this.pendingBidsTimeout && (clearTimeout(this.pendingBidsTimeout), this.pendingBidsTimeout = null), window.googletag?.pubads) {
       const s = window.googletag.pubads();
       this.slotRenderHandler && (s.removeEventListener("slotRenderEnded", this.slotRenderHandler), this.slotRenderHandler = null), this.impressionViewableHandler && (s.removeEventListener(
         "impressionViewable",
@@ -1747,8 +1751,8 @@ let d = class extends z {
 			<div class="dae-container">
 				${this.enableTitle ? T`<span class="dae-label">${this.title}</span>` : ""}
 				${this.showSkeleton ? T`<dreams-ad-skeleton
-              width="${A(this, S, Yt).call(this)}"
-              height="${A(this, S, Kt).call(this)}"
+              width="${A(this, S, Kt).call(this)}"
+              height="${A(this, S, Yt).call(this)}"
             ></dreams-ad-skeleton>` : T`<div class="dae-loader" data-ad-loader="${this.divId}"></div>`}
 				<div
 					class="dae-serving"
@@ -1767,21 +1771,21 @@ Ft = function() {
   const s = () => {
     window.googletag.cmd.push(() => {
       if (window.dreamsAllSlots = window.dreamsAllSlots || [], window.dreamsSlotsToUpdate = window.dreamsSlotsToUpdate || [], window.googletag.pubadsReady === !0) return;
-      m.isInitialized() && m.getLazyLoad() || window.googletag.pubads().disableInitialLoad(), window.googletag.pubads().enableSingleRequest(), window.googletag.enableServices();
+      f.isInitialized() && f.getLazyLoad() || window.googletag.pubads().disableInitialLoad(), window.googletag.pubads().enableSingleRequest(), window.googletag.enableServices();
     });
   }, t = () => {
-    m.isInitialized() && (d.configApplied || (d.configApplied = !0, window.googletag.cmd.push(() => {
-      const e = {}, i = m.getLazyLoad();
-      i && (e.lazyLoad = i), m.getThreadYield() && (e.threadYield = "ENABLED_ALL_SLOTS");
-      const n = m.getCollapseEmptyDivs();
+    f.isInitialized() && (d.configApplied || (d.configApplied = !0, window.googletag.cmd.push(() => {
+      const e = {}, i = f.getLazyLoad();
+      i && (e.lazyLoad = i), f.getThreadYield() && (e.threadYield = "ENABLED_ALL_SLOTS");
+      const n = f.getCollapseEmptyDivs();
       n !== "DISABLED" && (e.collapseDiv = n);
-      const r = m.getTargeting();
-      r && (e.targeting = r), Object.keys(e).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(e) : i && window.googletag.pubads().enableLazyLoad(i)), m.getCentering() && window.googletag.pubads().setCentering(!0);
-      const a = m.getPrivacy();
+      const r = f.getTargeting();
+      r && (e.targeting = r), Object.keys(e).length > 0 && (typeof window.googletag.setConfig == "function" ? window.googletag.setConfig(e) : i && window.googletag.pubads().enableLazyLoad(i)), f.getCentering() && window.googletag.pubads().setCentering(!0);
+      const a = f.getPrivacy();
       a && window.googletag.pubads().setPrivacySettings(a), A(this, S, Wt).call(this);
     })));
   };
-  s(), m.isInitialized() ? t() : m.whenReady().then(t).catch(() => {
+  s(), f.isInitialized() ? t() : f.whenReady().then(t).catch(() => {
   }), d._setupNavigationListeners();
 };
 qt = async function() {
@@ -1792,9 +1796,9 @@ qt = async function() {
     return;
   }
   if (this.adSlot) {
-    await m.whenReady();
-    const s = m.getSlot(this.adSlot);
-    s && (this.networkId || (this.networkId = m.getNetworkId()), this.adUnit || (this.adUnit = m.buildAdUnit(this.adSlot)), (!this.mapping || this.mapping.length === 0) && (this.mapping = s.mapping), (!this.sizing || this.sizing.length === 0) && (this.sizing = s.sizing), this.pubId || (this.pubId = m.getPubId() || ""), this.pubId && (this.apstag = !0));
+    await f.whenReady();
+    const s = f.getSlot(this.adSlot);
+    s && (this.networkId || (this.networkId = f.getNetworkId()), this.adUnit || (this.adUnit = f.buildAdUnit(this.adSlot)), (!this.mapping || this.mapping.length === 0) && (this.mapping = s.mapping), (!this.sizing || this.sizing.length === 0) && (this.sizing = s.sizing), this.pubId || (this.pubId = f.getPubId() || ""), this.pubId && (this.apstag = !0));
   }
   if (typeof this.mapping == "string")
     try {
@@ -1824,7 +1828,7 @@ qt = async function() {
 Gt = async function() {
   if (this.autoTargeting)
     try {
-      const s = await Y.getTargeting();
+      const s = await K.getTargeting();
       this.resolvedTargeting = s.targeting, s.source === "timeout" && g.dispatchAdError(this, {
         slotId: this.divId,
         adUnit: this.adUnit,
@@ -1846,7 +1850,7 @@ Gt = async function() {
 Wt = function() {
   if (d.outOfPageRegistered) return;
   d.outOfPageRegistered = !0;
-  const s = m.getNetworkId(), t = m.getSitePrefix(), e = `/${s}/${t}-is-i`, i = (a, o) => {
+  const s = f.getNetworkId(), t = f.getSitePrefix(), e = `/${s}/${t}-is-i`, i = (a, o) => {
     try {
       const l = window.googletag.defineOutOfPageSlot(a, o);
       l && (l.addService(window.googletag.pubads()), window.dreamsAllSlots.push(l));
@@ -1859,12 +1863,12 @@ Wt = function() {
         recoverable: !1
       });
     }
-  }, n = m.getInterstitial();
+  }, n = f.getInterstitial();
   n?.enabled && i(
     n.adUnit ? `/${s}/${n.adUnit}` : e,
     window.googletag.enums.OutOfPageFormat.INTERSTITIAL
   );
-  const r = m.getAnchor();
+  const r = f.getAnchor();
   if (r?.enabled) {
     const a = r.adUnit ? `/${s}/${r.adUnit}` : `/${s}/${t}-is-a`;
     (r.position === "top" || r.position === "both") && i(a, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR), (r.position === "bottom" || r.position === "both") && i(
@@ -1962,28 +1966,30 @@ Jt = function() {
           c instanceof HTMLElement && (c.style.display = "none");
           const h = document.getElementById(t), u = o.size?.length === 2 && o.size[0] <= 1 && o.size[1] <= 1;
           if (o.isEmpty || u) {
-            h instanceof HTMLElement && (h.style.minHeight = "0");
-            const f = this.querySelector(".dae-serving");
-            f instanceof HTMLElement && (f.style.minHeight = "0");
+            if (!(f.isInitialized() && f.getKeepEmptyReserve())) {
+              h instanceof HTMLElement && (h.style.minHeight = "0");
+              const p = this.querySelector(".dae-serving");
+              p instanceof HTMLElement && (p.style.minHeight = "0");
+            }
           } else if (h instanceof HTMLElement) {
             if (o.size?.length === 2) {
-              const [f, p] = o.size;
-              if (f > 1 && p > 1) {
+              const [w, p] = o.size;
+              if (w > 1 && p > 1) {
                 h.style.minHeight = `${p}px`;
                 const v = h.querySelector("iframe");
-                v && (v.style.width = `${f}px`, v.style.height = `${p}px`);
+                v && (v.style.width = `${w}px`, v.style.height = `${p}px`);
               }
             }
             typeof ResizeObserver < "u" && requestAnimationFrame(() => {
-              const f = h.querySelector("iframe");
-              if (f) {
+              const w = h.querySelector("iframe");
+              if (w) {
                 const p = new ResizeObserver((v) => {
                   for (const Xt of v) {
                     const { width: Zt, height: ct } = Xt.contentRect;
                     Zt > 1 && ct > 1 && (h.style.minHeight = `${ct}px`, p.disconnect());
                   }
                 });
-                p.observe(f), setTimeout(() => p.disconnect(), 1e4);
+                p.observe(w), setTimeout(() => p.disconnect(), 1e4);
               }
             });
           }
@@ -2005,9 +2011,9 @@ Jt = function() {
               }
             })
           ), this.trackViewability && !o.isEmpty) {
-            const f = document.getElementById(t);
-            f instanceof HTMLElement && K.track(
-              f,
+            const w = document.getElementById(t);
+            w instanceof HTMLElement && Y.track(
+              w,
               t,
               this.adSlot || this.adUnit
             );
@@ -2090,7 +2096,7 @@ Jt = function() {
           });
           return;
         }
-        if (!(m.isInitialized() && !!m.getLazyLoad())) {
+        if (!(f.isInitialized() && !!f.getLazyLoad())) {
           const o = this.apstag && this.pubId && typeof window.apstag?.fetchBids == "function", l = this.prebid && Array.isArray(this.bidders) && this.bidders.length > 0 && typeof window.pbjs?.requestBids == "function";
           if (!o && !l)
             try {
@@ -2150,8 +2156,8 @@ Jt = function() {
               u,
               c + 500
             );
-            const f = [];
-            o && f.push(
+            const w = [];
+            o && w.push(
               new Promise((p) => {
                 window.apstag.fetchBids(
                   {
@@ -2166,7 +2172,7 @@ Jt = function() {
                   () => p()
                 );
               })
-            ), l && f.push(
+            ), l && w.push(
               new Promise((p) => {
                 window.pbjs.que.push(() => {
                   try {
@@ -2191,7 +2197,7 @@ Jt = function() {
                   }
                 });
               })
-            ), Promise.all(f).then(u);
+            ), Promise.all(w).then(u);
           }
         }
       });
@@ -2206,11 +2212,11 @@ Jt = function() {
     }
   }, 0);
 };
-Yt = function() {
+Kt = function() {
   const s = typeof window < "u" ? window.innerWidth : 320;
   return s >= 1280 ? 970 : s >= 728 ? 728 : 320;
 };
-Kt = function() {
+Yt = function() {
   return A(this, S, dt).call(this);
 };
 d.initialized = !1;
@@ -2222,67 +2228,67 @@ d.navigationListenersAttached = !1;
 d.outOfPageRegistered = !1;
 d._handleNavigation = () => {
   const s = location.href;
-  d.old_url !== s && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && (window.googletag.destroySlots(window.dreamsAllSlots), window.googletag.pubads().updateCorrelator()), d.old_url = s, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], Y.clearCache(), j.resetPageview());
+  d.old_url !== s && (window.googletag?.destroySlots && window.dreamsAllSlots?.length > 0 && (window.googletag.destroySlots(window.dreamsAllSlots), window.googletag.pubads().updateCorrelator()), d.old_url = s, window.dreamsAllSlots = [], window.dreamsSlotsToUpdate = [], K.clearCache(), j.resetPageview());
 };
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "networkId", 2);
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "adUnit", 2);
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "divId", 2);
 y([
-  w({ type: String, attribute: "ad-slot" })
+  m({ type: String, attribute: "ad-slot" })
 ], d.prototype, "adSlot", 2);
 y([
-  w({ type: Array })
+  m({ type: Array })
 ], d.prototype, "mapping", 2);
 y([
-  w({ type: Array })
+  m({ type: Array })
 ], d.prototype, "sizing", 2);
 y([
-  w({ type: Array })
+  m({ type: Array })
 ], d.prototype, "targeting", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "autoTargeting", 2);
 y([
   Vt()
 ], d.prototype, "resolvedTargeting", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "refresh", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "enableTitle", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "apstag", 2);
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "pubId", 2);
 y([
-  w({ type: Number })
+  m({ type: Number })
 ], d.prototype, "bidTimeout", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "prebid", 2);
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "prebidConfig", 2);
 y([
-  w({ type: Array })
+  m({ type: Array })
 ], d.prototype, "bidders", 2);
 y([
-  w({ type: String })
+  m({ type: String })
 ], d.prototype, "title", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "trackViewability", 2);
 y([
-  w({ type: Boolean, reflect: !0 })
+  m({ type: Boolean, reflect: !0 })
 ], d.prototype, "showSkeleton", 2);
 y([
   Vt()
@@ -2518,12 +2524,12 @@ export {
   Pt as AdBlockDetector,
   ke as DEFAULT_SLOTS,
   d as DreamsAdComponent,
-  m as DreamsAdConfig,
+  f as DreamsAdConfig,
   R as DreamsAdSkeleton,
-  Y as DreamsTargetingService,
+  K as DreamsTargetingService,
   g as Logger,
   j as RefreshManager,
   Rt as StickyManager,
-  K as ViewabilityService,
+  Y as ViewabilityService,
   Ve as getSkeletonDimensions
 };

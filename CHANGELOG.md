@@ -101,6 +101,12 @@ removals, no renames. Target version: `0.7.0`.
     `slotRenderEnded` and the SPA navigation teardown.
     `resetPageview()` also clears the viewability gate, so a reused
     `divId` must be viewable again on the new page before it refreshes.
+- **`keepEmptyReserve` config option** (default `false`): when `true`,
+  an empty or 1x1 `slotRenderEnded` no longer resets the min-height of
+  the slot container and `.dae-serving`, so the reserve stays in place.
+  The default keeps today's collapse. `collapseEmptyDivs` JSDoc and the
+  README "CLS Prevention" section now state that `"DISABLED"` only
+  stops GPT collapsing the div. New `DreamsAdConfig.getKeepEmptyReserve()`.
 
 ### Changed
 

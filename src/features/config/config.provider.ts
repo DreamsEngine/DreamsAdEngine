@@ -77,6 +77,7 @@ export class DreamsAdConfig {
       anchor: config.anchor || null,
       threadYield: config.threadYield ?? false,
       collapseEmptyDivs: config.collapseEmptyDivs ?? "DISABLED",
+      keepEmptyReserve: config.keepEmptyReserve ?? false,
       targeting: config.targeting || null,
     };
 
@@ -230,6 +231,11 @@ export class DreamsAdConfig {
   static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH" {
     this.assertInitialized();
     return this.instance!.collapseEmptyDivs;
+  }
+
+  static getKeepEmptyReserve(): boolean {
+    this.assertInitialized();
+    return this.instance!.keepEmptyReserve;
   }
 
   static getTargeting(): Record<string, string | string[]> | null {

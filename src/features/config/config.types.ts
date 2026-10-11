@@ -66,14 +66,20 @@ export interface AdConfigInit {
    * API — the documented replacement for the deprecated
    * `pubads().collapseEmptyDivs()` call.
    *
-   * - `"DISABLED"` (default): slots keep their reserved height even when
-   *   empty. Best for CLS; matches the library's prior behavior.
+   * - `"DISABLED"` (default): GPT does not collapse the slot div. The
+   *   engine's own reserve still collapses to 0 on an empty or 1x1 render
+   *   unless `keepEmptyReserve` is true.
    * - `"AFTER_FETCH"`: collapse after a no-fill response. Denser layout
    *   when fill rate is low, but causes a measurable shift on no-fill.
    * - `"BEFORE_FETCH"`: collapse before fetching; expand only on fill.
    *   Lowest reserved area; highest layout-shift risk.
    */
   collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+  /**
+   * Keep the reserved min-height when a slot renders empty or as a 1x1
+   * tracking pixel. Default: false (the reserve collapses to 0).
+   */
+  keepEmptyReserve?: boolean;
   /**
    * Page-level key-value targeting, applied once via
    * `googletag.setConfig({ targeting })` when GPT config is applied.
@@ -104,5 +110,6 @@ export interface AdConfigData {
   anchor: AnchorConfig | null;
   threadYield: boolean;
   collapseEmptyDivs: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+  keepEmptyReserve: boolean;
   targeting: Record<string, string | string[]> | null;
 }
