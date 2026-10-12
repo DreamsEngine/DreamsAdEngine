@@ -5,6 +5,7 @@ export type {
   AnchorConfig,
   InterstitialConfig,
   LazyLoadConfig,
+  NavigationScope,
   PrivacyConfig,
   SlotConfig,
 } from "./config.types";

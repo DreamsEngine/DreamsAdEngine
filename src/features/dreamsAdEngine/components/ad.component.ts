@@ -17,6 +17,8 @@ import "../../skeleton/skeleton.component";
 
 let adStylesInjected = false;
 
+const GOOGLE_VIGNETTE_HASH = "#google_vignette";
+
 function injectAdStyles() {
   if (adStylesInjected || typeof document === "undefined") return;
   const el = document.createElement("style");
@@ -51,10 +53,26 @@ export class DreamsAdComponent extends LitElement {
   private lastVisibilityPct = -1;
 
   /**
+   * The part of the current URL that identifies a pageview, per the
+   * `navigationScope` config. Google's vignette hash is dropped, because
+   * GPT adds it while the vignette covers the page, not on navigation.
+   */
+  private static _navigationKey(): string {
+    const scope = DreamsAdConfig.isInitialized()
+      ? DreamsAdConfig.getNavigationScope()
+      : "href";
+    const path = location.origin + location.pathname;
+    if (scope === "path") return path;
+    if (scope === "path+search") return path + location.search;
+    const hash = location.hash === GOOGLE_VIGNETTE_HASH ? "" : location.hash;
+    return path + location.search + hash;
+  }
+
+  /**
    * Handle SPA navigation - destroys all slots and clears targeting cache
    */
   private static _handleNavigation = () => {
-    const currentUrl = location.href;
+    const currentUrl = DreamsAdComponent._navigationKey();
     if (DreamsAdComponent.old_url === currentUrl) return;
 
     // Destroy all existing slots and start new pageview
@@ -69,6 +87,9 @@ export class DreamsAdComponent extends LitElement {
 
     // Clear targeting cache for new page context
     DreamsTargetingService.clearCache();
+
+    // Reset per-pageview refresh state (counts, backfill, viewability)
+    RefreshManager.resetPageview();
   };
 
   /**
@@ -131,7 +152,7 @@ export class DreamsAdComponent extends LitElement {
     if (!DreamsAdComponent.initialized) {
       this.#initGoogleTag();
       DreamsAdComponent.initialized = true;
-      DreamsAdComponent.old_url = location.href;
+      DreamsAdComponent.old_url = DreamsAdComponent._navigationKey();
     } else {
       DreamsAdComponent._handleNavigation();
     }
@@ -276,6 +297,11 @@ export class DreamsAdComponent extends LitElement {
           setConfigPayload.collapseDiv = collapseDiv;
         }
 
+        const targeting = DreamsAdConfig.getTargeting();
+        if (targeting) {
+          setConfigPayload.targeting = targeting;
+        }
+
         if (Object.keys(setConfigPayload).length > 0) {
           if (typeof window.googletag.setConfig === "function") {
             window.googletag.setConfig(setConfigPayload);
@@ -320,11 +346,14 @@ export class DreamsAdComponent extends LitElement {
     await this.#resolveConfiguration();
 
     // Generate divId early so ad:error dispatches from targeting/APS/prebid
-    // failures carry a stable slotId payload.
-    const uid = typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
+    // failures carry a stable slotId payload. A consumer-provided divId is
+    // kept as the GPT container id; it must be unique on the page.
+    if (!this.divId) {
+      const uid = typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      this.divId = `div-gpt-ad-${this.adUnit}-${uid}`;
+    }
 
     await this.#resolveTargeting();
 
@@ -531,14 +560,18 @@ export class DreamsAdComponent extends LitElement {
     const interstitial = DreamsAdConfig.getInterstitial();
     if (interstitial?.enabled) {
       defineOop(
-        adUnitBase,
+        interstitial.adUnit
+          ? `/${networkId}/${interstitial.adUnit}`
+          : adUnitBase,
         window.googletag.enums.OutOfPageFormat.INTERSTITIAL,
       );
     }
 
     const anchor = DreamsAdConfig.getAnchor();
     if (anchor?.enabled) {
-      const anchorUnit = `/${networkId}/${sitePrefix}-is-a`;
+      const anchorUnit = anchor.adUnit
+        ? `/${networkId}/${anchor.adUnit}`
+        : `/${networkId}/${sitePrefix}-is-a`;
 
       if (anchor.position === "top" || anchor.position === "both") {
         defineOop(anchorUnit, window.googletag.enums.OutOfPageFormat.TOP_ANCHOR);
@@ -701,10 +734,16 @@ export class DreamsAdComponent extends LitElement {
               event.size[0] <= 1 &&
               event.size[1] <= 1;
             if (event.isEmpty || isTrackingPixel) {
-              if (container instanceof HTMLElement)
-                container.style.minHeight = "0";
-              const s = this.querySelector(".dae-serving");
-              if (s instanceof HTMLElement) s.style.minHeight = "0";
+              // keepEmptyReserve opts out of the collapse to avoid CLS
+              const keepReserve =
+                DreamsAdConfig.isInitialized() &&
+                DreamsAdConfig.getKeepEmptyReserve();
+              if (!keepReserve) {
+                if (container instanceof HTMLElement)
+                  container.style.minHeight = "0";
+                const s = this.querySelector(".dae-serving");
+                if (s instanceof HTMLElement) s.style.minHeight = "0";
+              }
             } else if (container instanceof HTMLElement) {
               // Use event.size as single source of truth
               if (event.size?.length === 2) {
@@ -741,6 +780,11 @@ export class DreamsAdComponent extends LitElement {
                 });
               }
             }
+
+            RefreshManager.markRendered(
+              CONTAINER_ID,
+              event.isBackfill === true,
+            );
 
             // Dispatch rich ad:rendered event
             this.dispatchEvent(

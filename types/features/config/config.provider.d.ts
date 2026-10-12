@@ -1,5 +1,5 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
-import type { AdConfigInit, AnchorConfig, InterstitialConfig, LazyLoadConfig, PrivacyConfig, SlotConfig } from "./config.types";
+import type { AdConfigInit, AnchorConfig, InterstitialConfig, LazyLoadConfig, NavigationScope, PrivacyConfig, SlotConfig } from "./config.types";
 export declare class DreamsAdConfig {
     #private;
     private static instance;
@@ -31,6 +31,15 @@ export declare class DreamsAdConfig {
     static getAnchor(): AnchorConfig | null;
     static getThreadYield(): boolean;
     static getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    static getKeepEmptyReserve(): boolean;
+    static getNavigationScope(): NavigationScope;
+    static getTargeting(): Record<string, string | string[]> | null;
+    /**
+     * Update page-level targeting at runtime (e.g. on SPA route changes).
+     * Keys merge with the existing page targeting; keys not passed keep
+     * their previous value.
+     */
+    static setPageTargeting(targeting: Record<string, string | string[]>): void;
     static setPrivacy(config: PrivacyConfig): void;
     static getSlot(slotName: string): SlotConfig | undefined;
     static getSlotMapping(slotName: string): DreamsAdMapping[];

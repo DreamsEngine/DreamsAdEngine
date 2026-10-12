@@ -76,6 +76,44 @@ removals, no renames. Target version: `0.7.0`.
   `LoggerConfig`, `PageSettingsConfig`.
 - **Window typing** — added `__dreamsDebug?: boolean` to the global
   `Window` interface.
+- **Consumer-provided `divId`**: when the `divId` property or attribute
+  is set, the component keeps it as the GPT container id instead of
+  generating `div-gpt-ad-${adUnit}-${uuid}`. Unset keeps the generated
+  id. The id must be unique on the page.
+- **Out-of-page `adUnit`**: optional `adUnit` on `InterstitialConfig`
+  and `AnchorConfig` (unit code without the network). When set, the
+  slot path is `/${networkId}/${adUnit}`; defaults stay
+  `${sitePrefix}-is-i` and `${sitePrefix}-is-a`.
+- **Page-level targeting**: `targeting?: Record<string, string |
+  string[]>` on `AdConfigInit`, applied with `googletag.setConfig({
+  targeting })` in the existing config-apply batch. New
+  `DreamsAdConfig.setPageTargeting(map)` updates it at runtime through
+  `googletag.cmd` (SPA route changes) and `DreamsAdConfig.getTargeting()`
+  reads it. `PageSettingsConfig` gains a typed `targeting` key.
+- **Refresh policy options** on `RefreshConfig`, all off by default:
+  - `maxRefreshes`: per-slot cap per pageview, reset on SPA navigation
+    (0 or unset: no cap).
+  - `backfillOnly`: refresh a slot only if its last `slotRenderEnded`
+    had `isBackfill === true`.
+  - `pauseWhenHidden`: skip refresh cycles while `document.hidden`.
+  - New `RefreshManager.markRendered(slotId, isBackfill)` and
+    `RefreshManager.resetPageview()`, called by the component from
+    `slotRenderEnded` and the SPA navigation teardown.
+    `resetPageview()` also clears the viewability gate, so a reused
+    `divId` must be viewable again on the new page before it refreshes.
+- **`keepEmptyReserve` config option** (default `false`): when `true`,
+  an empty or 1x1 `slotRenderEnded` no longer resets the min-height of
+  the slot container and `.dae-serving`, so the reserve stays in place.
+  The default keeps today's collapse. `collapseEmptyDivs` JSDoc and the
+  README "CLS Prevention" section now state that `"DISABLED"` only
+  stops GPT collapsing the div. New `DreamsAdConfig.getKeepEmptyReserve()`.
+- **`navigationScope` config option** (default `"href"`): which part of
+  the URL starts a new pageview on SPA navigation. `"path+search"`
+  ignores hash-only changes; `"path"` also ignores query-only changes,
+  such as a "load more" control that writes `?page=2` with
+  `history.replaceState`. The default keeps today's behaviour. New
+  `DreamsAdConfig.getNavigationScope()` and exported `NavigationScope`
+  type.
 
 ### Changed
 
@@ -116,6 +154,15 @@ removals, no renames. Target version: `0.7.0`.
   `phase: "targeting-resolution"`, `recoverable: true`. Slots still
   render with no targeting; CMS setup issues are detectable without
   diffing analytics.
+
+### Fixed
+
+- **Google vignette no longer tears down every slot.** GPT adds
+  `#google_vignette` to the URL while an AdX vignette covers the page.
+  The SPA navigation handler took that hash change as a new pageview and
+  destroyed every slot under the vignette. The engine now ignores that
+  hash under every `navigationScope`, so closing the vignette also
+  leaves the slots alone.
 
 ## [0.6.4] - 2026-05-12
 

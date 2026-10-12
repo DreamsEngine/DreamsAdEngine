@@ -9,6 +9,9 @@ const DEFAULT_CONFIG: Required<RefreshConfig> = {
   disableOnSinglePost: true,
   singlePostSelector: "body.single",
   viewabilityGated: true,
+  maxRefreshes: 0,
+  backfillOnly: false,
+  pauseWhenHidden: false,
 };
 
 declare global {
@@ -25,6 +28,7 @@ export class RefreshManager {
   private static running = false;
   private static viewableSlots: Set<string> = new Set();
   private static refreshCounts: Map<string, number> = new Map();
+  private static lastRenderBackfill: Map<string, boolean> = new Map();
 
   /**
    * Configure the refresh manager
@@ -99,6 +103,24 @@ export class RefreshManager {
   }
 
   /**
+   * Record whether a slot's last render was backfill (called from GPT
+   * slotRenderEnded handler)
+   */
+  static markRendered(slotId: string, isBackfill: boolean): void {
+    this.lastRenderBackfill.set(slotId, isBackfill);
+  }
+
+  /**
+   * Reset per-pageview state: refresh counts, backfill flags and the
+   * viewability gate (called on SPA navigation)
+   */
+  static resetPageview(): void {
+    this.refreshCounts.clear();
+    this.lastRenderBackfill.clear();
+    this.viewableSlots.clear();
+  }
+
+  /**
    * Check if refresh is currently blocked
    */
   static isBlocked(): boolean {
@@ -127,6 +149,12 @@ export class RefreshManager {
   private static executeRefresh(): void {
     // Check visibility
     if (this.config.checkVisibility && !window.isTabVisible) {
+      this.dispatchEvent("skipped", "hidden");
+      return;
+    }
+
+    // Live check, independent of the visibilitychange tracking above
+    if (this.config.pauseWhenHidden && document.hidden) {
       this.dispatchEvent("skipped", "hidden");
       return;
     }
@@ -167,6 +195,31 @@ export class RefreshManager {
       slotsToRefresh = slotsToRefresh.filter((s: any) => {
         try {
           return this.viewableSlots.has(s.getSlotElementId());
+        } catch {
+          return false;
+        }
+      });
+    }
+
+    // Never refresh direct-sold creatives: keep only slots whose last
+    // render was backfill. Applies to manual refresh(slots) as well.
+    if (this.config.backfillOnly) {
+      slotsToRefresh = slotsToRefresh.filter((s: any) => {
+        try {
+          return this.lastRenderBackfill.get(s.getSlotElementId()) === true;
+        } catch {
+          return false;
+        }
+      });
+    }
+
+    // Per-slot cap for this pageview. Applies to manual refresh(slots) too.
+    const maxRefreshes = this.config.maxRefreshes;
+    if (maxRefreshes > 0) {
+      slotsToRefresh = slotsToRefresh.filter((s: any) => {
+        try {
+          const id = s.getSlotElementId();
+          return (this.refreshCounts.get(id) || 0) < maxRefreshes;
         } catch {
           return false;
         }

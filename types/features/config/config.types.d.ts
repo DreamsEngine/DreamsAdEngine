@@ -1,4 +1,6 @@
 import type { DreamsAdMapping } from "../dreamsAdEngine/types/interfaces";
+/** URL part that marks a new pageview; see `AdConfigInit.navigationScope`. */
+export type NavigationScope = "href" | "path+search" | "path";
 export interface LazyLoadConfig {
     fetchMarginPercent: number;
     renderMarginPercent: number;
@@ -13,10 +15,20 @@ export interface PrivacyConfig {
 export interface InterstitialConfig {
     enabled: boolean;
     triggers?: string[];
+    /**
+     * Ad unit code without the network (e.g. `"mysite-is-interstitial"`).
+     * Default: `${sitePrefix}-is-i`.
+     */
+    adUnit?: string;
 }
 export interface AnchorConfig {
     enabled: boolean;
     position: "top" | "bottom" | "both";
+    /**
+     * Ad unit code without the network (e.g. `"mysite-is-anchor"`).
+     * Default: `${sitePrefix}-is-a`.
+     */
+    adUnit?: string;
 }
 export interface SlotConfig {
     mapping: DreamsAdMapping[];
@@ -50,14 +62,38 @@ export interface AdConfigInit {
      * API — the documented replacement for the deprecated
      * `pubads().collapseEmptyDivs()` call.
      *
-     * - `"DISABLED"` (default): slots keep their reserved height even when
-     *   empty. Best for CLS; matches the library's prior behavior.
+     * - `"DISABLED"` (default): GPT does not collapse the slot div. The
+     *   engine's own reserve still collapses to 0 on an empty or 1x1 render
+     *   unless `keepEmptyReserve` is true.
      * - `"AFTER_FETCH"`: collapse after a no-fill response. Denser layout
      *   when fill rate is low, but causes a measurable shift on no-fill.
      * - `"BEFORE_FETCH"`: collapse before fetching; expand only on fill.
      *   Lowest reserved area; highest layout-shift risk.
      */
     collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    /**
+     * Keep the reserved min-height when a slot renders empty or as a 1x1
+     * tracking pixel. Default: false (the reserve collapses to 0).
+     */
+    keepEmptyReserve?: boolean;
+    /**
+     * Which part of the URL starts a new pageview on SPA navigation, when
+     * the engine destroys every slot and resets targeting and refresh state.
+     *
+     * - `"href"` (default): any URL change, including query and hash.
+     * - `"path+search"`: ignore hash-only changes.
+     * - `"path"`: ignore query- and hash-only changes, e.g. a "load more"
+     *   control that writes `?page=2` with `history.replaceState`.
+     *
+     * Google's `#google_vignette` hash is never treated as navigation.
+     */
+    navigationScope?: NavigationScope;
+    /**
+     * Page-level key-value targeting, applied once via
+     * `googletag.setConfig({ targeting })` when GPT config is applied.
+     * Update it on SPA route changes with `DreamsAdConfig.setPageTargeting()`.
+     */
+    targeting?: Record<string, string | string[]>;
     /**
      * Enable verbose debug logging. Precedence (high → low):
      *   1. `init({ debug: true })` here
@@ -81,4 +117,7 @@ export interface AdConfigData {
     anchor: AnchorConfig | null;
     threadYield: boolean;
     collapseEmptyDivs: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH";
+    keepEmptyReserve: boolean;
+    navigationScope: NavigationScope;
+    targeting: Record<string, string | string[]> | null;
 }

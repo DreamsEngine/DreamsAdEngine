@@ -122,6 +122,11 @@ DreamsAdConfig.init({
   threadYield?: boolean,              // Enable scheduler thread yield for INP (default: false)
   collapseEmptyDivs?: "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH",
                                       // Empty-slot collapse policy (default: "DISABLED")
+  keepEmptyReserve?: boolean,         // Keep reserved min-height on empty slots (default: false)
+  navigationScope?: "href" | "path+search" | "path",
+                                      // URL part that starts a new pageview on SPA navigation (default: "href")
+  targeting?: Record<string, string | string[]>,
+                                      // Page-level targeting via setConfig({ targeting })
 
   // Optional — Diagnostics
   debug?: boolean,             // Force verbose logging on/off. Overrides URL + window flag.
@@ -158,16 +163,37 @@ Privacy settings can also be updated at runtime (e.g., after a consent dialog):
 DreamsAdConfig.setPrivacy({ restrictDataProcessing: true });
 ```
 
+### Page-level Targeting
+
+`targeting` in `init()` is applied once at page level with `googletag.setConfig({ targeting })`, in the same call as the other GPT settings. Slot-level targeting (the `targeting` attribute) still applies per slot on top of it.
+
+```typescript
+DreamsAdConfig.init({
+  networkId: "270959339",
+  sitePrefix: "mysite",
+  targeting: { type: "home", section: "portada" },
+});
+```
+
+On SPA route changes, update it at runtime. Keys merge with the current page targeting, so pass every key that changes:
+
+```typescript
+DreamsAdConfig.setPageTargeting({ type: "article", section: "deportes" });
+```
+
+`setPageTargeting()` requires `init()` and is queued through `googletag.cmd`; call it before the new route's slots mount so their first request carries the new values.
+
 ### Interstitial Config
 
 ```typescript
 interface InterstitialConfig {
   enabled: boolean;
   triggers?: string[];  // Reserved for future trigger configuration
+  adUnit?: string;      // Unit code without the network (default: `${sitePrefix}-is-i`)
 }
 ```
 
-Interstitials are registered globally via `defineOutOfPageSlot()` during GPT initialization. No `<dreams-ad-engine>` element needed in the DOM.
+Interstitials are registered globally via `defineOutOfPageSlot()` during GPT initialization. No `<dreams-ad-engine>` element needed in the DOM. Set `adUnit` when the GAM unit does not follow the `${sitePrefix}-is-i` convention; the slot path becomes `/${networkId}/${adUnit}`.
 
 ### Anchor Config
 
@@ -175,6 +201,7 @@ Interstitials are registered globally via `defineOutOfPageSlot()` during GPT ini
 interface AnchorConfig {
   enabled: boolean;
   position: "top" | "bottom" | "both";
+  adUnit?: string;      // Unit code without the network (default: `${sitePrefix}-is-a`)
 }
 ```
 
@@ -185,6 +212,13 @@ DreamsAdConfig.init({
   networkId: "270959339",
   sitePrefix: "mysite",
   anchor: { enabled: true, position: "bottom" },
+});
+
+// Custom unit path: /270959339/mysite-is-anchor
+DreamsAdConfig.init({
+  networkId: "270959339",
+  sitePrefix: "mysite",
+  anchor: { enabled: true, position: "bottom", adUnit: "mysite-is-anchor" },
 });
 ```
 
@@ -204,7 +238,10 @@ DreamsAdConfig.getInterstitial(): InterstitialConfig | null
 DreamsAdConfig.getAnchor(): AnchorConfig | null
 DreamsAdConfig.getThreadYield(): boolean
 DreamsAdConfig.getCollapseEmptyDivs(): "DISABLED" | "AFTER_FETCH" | "BEFORE_FETCH"
+DreamsAdConfig.getKeepEmptyReserve(): boolean
 DreamsAdConfig.setPrivacy(config: PrivacyConfig): void  // Runtime update
+DreamsAdConfig.getTargeting(): Record<string, string | string[]> | null
+DreamsAdConfig.setPageTargeting(targeting: Record<string, string | string[]>): void  // Runtime update
 DreamsAdConfig.getSlot(name: string): SlotConfig | undefined
 DreamsAdConfig.getSlotMapping(name: string): DreamsAdMapping[]
 DreamsAdConfig.getSlotSizing(name: string): number[][]
@@ -247,6 +284,7 @@ Override or extend with `slots` in `init()`.
 | `slot`          | String  | --            | Slot name from config (e.g., `"top-1"`) |
 | `networkId`     | String  | --            | GAM network ID (auto from config)       |
 | `adUnit`        | String  | --            | Ad unit path (auto from config)         |
+| `divId`         | String  | generated     | GPT container id. Kept when set; otherwise `div-gpt-ad-${adUnit}-${uuid}`. Must be unique on the page |
 | `mapping`       | Array   | `[]`          | Viewport/sizing mappings (auto from config) |
 | `sizing`        | Array   | `[]`          | Supported ad sizes (auto from config)   |
 | `targeting`     | Array   | `[]`          | Manual targeting key-value pairs        |
@@ -277,7 +315,7 @@ The component computes a reserve `min-height` from the responsive size mapping f
 2. Takes the maximum height from that entry's sizes (excluding 1x1)
 3. Applies as `min-height` on the ad container
 
-When `slotRenderEnded` fires with `isEmpty: true`, the reserve height collapses to 0.
+When `slotRenderEnded` fires with `isEmpty: true` (or a 1x1 tracking pixel), the engine collapses its reserve to 0 on the slot container and `.dae-serving`. This is separate from `collapseEmptyDivs`: its default `"DISABLED"` only stops GPT from collapsing the div. To keep the reserved height on empty slots, opt in with `DreamsAdConfig.init({ keepEmptyReserve: true })`.
 
 ### Events
 
@@ -677,6 +715,9 @@ RefreshManager.configure({
   checkVisibility: true,        // Skip refresh when tab is hidden
   disableOnSinglePost: true,    // Disable on article pages
   viewabilityGated: true,       // Only refresh slots confirmed viewable by GPT (default: true)
+  maxRefreshes: 0,              // Per-slot cap per pageview; 0 = no cap (default: 0)
+  backfillOnly: false,          // Only refresh slots whose last render was backfill (default: false)
+  pauseWhenHidden: false,       // Skip cycles while document.hidden (default: false)
 });
 
 RefreshManager.start();
@@ -688,6 +729,14 @@ RefreshManager.stop();
 ```
 
 **Viewability gating (v0.5.0):** When `viewabilityGated: true` (default), only slots that have received a GPT `impressionViewable` event will be included in refresh cycles. This ensures compliance with GAM refresh policies and prevents wasting impressions on non-viewable slots. Each refreshed slot also receives a `refresh_count` targeting key for reporting.
+
+**Refresh policy options:** all three are off by default.
+
+- `maxRefreshes`: caps refreshes per slot for the current pageview. The count (the same one behind `refresh_count`) resets on SPA navigation.
+- `backfillOnly`: a slot is refreshed only when its last `slotRenderEnded` had `isBackfill: true`, so direct-sold creatives are never refreshed. Empty slots are not refreshed either.
+- `pauseWhenHidden`: reads `document.hidden` at each cycle and skips it while the tab is hidden. `checkVisibility` does the same through a tracked `visibilitychange` flag; `pauseWhenHidden` checks live and works with `checkVisibility: false`.
+
+`maxRefreshes` and `backfillOnly` also filter manual `RefreshManager.refresh(slots)` calls; `pauseWhenHidden` applies to timed cycles only.
 
 ### Logger
 
@@ -803,9 +852,25 @@ The component automatically detects client-side navigation by intercepting `push
 2. Correlator is updated for new pageview tracking
 3. Global slot arrays are cleared
 4. Targeting cache is invalidated
-5. New components re-initialize their slots
+5. Per-pageview refresh state resets (`maxRefreshes` counts, `backfillOnly` flags, viewability gate)
+6. New components re-initialize their slots
 
 No configuration needed. Works with Next.js, React Router, Vue Router, and hash-based routing.
+
+By default any URL change counts as navigation. To keep slots when only part of the URL changes, set `navigationScope`:
+
+| Value | A new pageview when |
+|---|---|
+| `"href"` (default) | the path, query or hash changes |
+| `"path+search"` | the path or query changes |
+| `"path"` | the path changes |
+
+```ts
+// "Load more" writes ?page=2 with replaceState; keep the slots
+DreamsAdConfig.init({ networkId: "270959339", sitePrefix: "mysite", navigationScope: "path" });
+```
+
+Google's `#google_vignette` hash never counts as navigation: GPT adds it while an AdX vignette covers the page.
 
 ---
 
